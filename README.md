@@ -113,3 +113,13 @@ También puedes colocar una URL directa en la columna `photoUrl` de la hoja `Jug
 - Nómina general de jugadores en cards.
 - Convocatoria con titulares y suplentes.
 - Los jugadores elegidos desaparecen de la lista disponible.
+
+
+## Index y componentes visuales
+
+- `index.html` en la raíz: vista estática de presentación para revisar el estilo deportivo del campeonato.
+- `apps-script/Index.html`: archivo principal real para publicar con Google Apps Script.
+- `apps-script/Header.html`: componente global del encabezado.
+- `apps-script/Footer.html`: componente global del pie de página.
+
+Para Apps Script, copia todos los archivos de `apps-script/` al editor de Apps Script. El archivo que se renderiza como web app es `Index.html`.
