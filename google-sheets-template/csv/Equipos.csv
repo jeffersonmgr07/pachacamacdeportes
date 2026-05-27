@@ -1,0 +1,45 @@
+teamId,categoryId,categoryName,group,name,active
+sub6-jm-sport-1,sub6,Sub 6,Único,JM SPORT,SI
+sub6-tolentino-fc-2,sub6,Sub 6,Único,TOLENTINO FC,SI
+sub6-guerreros-de-manchay-3,sub6,Sub 6,Único,GUERREROS DE MANCHAY,SI
+sub6-club-deportivo-lara-4,sub6,Sub 6,Único,CLUB DEPORTIVO LARA,SI
+sub6-renace-juventud-5,sub6,Sub 6,Único,RENACE JUVENTUD,SI
+sub6-benjamin-fc-6,sub6,Sub 6,Único,BENJAMIN FC,SI
+sub8-tolentino-fc-7,sub8,Sub 8,GRUPO A,TOLENTINO FC,SI
+sub8-fova-8,sub8,Sub 8,GRUPO A,FOVA,SI
+sub8-jyb-9,sub8,Sub 8,GRUPO A,JYB,SI
+sub8-dream-team-10,sub8,Sub 8,GRUPO A,DREAM TEAM,SI
+sub8-renace-juventud-11,sub8,Sub 8,GRUPO A,RENACE JUVENTUD,SI
+sub8-jm-sport-12,sub8,Sub 8,GRUPO A,JM SPORT,SI
+sub8-benjamin-fc-13,sub8,Sub 8,GRUPO B,BENJAMIN FC,SI
+sub8-vasquez-fc-14,sub8,Sub 8,GRUPO B,VASQUEZ FC,SI
+sub8-remanente-fc-15,sub8,Sub 8,GRUPO B,REMANENTE FC,SI
+sub8-guerreros-de-manchay-16,sub8,Sub 8,GRUPO B,GUERREROS DE MANCHAY,SI
+sub8-mathe-sport-17,sub8,Sub 8,GRUPO B,MATHE SPORT,SI
+sub10-mathe-sport-18,sub10,Sub 10,GRUPO A,MATHE SPORT,SI
+sub10-fova-19,sub10,Sub 10,GRUPO A,FOVA,SI
+sub10-talentos-del-sur-20,sub10,Sub 10,GRUPO A,TALENTOS DEL SUR,SI
+sub10-remanente-fc-21,sub10,Sub 10,GRUPO A,REMANENTE FC,SI
+sub10-sporting-jf-once-22,sub10,Sub 10,GRUPO A,SPORTING JF ONCE,SI
+sub10-renace-juventud-23,sub10,Sub 10,GRUPO A,RENACE JUVENTUD,SI
+sub10-benjamin-fc-24,sub10,Sub 10,GRUPO A,BENJAMIN FC,SI
+sub10-guerreros-de-manchay-25,sub10,Sub 10,GRUPO B,GUERREROS DE MANCHAY,SI
+sub10-vasquez-fc-26,sub10,Sub 10,GRUPO B,VASQUEZ FC,SI
+sub10-jm-sport-27,sub10,Sub 10,GRUPO B,JM SPORT,SI
+sub10-tolentino-fc-28,sub10,Sub 10,GRUPO B,TOLENTINO FC,SI
+sub10-talentos-unidos-29,sub10,Sub 10,GRUPO B,TALENTOS UNIDOS,SI
+sub10-dream-team-30,sub10,Sub 10,GRUPO B,DREAM TEAM,SI
+sub12-guerreros-de-manchay-31,sub12,Sub 12,GRUPO A,GUERREROS DE MANCHAY,SI
+sub12-tolentino-fc-32,sub12,Sub 12,GRUPO A,TOLENTINO FC,SI
+sub12-mathe-sport-33,sub12,Sub 12,GRUPO A,MATHE SPORT,SI
+sub12-sporting-jf-once-34,sub12,Sub 12,GRUPO A,SPORTING JF ONCE,SI
+sub12-fova-35,sub12,Sub 12,GRUPO A,FOVA,SI
+sub12-jyb-36,sub12,Sub 12,GRUPO A,JYB,SI
+sub12-benjamin-fc-37,sub12,Sub 12,GRUPO A,BENJAMIN FC,SI
+sub12-renace-juventud-38,sub12,Sub 12,GRUPO B,RENACE JUVENTUD,SI
+sub12-jm-sport-39,sub12,Sub 12,GRUPO B,JM SPORT,SI
+sub12-talentos-unidos-40,sub12,Sub 12,GRUPO B,TALENTOS UNIDOS,SI
+sub12-dream-team-41,sub12,Sub 12,GRUPO B,DREAM TEAM,SI
+sub12-club-deportivo-lara-42,sub12,Sub 12,GRUPO B,CLUB DEPORTIVO LARA,SI
+sub12-cachorros-fc-43,sub12,Sub 12,GRUPO B,CACHORROS FC,SI
+sub12-fovita-44,sub12,Sub 12,GRUPO B,FOVITA,SI

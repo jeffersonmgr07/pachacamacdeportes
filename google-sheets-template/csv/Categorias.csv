@@ -1,0 +1,5 @@
+id,name,label,birthYears,minBirthYear,maxBirthYear,playersOnField,minPlayersOnField,gameTime,breakTime
+sub6,Sub 6,6 años,2020 – 2021,2020,2021,7,5,15 - 15 minutos,5 minutos
+sub8,Sub 8,8 años,2018 – 2019,2018,2019,7,5,15 - 15 minutos,5 minutos
+sub10,Sub 10,10 años,2016 – 2017,2016,2017,9,7,15 - 15 minutos,5 minutos
+sub12,Sub 12,12 años,2014 – 2015,2014,2015,9,7,20 - 20 minutos,5 minutos

@@ -1,0 +1,28 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <base target="_top">
+  <?!= include('Styles'); ?>
+</head>
+<body>
+  <header class="header">
+    <div class="wrap nav">
+      <a class="brand" href="<?= baseUrl ?>?page=inicio">Minetti Fútbol</a>
+      <nav class="menu">
+        <a data-nav="inicio" href="<?= baseUrl ?>?page=inicio">Inicio</a>
+        <a data-nav="fixture" href="<?= baseUrl ?>?page=fixture">Fixture</a>
+        <a data-nav="resultados" href="<?= baseUrl ?>?page=resultados">Resultados</a>
+        <a data-nav="tabla" href="<?= baseUrl ?>?page=tabla">Tabla</a>
+        <a data-nav="equipos" href="<?= baseUrl ?>?page=equipos">Equipos</a>
+        <a data-nav="delegado" href="<?= baseUrl ?>?page=delegado&token=<?= token ?>">Delegado</a>
+        <a data-nav="admin" href="<?= baseUrl ?>?page=admin">Admin</a>
+      </nav>
+    </div>
+  </header>
+  <div id="app"><div class="loading">Cargando información del torneo...</div></div>
+  <footer class="footer"><div class="wrap">© Minetti Fútbol · Datos administrados desde Google Sheets.</div></footer>
+  <?!= include('JavaScript'); ?>
+</body>
+</html>
