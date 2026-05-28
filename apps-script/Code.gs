@@ -36,6 +36,13 @@ function include(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
 
+/** Prueba rápida desde Apps Script: ejecutar para verificar que el login demo funciona. */
+function testLoginDemo() {
+  setupMinettiFutbol();
+  return loginUser({ username: 'admin', password: 'admin123' });
+}
+
+
 /** Ejecutar una sola vez desde Apps Script para crear/cargar la base. */
 function setupMinettiFutbol() {
   const ss = getSpreadsheet_();

@@ -13,10 +13,42 @@ let currentCoachTab = 'resumen';
 window.addEventListener('DOMContentLoaded', () => {
   CURRENT_USER = readUser();
   setActiveNav();
+
+  // IMPORTANTE:
+  // google.script.run solo existe cuando esta página se abre desde la URL publicada de Apps Script.
+  // Si abres el archivo Index.html directamente en el navegador, los botones no podrán guardar ni leer Google Sheets.
+  if (!window.google || !google.script || !google.script.run) {
+    showError('Esta página debe abrirse desde la URL publicada de Google Apps Script. No funcionará abriendo el archivo HTML directamente.');
+    return;
+  }
+
   google.script.run
     .withSuccessHandler(data => { STATE = data; render(); })
     .withFailureHandler(err => showError(err.message || err))
     .getInitialData(ROUTE, TOKEN);
+});
+
+// Delegación de eventos: evita que los botones fallen si el HTML se vuelve a renderizar.
+document.addEventListener('click', (event) => {
+  const target = event.target;
+  if (!target) return;
+
+  if (target.id === 'loginBtn') {
+    event.preventDefault();
+    doLogin();
+  }
+
+  if (target.id === 'registerBtn') {
+    event.preventDefault();
+    doRegisterCoach();
+  }
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' && document.getElementById('loginUser') && document.getElementById('loginPass')) {
+    event.preventDefault();
+    doLogin();
+  }
 });
 
 function url(page, extra=''){ return BASE_URL + '?page=' + encodeURIComponent(page) + extra; }
@@ -103,7 +135,7 @@ function viewLogin(defaultRole){
         <input id="loginUser" placeholder="admin o guerreros">
         <label>Contraseña</label>
         <input id="loginPass" type="password" placeholder="Contraseña">
-        <button class="btn full" onclick="doLogin()">Ingresar</button>
+        <button class="btn full" id="loginBtn" type="button">Ingresar</button>
         <div id="loginMsg"></div>
       </div>
       <div class="card auth-card register-card">
@@ -125,7 +157,7 @@ function viewLogin(defaultRole){
         <label>Razón social, si tiene</label><input id="regLegalName">
         <label>Dirección</label><input id="regAddress">
         <div class="category-picker">${categoryChecks('regCat')}</div>
-        <button class="btn full" onclick="doRegisterCoach()">Crear cuenta y equipo</button>
+        <button class="btn full" id="registerBtn" type="button">Crear cuenta y equipo</button>
         <div id="registerMsg"></div>
       </div>
     </div>`);
@@ -133,14 +165,38 @@ function viewLogin(defaultRole){
 
 function doLogin(){
   const msg = document.getElementById('loginMsg');
+  const btn = document.getElementById('loginBtn');
+  const username = val('loginUser').trim();
+  const password = val('loginPass').trim();
+
+  if (!username || !password) {
+    msg.innerHTML = '<div class="error">Ingresa usuario y contraseña.</div>';
+    return;
+  }
+
+  if (!window.google || !google.script || !google.script.run) {
+    msg.innerHTML = '<div class="error">Abre esta página desde la URL publicada de Apps Script. Si la abres como archivo HTML, el login no funcionará.</div>';
+    return;
+  }
+
+  if (btn) btn.disabled = true;
   msg.innerHTML = '<div class="notice">Validando...</div>';
+
   google.script.run
     .withSuccessHandler(res => {
+      if (btn) btn.disabled = false;
+      if (!res || !res.ok) {
+        msg.innerHTML = '<div class="error">No se pudo iniciar sesión.</div>';
+        return;
+      }
       storeUser(res.user);
       window.location.href = url(res.redirect);
     })
-    .withFailureHandler(err => msg.innerHTML = `<div class="error">${escapeHtml(err.message || err)}</div>`)
-    .loginUser({ username: val('loginUser'), password: val('loginPass') });
+    .withFailureHandler(err => {
+      if (btn) btn.disabled = false;
+      msg.innerHTML = `<div class="error">${escapeHtml(err.message || err)}</div>`;
+    })
+    .loginUser({ username, password });
 }
 
 function doRegisterCoach(){
@@ -149,11 +205,33 @@ function doRegisterCoach(){
     phone: val('regPhone'), email: val('regEmail'), teamName: val('regTeamName'), legalName: val('regLegalName'), address: val('regAddress'),
     categories: checkedValues('regCat')
   };
+
   const msg = document.getElementById('registerMsg');
+  const btn = document.getElementById('registerBtn');
+
+  if (!payload.firstName || !payload.lastName || !payload.username || !payload.password || !payload.teamName) {
+    msg.innerHTML = '<div class="error">Completa nombre, apellido, usuario, contraseña y nombre del equipo.</div>';
+    return;
+  }
+
+  if (!window.google || !google.script || !google.script.run) {
+    msg.innerHTML = '<div class="error">Abre esta página desde la URL publicada de Apps Script. Si la abres como archivo HTML, el registro no funcionará.</div>';
+    return;
+  }
+
+  if (btn) btn.disabled = true;
   msg.innerHTML = '<div class="notice">Creando cuenta...</div>';
+
   google.script.run
-    .withSuccessHandler(res => { storeUser(res.user); window.location.href = url('entrenador'); })
-    .withFailureHandler(err => msg.innerHTML = `<div class="error">${escapeHtml(err.message || err)}</div>`)
+    .withSuccessHandler(res => {
+      if (btn) btn.disabled = false;
+      storeUser(res.user);
+      window.location.href = url('entrenador');
+    })
+    .withFailureHandler(err => {
+      if (btn) btn.disabled = false;
+      msg.innerHTML = `<div class="error">${escapeHtml(err.message || err)}</div>`;
+    })
     .registerCoach(payload);
 }
 

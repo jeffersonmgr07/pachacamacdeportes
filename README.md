@@ -1,56 +1,56 @@
 # Minetti Fútbol - Apps Script + Google Sheets
 
-Proyecto reorganizado para funcionar sin Vercel y sin Next.js.
+Versión corregida con login de entrenadores y administrador.
 
-## Qué incluye este avance
+## Importante sobre el login
 
-- Página pública deportiva.
-- Header y footer como componentes.
-- Login de entrenador y administrador.
-- Registro de entrenador.
-- Registro de equipo.
-- Selección de categorías.
-- Registro de jugadores con foto.
-- Próximos partidos.
-- Convocatorias con titulares y suplentes.
-- Panel administrador inicial.
-- Base de datos en Google Sheets.
+El botón de login solo funciona cuando la página se abre desde la URL publicada de Google Apps Script.
 
-## Carpeta principal
+No funciona si abres `index.html` o `apps-script/Index.html` directamente en Chrome, porque ahí no existe `google.script.run`.
 
-```txt
-apps-script/
-  Code.gs
-  SeedData.gs
-  Index.html
-  Header.html
-  Footer.html
-  Styles.html
-  JavaScript.html
-  appsscript.json
-```
+## Pasos correctos
 
-## Index en raíz
-
-El archivo `index.html` en la raíz es una maqueta de presentación.
-
-La aplicación real se publica desde Apps Script usando:
-
-```txt
-apps-script/Index.html
-```
-
-## Instalación
-
-1. Crear un Google Sheet.
-2. Abrir **Extensiones > Apps Script**.
-3. Copiar los archivos de `apps-script/`.
-4. Ejecutar `setupMinettiFutbol`.
-5. Publicar como **Aplicación web**.
+1. Crea un Google Sheet.
+2. Ve a `Extensiones > Apps Script`.
+3. Crea/copias estos archivos en Apps Script:
+   - Code.gs
+   - SeedData.gs
+   - Index.html
+   - Header.html
+   - Footer.html
+   - Styles.html
+   - JavaScript.html
+   - appsscript.json
+4. Guarda.
+5. Ejecuta la función `setupMinettiFutbol`.
+6. Autoriza permisos.
+7. Ejecuta opcionalmente `testLoginDemo`.
+8. Publica:
+   - Implementar > Nueva implementación
+   - Tipo: Aplicación web
+   - Ejecutar como: Yo
+   - Acceso: Cualquier usuario
+9. Abre la URL `/exec` que te da Google.
 
 ## Usuarios demo
 
-```txt
-Admin: admin / admin123
-Entrenador: guerreros / demo123
-```
+Administrador:
+
+- Usuario: `admin`
+- Contraseña: `admin123`
+
+Entrenador demo:
+
+- Usuario: `guerreros`
+- Contraseña: `demo123`
+
+## Páginas
+
+- `?page=inicio`
+- `?page=fixture`
+- `?page=resultados`
+- `?page=tabla`
+- `?page=equipos`
+- `?page=login`
+- `?page=admin`
+- `?page=entrenador`
