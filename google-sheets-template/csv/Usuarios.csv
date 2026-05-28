@@ -1,0 +1,3 @@
+userId,role,firstName,lastName,username,password,phone,email,teamId,status,createdAt
+admin-001,admin,Administrador,Torneo,admin,admin123,,admin@minettifutbol.local,,activo,
+user-guerreros-demo,entrenador,Elvis,Robles,guerreros,demo123,900000000,guerreros@demo.local,team-guerreros-sub6,activo,

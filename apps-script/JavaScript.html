@@ -1,14 +1,17 @@
-
 <script>
 const ROUTE = '<?= route ?>';
 const TOKEN = '<?= token ?>';
 const BASE_URL = '<?= baseUrl ?>';
 let STATE = null;
+let CURRENT_USER = null;
+let PANEL = null;
 let selectedMatch = null;
 let starters = [];
 let substitutes = [];
+let currentCoachTab = 'resumen';
 
-document.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', () => {
+  CURRENT_USER = readUser();
   setActiveNav();
   google.script.run
     .withSuccessHandler(data => { STATE = data; render(); })
@@ -16,9 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
     .getInitialData(ROUTE, TOKEN);
 });
 
-function url(page, extra=''){
-  return BASE_URL + '?page=' + encodeURIComponent(page) + extra;
-}
+function url(page, extra=''){ return BASE_URL + '?page=' + encodeURIComponent(page) + extra; }
+function readUser(){ try { return JSON.parse(localStorage.getItem('mf_user') || 'null'); } catch(e){ return null; } }
+function storeUser(user){ CURRENT_USER = user; localStorage.setItem('mf_user', JSON.stringify(user)); }
+function logout(){ localStorage.removeItem('mf_user'); CURRENT_USER = null; PANEL = null; window.location.href = url('login'); }
 
 function setActiveNav(){
   document.querySelectorAll('[data-nav]').forEach(a => {
@@ -35,34 +39,52 @@ function render(){
   else if(route === 'tabla') app.innerHTML = viewStandings();
   else if(route === 'equipos') app.innerHTML = viewTeams();
   else if(route === 'delegado') app.innerHTML = viewDelegate();
-  else if(route === 'admin') app.innerHTML = viewAdmin();
+  else if(route === 'admin') renderProtected('admin');
+  else if(route === 'entrenador') renderProtected('entrenador');
+  else if(route === 'login') app.innerHTML = viewLogin();
   else app.innerHTML = viewHome();
+}
+
+function renderProtected(role){
+  const app = document.getElementById('app');
+  if(!CURRENT_USER){ app.innerHTML = viewLogin(role); return; }
+  if(role === 'admin' && CURRENT_USER.role !== 'admin') { app.innerHTML = accessDenied('Administrador'); return; }
+  if(role === 'entrenador' && CURRENT_USER.role !== 'entrenador') { app.innerHTML = accessDenied('Entrenador'); return; }
+  app.innerHTML = '<div class="loading">Cargando panel...</div>';
+  google.script.run
+    .withSuccessHandler(panel => { PANEL = panel; app.innerHTML = role === 'admin' ? viewAdminPanel() : viewCoachPanel(); })
+    .withFailureHandler(err => { app.innerHTML = pageShell('Error de acceso', '', `<div class="notice">${escapeHtml(err.message || err)}</div>`); })
+    .getUserPanel(CURRENT_USER.userId);
+}
+
+function accessDenied(role){
+  return pageShell('Acceso restringido', '', `<div class="notice">Tu usuario no tiene perfil de ${role}. <button class="btn" onclick="logout()">Cambiar usuario</button></div>`);
 }
 
 function viewHome(){
   const p = STATE.publicData;
   return `
     <section class="hero">
-      <div class="wrap">
+      <div class="wrap hero-grid">
         <div>
-          <span class="badge">Campeonato local de fútbol de menores</span>
+          <span class="badge gold">Campeonato local de fútbol de menores</span>
           <h1>${escapeHtml(STATE.config.APP_NAME || 'Minetti Fútbol')}</h1>
           <p>${escapeHtml(STATE.config.TOURNAMENT_NAME || '')}<br>${escapeHtml(STATE.config.VENUE || '')}</p>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px">
+          <div class="hero-actions">
             <a class="btn secondary" href="${url('fixture')}">Ver fixture</a>
-            <a class="btn" href="${url('delegado','&token=demo-guerreros-sub6')}">Demo delegado</a>
+            <a class="btn" href="${url('login')}">Acceso entrenadores</a>
           </div>
         </div>
-        <div class="card" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.18);color:white">
+        <div class="hero-card">
           <h2>Próximos partidos</h2>
           ${(p.upcoming || []).slice(0,4).map(matchMini).join('') || '<p>No hay próximos partidos cargados.</p>'}
         </div>
       </div>
     </section>
     <section class="section"><div class="wrap grid grid-3">
-      <div class="card kpi"><div><strong>${p.teams.length}</strong><div class="muted">Equipos registrados</div></div></div>
-      <div class="card kpi"><div><strong>${p.fixture.length}</strong><div class="muted">Partidos en fixture</div></div></div>
-      <div class="card kpi"><div><strong>${p.results.length}</strong><div class="muted">Resultados cargados</div></div></div>
+      <div class="card kpi"><strong>${p.teams.length}</strong><span>Equipos en fixture</span></div>
+      <div class="card kpi"><strong>${p.fixture.length}</strong><span>Partidos programados</span></div>
+      <div class="card kpi"><strong>${p.results.length}</strong><span>Resultados cargados</span></div>
     </div></section>
     <section class="section"><div class="wrap grid grid-2">
       <div class="card"><h2>Últimos resultados</h2>${resultsTable(p.latestResults || [])}</div>
@@ -70,229 +92,232 @@ function viewHome(){
     </div></section>`;
 }
 
-function viewFixture(){
-  const p = STATE.publicData;
-  return pageShell('Fixture público', 'Programación completa, resultados cargados y próximos partidos.', `
-    ${filtersHtml()}
-    <div id="fixtureTable">${fixtureTable(p.fixture)}</div>
-  `);
-}
-
-function viewResults(){
-  const p = STATE.publicData;
-  return pageShell('Resultados', 'Partidos jugados y marcadores oficiales cargados en Google Sheets.', resultsTable(p.results || []));
-}
-
-function viewStandings(){
-  const p = STATE.publicData;
-  return pageShell('Tabla de posiciones', 'Cálculo automático por categoría y grupo desde los resultados.', standingsGrouped(p.standings || []));
-}
-
-function viewTeams(){
-  const p = STATE.publicData;
-  const groups = groupBy(p.teams, r => `${r.categoryName} · ${r.group}`);
-  return pageShell('Equipos participantes', 'Listado cargado desde la hoja Equipos.', Object.keys(groups).map(k => `
-    <div class="card" style="margin-bottom:16px"><h3>${escapeHtml(k)}</h3>
-    <div class="grid grid-3">${groups[k].map(t=>`<div class="badge">${escapeHtml(t.name)}</div>`).join('')}</div></div>`).join(''));
-}
-
-function viewAdmin(){
-  const p = STATE.publicData;
-  const pending = (p.fixture || []).filter(m => m.away && m.status !== 'jugado').slice(0, 40);
-  return pageShell('Panel administrador simple', 'Actualiza resultados desde aquí o directamente en la hoja Fixture de Google Sheets.', `
-    <div class="notice">Para edición masiva, abre el Google Sheet y modifica las pestañas Fixture, Equipos, Jugadores y Delegados. Esta página es una ayuda rápida para cargar marcadores.</div>
-    <div style="height:14px"></div>
-    <div class="card"><h3>Cargar resultado</h3>
-      <div class="form-row">
-        <div><label>Partido</label><select id="adminMatch">${pending.map(m=>`<option value="${m.id}">${m.dateLabel} · ${m.time || 'S/H'} · ${m.home} vs ${m.away}</option>`).join('')}</select></div>
-        <div><label>Goles local</label><input id="adminHomeScore" type="number" min="0" value="0"></div>
-        <div><label>Goles visita</label><input id="adminAwayScore" type="number" min="0" value="0"></div>
-        <div><label>Tipo</label><select id="adminType"><option value="normal">Normal</option><option value="wo">W.O.</option><option value="reclamo">Reclamo</option></select></div>
+function viewLogin(defaultRole){
+  return pageShell('Acceso al campeonato', 'Entrenadores y administradores pueden ingresar a su panel.', `
+    <div class="auth-layout">
+      <div class="card auth-card">
+        <span class="badge gold">Ingresar</span>
+        <h2>Login</h2>
+        <p class="muted">Demo admin: <strong>admin / admin123</strong><br>Demo entrenador: <strong>guerreros / demo123</strong></p>
+        <label>Usuario</label>
+        <input id="loginUser" placeholder="admin o guerreros">
+        <label>Contraseña</label>
+        <input id="loginPass" type="password" placeholder="Contraseña">
+        <button class="btn full" onclick="doLogin()">Ingresar</button>
+        <div id="loginMsg"></div>
       </div>
-      <div style="margin-top:12px"><label>Nota</label><input id="adminNote" placeholder="Opcional"></div>
-      <button class="btn" style="margin-top:14px" onclick="saveAdminResult()">Guardar resultado</button>
-      <div id="adminMsg" style="margin-top:12px"></div>
-    </div>
-  `);
-}
-
-function viewDelegate(){
-  const d = STATE.delegateData;
-  if(!d) return pageShell('Acceso delegado', '', '<div class="notice">Token no válido o equipo no encontrado.</div>');
-  if(!selectedMatch && d.upcomingMatches && d.upcomingMatches.length) selectedMatch = d.upcomingMatches[0].id;
-  const available = d.players.filter(p => !starters.includes(p.playerId) && !substitutes.includes(p.playerId) && (p.status || '').toLowerCase() === 'aprobado');
-  const maxStarters = Number(d.category.playersOnField || 7);
-  const minPlayers = Number(d.category.minPlayersOnField || 5);
-  return pageShell('Acceso de delegado', `${d.team.name} · ${d.team.categoryName} · ${d.team.group}`, `
-    <div class="grid grid-3">
-      <div class="card"><span class="badge">Delegado</span><h3>${escapeHtml(d.delegate.delegateName)}</h3><p class="muted">${escapeHtml(d.delegate.phone || '')}</p></div>
-      <div class="card"><span class="badge">Regla</span><h3>${maxStarters} titulares</h3><p class="muted">Mínimo para iniciar: ${minPlayers}</p></div>
-      <div class="card"><span class="badge">Padrón</span><h3>${d.players.length} jugadores</h3><p class="muted">Fotos desde Drive por DNI.png</p></div>
-    </div>
-
-    <div class="section">
-      <h2>Nómina general de jugadores</h2>
-      <div class="grid grid-3">${d.players.map(playerCard).join('')}</div>
-    </div>
-
-    <div class="section">
-      <h2>Próximos partidos</h2>
-      <div class="grid grid-3">${(d.upcomingMatches || []).map(m => `
-        <div class="match-option ${selectedMatch===m.id?'selected':''}" onclick="selectMatch('${m.id}')">
-          <span class="badge">${escapeHtml(m.dateLabel || 'Fecha')}</span>
-          <h3>${escapeHtml(m.home)} vs ${escapeHtml(m.away)}</h3>
-          <p class="muted">${escapeHtml(m.field || 'Campo por confirmar')} · ${escapeHtml(m.time || 'Hora por confirmar')}</p>
-        </div>`).join('')}</div>
-    </div>
-
-    <div class="section">
-      <div class="card">
-        <h2>Convocatoria del partido</h2>
-        <p class="muted">Elige jugadores aprobados. Al agregarlos, desaparecen de la lista disponible.</p>
-        <div class="form-row" style="grid-template-columns:2fr 1fr 1fr">
-          <div><label>Jugador disponible</label><select id="playerSelect">${available.map(p=>`<option value="${p.playerId}">${escapeHtml(p.fullName)} · DNI ${p.dni}</option>`).join('')}</select></div>
-          <div><label>Rol</label><select id="roleSelect"><option value="titular">Titular</option><option value="suplente">Suplente</option></select></div>
-          <div style="display:flex;align-items:end"><button class="btn" onclick="addSelectedPlayer()" ${available.length?'':'disabled'}>Agregar al partido</button></div>
+      <div class="card auth-card register-card">
+        <span class="badge">Nuevo entrenador</span>
+        <h2>Registrar entrenador y equipo</h2>
+        <div class="form-row two">
+          <div><label>Nombre</label><input id="regFirstName"></div>
+          <div><label>Apellido</label><input id="regLastName"></div>
         </div>
-
-        <div class="grid grid-2" style="margin-top:20px">
-          <div><h3>Titulares (${starters.length}/${maxStarters})</h3><div class="roster-box">${rosterList(starters, 'titular')}</div></div>
-          <div><h3>Suplentes (${substitutes.length})</h3><div class="roster-box">${rosterList(substitutes, 'suplente')}</div></div>
+        <div class="form-row two">
+          <div><label>Usuario</label><input id="regUsername" placeholder="ej. clubmanchay"></div>
+          <div><label>Contraseña</label><input id="regPassword" type="password"></div>
         </div>
-
-        <div style="margin-top:18px" class="${starters.length >= minPlayers ? 'success' : 'notice'}">
-          ${starters.length >= minPlayers ? 'La convocatoria tiene el mínimo para iniciar el partido.' : `Faltan ${minPlayers - starters.length} titulares para llegar al mínimo reglamentario.`}
+        <div class="form-row two">
+          <div><label>WhatsApp entrenador</label><input id="regPhone"></div>
+          <div><label>Correo entrenador</label><input id="regEmail"></div>
         </div>
-        <button class="btn" style="margin-top:16px" onclick="saveCallup()" ${selectedMatch && starters.length>=minPlayers ? '' : 'disabled'}>Guardar convocatoria</button>
-        <div id="callupMsg" style="margin-top:12px"></div>
+        <label>Nombre del equipo / club</label><input id="regTeamName" placeholder="Ej. Guerreros de Manchay">
+        <label>Razón social, si tiene</label><input id="regLegalName">
+        <label>Dirección</label><input id="regAddress">
+        <div class="category-picker">${categoryChecks('regCat')}</div>
+        <button class="btn full" onclick="doRegisterCoach()">Crear cuenta y equipo</button>
+        <div id="registerMsg"></div>
       </div>
+    </div>`);
+}
+
+function doLogin(){
+  const msg = document.getElementById('loginMsg');
+  msg.innerHTML = '<div class="notice">Validando...</div>';
+  google.script.run
+    .withSuccessHandler(res => {
+      storeUser(res.user);
+      window.location.href = url(res.redirect);
+    })
+    .withFailureHandler(err => msg.innerHTML = `<div class="error">${escapeHtml(err.message || err)}</div>`)
+    .loginUser({ username: val('loginUser'), password: val('loginPass') });
+}
+
+function doRegisterCoach(){
+  const payload = {
+    firstName: val('regFirstName'), lastName: val('regLastName'), username: val('regUsername'), password: val('regPassword'),
+    phone: val('regPhone'), email: val('regEmail'), teamName: val('regTeamName'), legalName: val('regLegalName'), address: val('regAddress'),
+    categories: checkedValues('regCat')
+  };
+  const msg = document.getElementById('registerMsg');
+  msg.innerHTML = '<div class="notice">Creando cuenta...</div>';
+  google.script.run
+    .withSuccessHandler(res => { storeUser(res.user); window.location.href = url('entrenador'); })
+    .withFailureHandler(err => msg.innerHTML = `<div class="error">${escapeHtml(err.message || err)}</div>`)
+    .registerCoach(payload);
+}
+
+function viewCoachPanel(){
+  const p = PANEL;
+  if(!p || !p.ok) return pageShell('Panel entrenador', '', '<div class="notice">No se pudo cargar el panel.</div>');
+  const tabs = [
+    ['resumen','Resumen'], ['equipo','Datos del equipo'], ['jugadores','Jugadores'], ['convocatorias','Convocatorias']
+  ];
+  return pageShell('Panel del entrenador', `${escapeHtml(p.user.firstName)} ${escapeHtml(p.user.lastName)} · ${escapeHtml((p.team && p.team.teamName) || 'Equipo pendiente')}`, `
+    <div class="dashboard-top">
+      <div class="card kpi"><strong>${p.players.length}</strong><span>Jugadores registrados</span></div>
+      <div class="card kpi"><strong>${p.enabledCategories.length}</strong><span>Categorías habilitadas</span></div>
+      <div class="card kpi"><strong>${p.upcomingMatches.length}</strong><span>Próximos partidos</span></div>
     </div>
+    <div class="tabs">${tabs.map(t=>`<button class="tab ${currentCoachTab===t[0]?'active':''}" onclick="setCoachTab('${t[0]}')">${t[1]}</button>`).join('')}</div>
+    <div id="coachPanelContent">${coachTabContent()}</div>
   `);
 }
 
-function filtersHtml(){
-  const categories = STATE.publicData.categories || [];
-  return `<div class="filters">
-    <select onchange="filterFixture()" id="filterCategory"><option value="">Todas las categorías</option>${categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select>
-    <select onchange="filterFixture()" id="filterStatus"><option value="">Todos los estados</option><option value="jugado">Jugado</option><option value="programado">Programado</option><option value="descansa">Descansa</option></select>
+function setCoachTab(tab){ currentCoachTab = tab; document.getElementById('coachPanelContent').innerHTML = coachTabContent(); }
+
+function coachTabContent(){
+  if(currentCoachTab === 'equipo') return coachTeamForm();
+  if(currentCoachTab === 'jugadores') return coachPlayersView();
+  if(currentCoachTab === 'convocatorias') return coachCallupsView();
+  return coachSummaryView();
+}
+
+function coachSummaryView(){
+  const p = PANEL;
+  return `<div class="grid grid-2">
+    <div class="card"><h2>Datos del equipo</h2>${teamProfileSummary(p.team)}<button class="btn" onclick="setCoachTab('equipo')">Editar equipo</button></div>
+    <div class="card"><h2>Últimas convocatorias enviadas</h2>${callupsMini(p.callups)}</div>
   </div>`;
 }
 
-function filterFixture(){
-  const cat = document.getElementById('filterCategory').value;
-  const status = document.getElementById('filterStatus').value;
-  let rows = STATE.publicData.fixture || [];
-  if(cat) rows = rows.filter(r=>r.categoryId===cat);
-  if(status) rows = rows.filter(r=>r.status===status);
-  document.getElementById('fixtureTable').innerHTML = fixtureTable(rows);
-}
-
-function fixtureTable(rows){
-  return `<div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Campo</th><th>Hora</th><th>Categoría</th><th>Partido</th><th>Estado</th></tr></thead><tbody>
-    ${rows.map(r=>`<tr><td>${escapeHtml(r.dateLabel)}</td><td>${escapeHtml(r.field)}</td><td>${escapeHtml(r.time)}</td><td>${escapeHtml(r.categoryLabel || r.categoryName || r.categoryId)}</td><td><strong>${escapeHtml(r.home)}</strong> ${r.away ? scoreOrVs(r) : ''} <strong>${escapeHtml(r.away || '')}</strong></td><td>${escapeHtml(r.status)}</td></tr>`).join('')}
-  </tbody></table></div>`;
-}
-
-function resultsTable(rows){
-  if(!rows.length) return '<div class="notice">Todavía no hay resultados cargados.</div>';
-  return `<div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Categoría</th><th>Partido</th><th>Marcador</th></tr></thead><tbody>
-    ${rows.map(r=>`<tr><td>${escapeHtml(r.dateLabel)}</td><td>${escapeHtml(r.categoryLabel)}</td><td>${escapeHtml(r.home)} vs ${escapeHtml(r.away)}</td><td><span class="score">${r.homeScore} - ${r.awayScore}</span></td></tr>`).join('')}
-  </tbody></table></div>`;
-}
-
-function standingsGrouped(rows){
-  const groups = groupBy(rows, r => `${r.categoryName} · ${r.group}`);
-  return Object.keys(groups).map(k=>`<div class="card" style="margin-bottom:18px"><h3>${escapeHtml(k)}</h3>${standingsTable(groups[k])}</div>`).join('');
-}
-
-function standingsTable(rows){
-  return `<div class="table-wrap"><table><thead><tr><th>Pos</th><th>Equipo</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DG</th><th>PTS</th></tr></thead><tbody>
-    ${rows.map(r=>`<tr><td><strong>${r.position || ''}</strong></td><td><strong>${escapeHtml(r.team)}</strong></td><td>${r.pj}</td><td>${r.pg}</td><td>${r.pe}</td><td>${r.pp}</td><td>${r.gf}</td><td>${r.gc}</td><td>${r.dg>0?'+'+r.dg:r.dg}</td><td><strong>${r.pts}</strong></td></tr>`).join('')}
-  </tbody></table></div>`;
-}
-
-function matchMini(m){
-  return `<div style="background:white;color:#0f172a;border-radius:16px;padding:12px;margin-bottom:10px">
-    <div class="muted">${escapeHtml(m.categoryLabel || '')} · ${escapeHtml(m.time || 'S/H')}</div>
-    <strong>${escapeHtml(m.home)} vs ${escapeHtml(m.away)}</strong>
+function coachTeamForm(){
+  const t = PANEL.team || {};
+  const enabled = new Set((PANEL.enabledCategories || []).map(c => String(c.categoryId)));
+  return `<div class="card"><h2>Registrar / actualizar equipo</h2>
+    <label>Nombre del equipo</label><input id="teamName" value="${escapeAttr(t.teamName || '')}">
+    <label>Razón social, si tiene</label><input id="teamLegalName" value="${escapeAttr(t.legalName || '')}">
+    <label>Dirección</label><input id="teamAddress" value="${escapeAttr(t.address || '')}">
+    <div class="form-row two"><div><label>WhatsApp</label><input id="teamWhatsapp" value="${escapeAttr(t.whatsapp || '')}"></div><div><label>Correo</label><input id="teamEmail" value="${escapeAttr(t.email || '')}"></div></div>
+    <h3>Categorías que participa</h3><div class="category-picker">${categoryChecks('teamCat', enabled)}</div>
+    <button class="btn" onclick="saveTeamProfileClient()">Guardar datos del equipo</button><div id="teamMsg"></div>
   </div>`;
 }
 
-function playerCard(p){
-  const img = p.photoUrl ? `<img class="avatar" src="${p.photoUrl}" onerror="this.outerHTML=avatarFallback('${initials(p.fullName)}')">` : avatarFallback(initials(p.fullName));
-  return `<div class="card player-card">${img}<div><h3 style="margin:0 0 6px">${escapeHtml(p.fullName)}</h3>
-    <div class="player-meta"><strong>DNI:</strong> ${escapeHtml(p.dni)}<br><strong>Fecha nacimiento:</strong> ${formatDate(p.birthDate)}<br><strong>Estado:</strong> ${escapeHtml(p.status)}</div></div></div>`;
+function saveTeamProfileClient(){
+  const payload = { userId: CURRENT_USER.userId, teamName: val('teamName'), legalName: val('teamLegalName'), address: val('teamAddress'), whatsapp: val('teamWhatsapp'), email: val('teamEmail'), categories: checkedValues('teamCat') };
+  document.getElementById('teamMsg').innerHTML = '<div class="notice">Guardando...</div>';
+  google.script.run.withSuccessHandler(res => reloadPanel(res.message)).withFailureHandler(err => document.getElementById('teamMsg').innerHTML = `<div class="error">${escapeHtml(err.message || err)}</div>`).saveTeamProfile(payload);
 }
 
+function coachPlayersView(){
+  return `<div class="grid grid-2">
+    <div class="card"><h2>Registrar jugador</h2>
+      <label>Nombre y apellidos</label><input id="playerFullName" placeholder="Nombre completo">
+      <div class="form-row two"><div><label>DNI</label><input id="playerDni"></div><div><label>Fecha de nacimiento</label><input id="playerBirthDate" type="date"></div></div>
+      <label>Categoría</label><select id="playerCategory">${(PANEL.enabledCategories || []).map(c=>`<option value="${c.categoryId}">${escapeHtml(c.categoryLabel)}</option>`).join('')}</select>
+      <label>Foto del jugador</label><input id="playerPhoto" type="file" accept="image/png,image/jpeg">
+      <p class="muted">Recomendado: imagen PNG con nombre del DNI. El sistema también puede guardarla desde este formulario.</p>
+      <button class="btn" onclick="registerPlayerClient()">Registrar jugador</button><div id="playerMsg"></div>
+    </div>
+    <div><h2>Nómina general de jugadores</h2><div class="grid grid-2">${PANEL.players.map(playerCard).join('') || '<div class="notice">Todavía no hay jugadores registrados.</div>'}</div></div>
+  </div>`;
+}
+
+function registerPlayerClient(){
+  const file = document.getElementById('playerPhoto').files[0];
+  const payload = { userId: CURRENT_USER.userId, fullName: val('playerFullName'), dni: val('playerDni'), birthDate: val('playerBirthDate'), categoryId: val('playerCategory') };
+  const msg = document.getElementById('playerMsg'); msg.innerHTML = '<div class="notice">Registrando...</div>';
+  const send = () => google.script.run.withSuccessHandler(res => reloadPanel(res.message)).withFailureHandler(err => msg.innerHTML = `<div class="error">${escapeHtml(err.message || err)}</div>`).registerPlayerFromCoach(payload);
+  if(file){ const reader = new FileReader(); reader.onload = e => { payload.photoDataUrl = e.target.result; send(); }; reader.readAsDataURL(file); }
+  else send();
+}
+
+function coachCallupsView(){
+  if(!selectedMatch && PANEL.upcomingMatches.length) selectedMatch = PANEL.upcomingMatches[0].id;
+  const match = PANEL.upcomingMatches.find(m => String(m.id) === String(selectedMatch)) || PANEL.upcomingMatches[0];
+  const categoryId = match ? match.categoryId : '';
+  const players = PANEL.players.filter(p => !categoryId || String(p.categoryId) === String(categoryId));
+  const available = players.filter(p => !starters.includes(p.playerId) && !substitutes.includes(p.playerId));
+  const cat = (PANEL.categories || []).find(c => String(c.id) === String(categoryId)) || {};
+  const maxStarters = Number(cat.playersOnField || 7);
+  const minPlayers = Number(cat.minPlayersOnField || 5);
+  return `<div class="sectionless">
+    <h2>Próximos partidos</h2><div class="grid grid-3">${PANEL.upcomingMatches.map(m=>matchCardSelectable(m)).join('') || '<div class="notice">No hay partidos próximos para tus categorías.</div>'}</div>
+    <div class="card callup-card"><h2>Convocatoria del partido</h2>${match ? `<p class="muted">${escapeHtml(match.home)} vs ${escapeHtml(match.away)} · ${escapeHtml(match.dateLabel)} · ${escapeHtml(match.time || 'S/H')}</p>` : ''}
+      <div class="form-row three"><div><label>Jugador disponible</label><select id="playerSelect">${available.map(p=>`<option value="${p.playerId}">${escapeHtml(p.fullName)} · DNI ${escapeHtml(p.dni)}</option>`).join('')}</select></div><div><label>Rol</label><select id="roleSelect"><option value="titular">Titular</option><option value="suplente">Suplente</option></select></div><div class="bottom"><button class="btn" onclick="addSelectedPlayer()" ${available.length?'':'disabled'}>Agregar al partido</button></div></div>
+      <div class="grid grid-2 roster-grid"><div><h3>Titulares (${starters.length}/${maxStarters})</h3><div class="roster-box">${rosterList(starters, 'titular', players)}</div></div><div><h3>Suplentes (${substitutes.length})</h3><div class="roster-box">${rosterList(substitutes, 'suplente', players)}</div></div></div>
+      <div class="${starters.length >= minPlayers ? 'success' : 'notice'}">${starters.length >= minPlayers ? 'Convocatoria lista para enviar.' : `Faltan ${Math.max(0, minPlayers - starters.length)} titulares para llegar al mínimo reglamentario.`}</div>
+      <button class="btn" onclick="saveCoachCallup()" ${selectedMatch && starters.length>=minPlayers ? '' : 'disabled'}>Guardar convocatoria</button><div id="callupMsg"></div>
+    </div>
+  </div>`;
+}
+
+function selectCoachMatch(id){ selectedMatch = id; starters = []; substitutes = []; document.getElementById('coachPanelContent').innerHTML = coachTabContent(); }
+function matchCardSelectable(m){ return `<div class="match-option ${String(selectedMatch)===String(m.id)?'selected':''}" onclick="selectCoachMatch('${m.id}')"><span class="badge">${escapeHtml(m.dateLabel || 'Fecha')}</span><h3>${escapeHtml(m.home)} vs ${escapeHtml(m.away)}</h3><p class="muted">${escapeHtml(m.categoryLabel || '')} · ${escapeHtml(m.field || '')} · ${escapeHtml(m.time || 'S/H')}</p></div>`; }
+
+function addSelectedPlayer(){
+  const playerId = val('playerSelect'); const role = val('roleSelect');
+  const match = PANEL.upcomingMatches.find(m => String(m.id) === String(selectedMatch)) || {};
+  const cat = (PANEL.categories || []).find(c => String(c.id) === String(match.categoryId)) || {};
+  const maxStarters = Number(cat.playersOnField || 7);
+  if(!playerId) return;
+  if(role === 'titular'){ if(starters.length >= maxStarters) return alert('Ya alcanzaste el máximo de titulares.'); starters.push(playerId); }
+  else substitutes.push(playerId);
+  document.getElementById('coachPanelContent').innerHTML = coachTabContent();
+}
+function removePlayer(id, role){ if(role === 'titular') starters = starters.filter(x=>x!==id); else substitutes = substitutes.filter(x=>x!==id); document.getElementById('coachPanelContent').innerHTML = coachTabContent(); }
+function saveCoachCallup(){
+  const payload = { userId: CURRENT_USER.userId, matchId:selectedMatch, starters, substitutes, notes:'' };
+  document.getElementById('callupMsg').innerHTML = '<div class="notice">Enviando convocatoria...</div>';
+  google.script.run.withSuccessHandler(res => { starters=[]; substitutes=[]; reloadPanel(res.message); }).withFailureHandler(err => document.getElementById('callupMsg').innerHTML = `<div class="error">${escapeHtml(err.message || err)}</div>`).saveCallup(payload);
+}
+
+function viewAdminPanel(){
+  const p = PANEL;
+  return pageShell('Panel administrador', 'Vista general de entrenadores, equipos, jugadores y convocatorias.', `
+    <div class="dashboard-top"><div class="card kpi"><strong>${p.teamProfiles.length}</strong><span>Equipos registrados</span></div><div class="card kpi"><strong>${p.players.length}</strong><span>Jugadores</span></div><div class="card kpi"><strong>${p.callups.length}</strong><span>Convocatorias</span></div></div>
+    <div class="grid grid-2"><div class="card"><h2>Equipos registrados</h2>${adminTeamsTable(p.teamProfiles)}</div><div class="card"><h2>Convocatorias recibidas</h2>${adminCallupsTable(p.callups)}</div></div>
+    <div class="card"><h2>Cargar resultado rápido</h2>${adminResultForm()}</div>
+  `);
+}
+
+function adminTeamsTable(rows){ if(!rows.length) return '<div class="notice">Sin equipos registrados.</div>'; return `<div class="table-wrap"><table><thead><tr><th>Equipo</th><th>WhatsApp</th><th>Correo</th><th>Estado</th></tr></thead><tbody>${rows.map(r=>`<tr><td><strong>${escapeHtml(r.teamName)}</strong><br><span class="muted">${escapeHtml(r.legalName || '')}</span></td><td>${escapeHtml(r.whatsapp || '')}</td><td>${escapeHtml(r.email || '')}</td><td>${escapeHtml(r.status || '')}</td></tr>`).join('')}</tbody></table></div>`; }
+function adminCallupsTable(rows){ if(!rows.length) return '<div class="notice">Todavía no hay convocatorias.</div>'; return `<div class="table-wrap"><table><thead><tr><th>Fecha envío</th><th>Partido</th><th>Equipo</th><th>Titulares</th><th>Suplentes</th></tr></thead><tbody>${rows.slice(0,15).map(r=>`<tr><td>${formatDate(r.timestamp)}</td><td>${escapeHtml(r.matchId)}</td><td>${escapeHtml(r.teamId)}</td><td>${r.totalTitulares}</td><td>${r.totalSuplentes}</td></tr>`).join('')}</tbody></table></div>`; }
+function adminResultForm(){ const pending = (STATE.publicData.fixture || []).filter(m => m.away && m.status !== 'jugado').slice(0, 60); return `<div class="form-row four"><div><label>Partido</label><select id="adminMatch">${pending.map(m=>`<option value="${m.id}">${m.dateLabel} · ${m.time || 'S/H'} · ${m.home} vs ${m.away}</option>`).join('')}</select></div><div><label>Goles local</label><input id="adminHomeScore" type="number" min="0" value="0"></div><div><label>Goles visita</label><input id="adminAwayScore" type="number" min="0" value="0"></div><div><label>Tipo</label><select id="adminType"><option value="normal">Normal</option><option value="wo">W.O.</option><option value="reclamo">Reclamo</option></select></div></div><label>Nota</label><input id="adminNote"><button class="btn" onclick="saveAdminResult()">Guardar resultado</button><div id="adminMsg"></div>`; }
+function saveAdminResult(){ const payload = { matchId:val('adminMatch'), homeScore:val('adminHomeScore'), awayScore:val('adminAwayScore'), resultType:val('adminType'), status:'jugado', note:val('adminNote') }; document.getElementById('adminMsg').innerHTML='<div class="notice">Guardando...</div>'; google.script.run.withSuccessHandler(res=>location.reload()).withFailureHandler(err=>document.getElementById('adminMsg').innerHTML=`<div class="error">${escapeHtml(err.message || err)}</div>`).updateFixtureResult(payload); }
+
+function viewFixture(){ const p = STATE.publicData; return pageShell('Fixture público', 'Programación completa, resultados cargados y próximos partidos.', `${filtersHtml()}<div id="fixtureTable">${fixtureTable(p.fixture)}</div>`); }
+function viewResults(){ const p = STATE.publicData; return pageShell('Resultados', 'Partidos jugados y marcadores oficiales cargados en Google Sheets.', resultsTable(p.results || [])); }
+function viewStandings(){ const p = STATE.publicData; return pageShell('Tabla de posiciones', 'Cálculo automático por categoría y grupo desde los resultados.', standingsGrouped(p.standings || [])); }
+function viewTeams(){ const p = STATE.publicData; const groups = groupBy(p.teams, r => `${r.categoryName} · ${r.group}`); return pageShell('Equipos participantes', 'Listado cargado desde la hoja Equipos.', Object.keys(groups).map(k => `<div class="card group-card"><h3>${escapeHtml(k)}</h3><div class="grid grid-3">${groups[k].map(t=>`<div class="team-pill">${escapeHtml(t.name)}</div>`).join('')}</div></div>`).join('')); }
+
+function viewDelegate(){ return pageShell('Acceso delegado anterior', '', '<div class="notice">Este acceso se mantiene por compatibilidad. La nueva ruta principal para entrenadores es <a href="'+url('login')+'">Login</a>.</div>'); }
+
+function filtersHtml(){ const categories = STATE.publicData.categories || []; return `<div class="filters"><select onchange="filterFixture()" id="filterCategory"><option value="">Todas las categorías</option>${categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select><select onchange="filterFixture()" id="filterStatus"><option value="">Todos los estados</option><option value="jugado">Jugado</option><option value="programado">Programado</option><option value="descansa">Descansa</option></select></div>`; }
+function filterFixture(){ const cat = val('filterCategory'); const status = val('filterStatus'); let rows = STATE.publicData.fixture || []; if(cat) rows = rows.filter(r=>r.categoryId===cat); if(status) rows = rows.filter(r=>r.status===status); document.getElementById('fixtureTable').innerHTML = fixtureTable(rows); }
+function fixtureTable(rows){ return `<div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Campo</th><th>Hora</th><th>Categoría</th><th>Partido</th><th>Estado</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${escapeHtml(r.dateLabel)}</td><td>${escapeHtml(r.field)}</td><td>${escapeHtml(r.time)}</td><td>${escapeHtml(r.categoryLabel || r.categoryName || r.categoryId)}</td><td><strong>${escapeHtml(r.home)}</strong> ${r.away ? scoreOrVs(r) : ''} <strong>${escapeHtml(r.away || '')}</strong></td><td>${escapeHtml(r.status)}</td></tr>`).join('')}</tbody></table></div>`; }
+function resultsTable(rows){ if(!rows.length) return '<div class="notice">Todavía no hay resultados cargados.</div>'; return `<div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Categoría</th><th>Partido</th><th>Marcador</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${escapeHtml(r.dateLabel)}</td><td>${escapeHtml(r.categoryLabel)}</td><td>${escapeHtml(r.home)} vs ${escapeHtml(r.away)}</td><td><span class="score">${r.homeScore} - ${r.awayScore}</span></td></tr>`).join('')}</tbody></table></div>`; }
+function standingsGrouped(rows){ const groups = groupBy(rows, r => `${r.categoryName} · ${r.group}`); return Object.keys(groups).map(k=>`<div class="card group-card"><h3>${escapeHtml(k)}</h3>${standingsTable(groups[k])}</div>`).join(''); }
+function standingsTable(rows){ return `<div class="table-wrap"><table><thead><tr><th>Pos</th><th>Equipo</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DG</th><th>PTS</th></tr></thead><tbody>${rows.map(r=>`<tr><td><strong>${r.position || ''}</strong></td><td><strong>${escapeHtml(r.team)}</strong></td><td>${r.pj}</td><td>${r.pg}</td><td>${r.pe}</td><td>${r.pp}</td><td>${r.gf}</td><td>${r.gc}</td><td>${r.dg>0?'+'+r.dg:r.dg}</td><td><strong>${r.pts}</strong></td></tr>`).join('')}</tbody></table></div>`; }
+
+function playerCard(p){ const img = p.photoUrl ? `<img class="avatar" src="${p.photoUrl}" onerror="this.outerHTML=avatarFallback('${initials(p.fullName)}')">` : avatarFallback(initials(p.fullName)); return `<div class="card player-card">${img}<div><h3>${escapeHtml(p.fullName)}</h3><div class="player-meta"><strong>DNI:</strong> ${escapeHtml(p.dni)}<br><strong>Fecha nacimiento:</strong> ${formatDate(p.birthDate)}<br><strong>Categoría:</strong> ${escapeHtml(p.categoryName)}<br><strong>Estado:</strong> ${escapeHtml(p.status)}</div></div></div>`; }
+function rosterList(ids, role, players){ if(!ids.length) return '<p class="muted">Sin jugadores agregados.</p>'; return ids.map(id => { const p = players.find(x => x.playerId === id); return `<div class="roster-item"><span>${escapeHtml(p ? p.fullName : id)}</span><button class="btn ghost" onclick="removePlayer('${id}','${role}')">Quitar</button></div>`; }).join(''); }
+function categoryChecks(prefix, selectedSet){ const cats = STATE.categories || []; selectedSet = selectedSet || new Set(['sub6']); return cats.map(c=>`<label class="check-card"><input type="checkbox" name="${prefix}" value="${c.id}" ${selectedSet.has(String(c.id))?'checked':''}><span>${escapeHtml(c.label || c.name)}</span><small>${escapeHtml(c.birthYears || '')}</small></label>`).join(''); }
+function checkedValues(name){ return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(x=>x.value); }
+function val(id){ const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+function reloadPanel(message){ const app = document.getElementById('app'); app.innerHTML = `<div class="loading">${escapeHtml(message || 'Actualizando...')}</div>`; google.script.run.withSuccessHandler(panel => { PANEL = panel; app.innerHTML = PANEL.role === 'admin' ? viewAdminPanel() : viewCoachPanel(); }).withFailureHandler(err => showError(err.message || err)).getUserPanel(CURRENT_USER.userId); }
+
+function teamProfileSummary(t){ if(!t || !t.teamName) return '<div class="notice">Equipo pendiente de registro.</div>'; return `<p><strong>${escapeHtml(t.teamName)}</strong></p><p class="muted">${escapeHtml(t.legalName || '')}<br>${escapeHtml(t.address || '')}<br>WhatsApp: ${escapeHtml(t.whatsapp || '')}<br>Correo: ${escapeHtml(t.email || '')}</p>`; }
+function callupsMini(rows){ if(!rows || !rows.length) return '<div class="notice">Todavía no enviaste convocatorias.</div>'; return rows.slice(0,5).map(r=>`<div class="mini-row"><strong>${escapeHtml(r.matchId)}</strong><span>${r.totalTitulares} titulares · ${r.totalSuplentes} suplentes</span></div>`).join(''); }
+function matchMini(m){ return `<div class="mini-match"><div class="muted">${escapeHtml(m.categoryLabel || '')} · ${escapeHtml(m.time || 'S/H')}</div><strong>${escapeHtml(m.home)} vs ${escapeHtml(m.away)}</strong></div>`; }
+function pageShell(title, subtitle, body){ return `<section class="page-hero"><div class="wrap"><span class="badge gold">Minetti Fútbol</span><h1>${escapeHtml(title)}</h1>${subtitle?`<p>${escapeHtml(subtitle)}</p>`:''}</div></section><section class="section"><div class="wrap">${body}</div></section>`; }
 function avatarFallback(text){ return `<div class="avatar-fallback">${escapeHtml(text)}</div>`; }
 function initials(name){ return String(name||'').split(' ').filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase(); }
-
-function rosterList(ids, role){
-  const players = STATE.delegateData.players || [];
-  if(!ids.length) return '<p class="muted">Sin jugadores agregados.</p>';
-  return ids.map(id => {
-    const p = players.find(x => x.playerId === id);
-    return `<div class="roster-item"><span>${escapeHtml(p ? p.fullName : id)}</span><button class="btn ghost" onclick="removePlayer('${id}','${role}')">Quitar</button></div>`;
-  }).join('');
-}
-
-function selectMatch(id){ selectedMatch = id; starters = []; substitutes = []; render(); }
-function addSelectedPlayer(){
-  const playerId = document.getElementById('playerSelect').value;
-  const role = document.getElementById('roleSelect').value;
-  const maxStarters = Number(STATE.delegateData.category.playersOnField || 7);
-  if(!playerId) return;
-  if(role === 'titular'){
-    if(starters.length >= maxStarters) return alert('Ya alcanzaste el máximo de titulares.');
-    starters.push(playerId);
-  } else {
-    substitutes.push(playerId);
-  }
-  render();
-}
-function removePlayer(id, role){
-  if(role === 'titular') starters = starters.filter(x=>x!==id);
-  else substitutes = substitutes.filter(x=>x!==id);
-  render();
-}
-function saveCallup(){
-  const payload = { token:TOKEN, matchId:selectedMatch, starters, substitutes, notes:'' };
-  document.getElementById('callupMsg').innerHTML = '<div class="notice">Guardando...</div>';
-  google.script.run.withSuccessHandler(res => {
-    document.getElementById('callupMsg').innerHTML = `<div class="success">${res.message}<br>ID: ${res.callupId}</div>`;
-  }).withFailureHandler(err => {
-    document.getElementById('callupMsg').innerHTML = `<div class="notice">${escapeHtml(err.message || err)}</div>`;
-  }).saveCallup(payload);
-}
-function saveAdminResult(){
-  const payload = {
-    matchId: document.getElementById('adminMatch').value,
-    homeScore: document.getElementById('adminHomeScore').value,
-    awayScore: document.getElementById('adminAwayScore').value,
-    resultType: document.getElementById('adminType').value,
-    note: document.getElementById('adminNote').value,
-    status: 'jugado'
-  };
-  document.getElementById('adminMsg').innerHTML = '<div class="notice">Guardando...</div>';
-  google.script.run.withSuccessHandler(res => {
-    document.getElementById('adminMsg').innerHTML = `<div class="success">${res.message}</div>`;
-    google.script.run.withSuccessHandler(data => { STATE = data; render(); }).getInitialData(ROUTE, TOKEN);
-  }).withFailureHandler(err => {
-    document.getElementById('adminMsg').innerHTML = `<div class="notice">${escapeHtml(err.message || err)}</div>`;
-  }).updateFixtureResult(payload);
-}
-
-function pageShell(title, subtitle, body){
-  return `<section class="section"><div class="wrap"><h1>${escapeHtml(title)}</h1><p class="muted">${escapeHtml(subtitle||'')}</p>${body}</div></section>`;
-}
-function scoreOrVs(r){ return r.status === 'jugado' ? `<span class="score">${r.homeScore} - ${r.awayScore}</span>` : '<span class="muted">vs</span>'; }
-function groupBy(arr, fn){ return arr.reduce((acc,x)=>{ const k=fn(x); (acc[k]=acc[k]||[]).push(x); return acc; },{}); }
-function escapeHtml(v){ return String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
-function formatDate(v){
-  if(!v) return '';
-  try { return new Date(v).toLocaleDateString('es-PE',{year:'numeric',month:'2-digit',day:'2-digit'}); } catch(e){ return v; }
-}
-function showError(msg){
-  document.getElementById('app').innerHTML = `<section class="section"><div class="wrap"><div class="notice">${escapeHtml(msg)}</div></div></section>`;
-}
+function scoreOrVs(r){ return String(r.status).toLowerCase()==='jugado' ? `<span class="score">${r.homeScore} - ${r.awayScore}</span>` : '<span class="vs">vs</span>'; }
+function groupBy(arr, fn){ return (arr||[]).reduce((acc,x)=>{ const k=fn(x); (acc[k]=acc[k]||[]).push(x); return acc; },{}); }
+function formatDate(v){ if(!v) return ''; try { const d = new Date(v); if(!isNaN(d.getTime())) return d.toLocaleDateString('es-PE'); } catch(e){} return String(v); }
+function escapeHtml(s){ return String(s == null ? '' : s).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+function escapeAttr(s){ return escapeHtml(s).replace(/`/g,'&#96;'); }
+function showError(message){ document.getElementById('app').innerHTML = `<div class="wrap"><div class="error">${escapeHtml(message)}</div></div>`; }
 </script>
