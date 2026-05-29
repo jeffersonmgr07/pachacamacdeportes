@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       const type = btn.dataset.fill;
-      document.getElementById('username').value = type === 'admin' ? 'admin' : 'guerreros';
-      document.getElementById('password').value = type === 'admin' ? 'admin123' : 'demo123';
+      document.getElementById('username').value = type === 'admin' ? 'admin@pachacamac.gob.pe' : 'elvisdennisroblessoto@gmail.com';
+      document.getElementById('password').value = type === 'admin' ? 'admin123' : '10499558E2026';
     });
   });
 

@@ -154,7 +154,7 @@ function renderConvocations(data){
 }
 
 function matchCards(matches){
-  return matches.map(m => {
+  return matches.filter(m => Number(m.round) >= OPEN_ROUND).map(m => {
     const saved = convocationState[m.id];
     const canOpen = Number(m.round) === OPEN_ROUND;
     const isFuture = Number(m.round) > OPEN_ROUND;

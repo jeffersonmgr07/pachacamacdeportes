@@ -3,19 +3,23 @@ function login_(username, password) {
   password = String(password || '').trim();
   var users = sheetObjects_('Usuarios');
   var user = users.find(function(u){
-    return String(u.username).toLowerCase().trim() === username &&
+    var loginA = String(u.username || '').toLowerCase().trim();
+    var loginB = String(u.email || '').toLowerCase().trim();
+    return (loginA === username || loginB === username) &&
            String(u.password).trim() === password &&
            String(u.status || 'activo').toLowerCase() === 'activo';
   });
-  if (!user) return { ok: false, message: 'Usuario o contraseña incorrectos.' };
+  if (!user) return { ok: false, message: 'Correo o contraseña incorrectos.' };
   return {
     ok: true,
     user: {
       id: user.id,
-      username: user.username,
+      username: user.username || user.email,
+      email: user.email,
       role: user.role,
       name: user.name,
-      teamId: user.teamId
+      teamId: user.teamId,
+      teamName: user.teamName
     }
   };
 }

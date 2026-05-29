@@ -1,7 +1,9 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const res = await MF.call('getPublicData');
   const d = res.data;
-  const next = d.fixture.filter(m => m.status !== 'jugado').slice(0,3);
+  const pending = d.fixture.filter(m => m.status !== 'jugado' && Number(m.round) >= 3);
+  const nextRound = pending.length ? Math.min(...pending.map(m => Number(m.round))) : null;
+  const next = pending.filter(m => Number(m.round) === nextRound).slice(0,3);
   document.getElementById('homeNextMatches').innerHTML = next.map(m => `
     <div class="match-mini">
       <small>${m.dateLabel} · ${m.field} · ${MF.categoryLabel(m.category)} ${m.group}</small>

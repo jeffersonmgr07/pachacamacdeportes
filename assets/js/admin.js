@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 function renderAdmin(session, data){
   adminWelcome.innerHTML = `<h2>Bienvenido, ${session.name}</h2><p class="sub">Panel de consulta y gestión rápida. Las modificaciones principales se pueden mantener desde Google Sheets.</p>`;
   document.getElementById('panel-resumen').innerHTML = `<div class="grid grid-4">
-    ${[['Equipos',data.teams.length],['Partidos',data.fixture.length],['Jugadores',data.players.length],['Convocatorias',data.convocations.length]].map(x=>`<div class="card metric"><span class="chip">${x[0]}</span><strong>${x[1]}</strong></div>`).join('')}
+    ${[['Equipos',data.teams.length],['Partidos',data.fixture.length],['Jugadores',data.players.length],['Convocatorias',data.convocations.length],['Accesos',(data.users||[]).length]].map(x=>`<div class="card metric"><span class="chip">${x[0]}</span><strong>${x[1]}</strong></div>`).join('')}
   </div>`;
   document.getElementById('panel-equipos').innerHTML = `<h2>Equipos registrados</h2><div class="table-wrap"><table><thead><tr><th>ID</th><th>Equipo</th><th>Categoría</th><th>Grupo</th></tr></thead><tbody>${data.teams.map(t=>`<tr><td>${t.id}</td><td><b>${t.name}</b></td><td>${MF.categoryLabel(t.category)}</td><td>${t.group}</td></tr>`).join('')}</tbody></table></div>`;
   document.getElementById('panel-jugadores').innerHTML = `<h2>Jugadores registrados</h2><div class="player-grid">${data.players.map(playerCard).join('')}</div>`;
@@ -31,6 +31,7 @@ function renderAdmin(session, data){
     MF.toast(res.message || 'Resultado guardado');
   });
   document.getElementById('panel-convocatorias').innerHTML = `<h2>Convocatorias recibidas</h2><div class="card"><p class="sub">Aquí aparecerán las convocatorias enviadas por entrenadores desde el panel.</p></div>`;
+  document.getElementById('panel-accesos').innerHTML = `<h2>Accesos de entrenadores</h2><p class="sub">El login se realiza con correo electrónico y clave temporal.</p><div class="table-wrap"><table><thead><tr><th>Entrenador</th><th>Correo/Login</th><th>Clave temporal</th><th>Equipo</th><th>Estado</th></tr></thead><tbody>${(data.users||[]).filter(u=>u.role==='entrenador').map(u=>`<tr><td><b>${u.name}</b></td><td>${u.email || u.username}</td><td><code>${u.password}</code></td><td>${u.teamName || u.teamId || ''}</td><td>${u.status || 'activo'}</td></tr>`).join('')}</tbody></table></div>`;
 }
 function playerCard(p){
   return `<article class="player-card"><img class="avatar" src="${MF.imgForPlayer(p)}" onerror="this.style.display='none'"><div><b>${p.firstName} ${p.lastName}</b><br><small>DNI: ${p.dni}</small><br><small>${p.category} · ${p.status}</small></div></article>`;

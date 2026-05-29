@@ -1,8 +1,26 @@
 window.MF_MOCK_DATA = {
   "championships": [
-    {"id":"CH-FUT-MEN-2026","name":"Torneo Municipal de Fútbol de Menores 2026","sport":"Fútbol","status":"Activo","url":"campeonato-futbol-menores-2026.html"},
-    {"id":"CH-VOL-MEN-2026","name":"Torneo Municipal de Vóley de Menores","sport":"Vóley","status":"Próximamente","url":"#"},
-    {"id":"CH-REL-LIB-2026","name":"Torneo Relámpago Categoría Libre","sport":"Fútbol","status":"Próximamente","url":"#"}
+    {
+      "id": "CH-FUT-MEN-2026",
+      "name": "Torneo Municipal de Fútbol de Menores 2026",
+      "sport": "Fútbol",
+      "status": "Activo",
+      "url": "campeonato-futbol-menores-2026.html"
+    },
+    {
+      "id": "CH-VOL-MEN-2026",
+      "name": "Torneo Municipal de Vóley de Menores",
+      "sport": "Vóley",
+      "status": "Próximamente",
+      "url": "#"
+    },
+    {
+      "id": "CH-REL-LIB-2026",
+      "name": "Torneo Relámpago Categoría Libre",
+      "sport": "Fútbol",
+      "status": "Próximamente",
+      "url": "#"
+    }
   ],
   "tournament": {
     "name": "Torneo Municipal de Fútbol de Menores 2026",
@@ -90,13 +108,36 @@ window.MF_MOCK_DATA = {
       "id": "EQ-S6-001",
       "name": "JM SPORT",
       "category": "SUB6",
-      "group": "Único"
+      "group": "Único",
+      "businessName": "JM SPORT",
+      "address": "Distrito de Pachacamac",
+      "email": "alex.cursos2020@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB8",
+        "SUB10",
+        "SUB12",
+        "SUB13"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S6-002",
       "name": "TOLENTINO FC",
       "category": "SUB6",
-      "group": "Único"
+      "group": "Único",
+      "businessName": "TOLENTINO FC",
+      "address": "Distrito de Pachacamac",
+      "email": "omar.pyj@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB8",
+        "SUB10",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S6-003",
@@ -106,21 +147,48 @@ window.MF_MOCK_DATA = {
       "businessName": "Academia Deportiva Guerreros de Manchay",
       "address": "Distrito de Pachacamac",
       "whatsapp": "+51 900 000 000",
-      "email": "guerreros@example.com",
-      "enabledCategories": ["SUB6", "SUB8", "SUB10", "SUB12"],
+      "email": "Elvisdennisroblessoto@gmail.com",
+      "enabledCategories": [
+        "SUB6",
+        "SUB8",
+        "SUB10",
+        "SUB12",
+        "SUB13",
+        "SUB15"
+      ],
       "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S6-004",
       "name": "CLUB DEPORTIVO LARA",
       "category": "SUB6",
-      "group": "Único"
+      "group": "Único",
+      "businessName": "CLUB DEPORTIVO LARA",
+      "address": "Distrito de Pachacamac",
+      "email": "Huailla232@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S6-005",
       "name": "RENACE JUVENTUD",
       "category": "SUB6",
-      "group": "Único"
+      "group": "Único",
+      "businessName": "RENACE JUVENTUD",
+      "address": "Distrito de Pachacamac",
+      "email": "cuyacerdaefrain@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB8",
+        "SUB10",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S6-006",
@@ -132,37 +200,100 @@ window.MF_MOCK_DATA = {
       "id": "EQ-S8A-001",
       "name": "TOLENTINO FC",
       "category": "SUB8",
-      "group": "A"
+      "group": "A",
+      "businessName": "TOLENTINO FC",
+      "address": "Distrito de Pachacamac",
+      "email": "omar.pyj@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB8",
+        "SUB10",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S8A-002",
       "name": "FOVA",
       "category": "SUB8",
-      "group": "A"
+      "group": "A",
+      "businessName": "FOVA",
+      "address": "Distrito de Pachacamac",
+      "email": "fova.f.c@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB10",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S8A-003",
       "name": "JYB",
       "category": "SUB8",
-      "group": "A"
+      "group": "A",
+      "businessName": "JYB",
+      "address": "Distrito de Pachacamac",
+      "email": "josuepalominopablo@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S8A-004",
       "name": "DREAM TEAM",
       "category": "SUB8",
-      "group": "A"
+      "group": "A",
+      "businessName": "DREAM TEAM",
+      "address": "Distrito de Pachacamac",
+      "email": "samueluap@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB10",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S8A-005",
       "name": "RENACE JUVENTUD",
       "category": "SUB8",
-      "group": "A"
+      "group": "A",
+      "businessName": "RENACE JUVENTUD",
+      "address": "Distrito de Pachacamac",
+      "email": "cuyacerdaefrain@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB8",
+        "SUB10",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S8A-006",
       "name": "JM SPORT",
       "category": "SUB8",
-      "group": "A"
+      "group": "A",
+      "businessName": "JM SPORT",
+      "address": "Distrito de Pachacamac",
+      "email": "alex.cursos2020@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB8",
+        "SUB10",
+        "SUB12",
+        "SUB13"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S8B-001",
@@ -174,61 +305,164 @@ window.MF_MOCK_DATA = {
       "id": "EQ-S8B-002",
       "name": "MATHE SPORT",
       "category": "SUB8",
-      "group": "B"
+      "group": "B",
+      "businessName": "MATHE SPORT",
+      "address": "Distrito de Pachacamac",
+      "email": "pascuallariosrai@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB10",
+        "SUB12",
+        "SUB15"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S8B-003",
       "name": "VASQUEZ FC",
       "category": "SUB8",
-      "group": "B"
+      "group": "B",
+      "businessName": "VASQUEZ FC",
+      "address": "Distrito de Pachacamac",
+      "email": "Darvassan2806@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB10"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S8B-004",
       "name": "GUERREROS DE MANCHAY",
       "category": "SUB8",
-      "group": "B"
+      "group": "B",
+      "businessName": "GUERREROS DE MANCHAY",
+      "address": "Distrito de Pachacamac",
+      "email": "Elvisdennisroblessoto@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB8",
+        "SUB10",
+        "SUB12",
+        "SUB13",
+        "SUB15"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S8B-005",
       "name": "TALENTOS UNIDOS",
       "category": "SUB8",
-      "group": "B"
+      "group": "B",
+      "businessName": "TALENTOS UNIDOS",
+      "address": "Distrito de Pachacamac",
+      "email": "steve.g.r@hotmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB10",
+        "SUB12",
+        "SUB15"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S10A-001",
       "name": "MATHE SPORT",
       "category": "SUB10",
-      "group": "A"
+      "group": "A",
+      "businessName": "MATHE SPORT",
+      "address": "Distrito de Pachacamac",
+      "email": "pascuallariosrai@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB10",
+        "SUB12",
+        "SUB15"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S10A-002",
       "name": "FOVA",
       "category": "SUB10",
-      "group": "A"
+      "group": "A",
+      "businessName": "FOVA",
+      "address": "Distrito de Pachacamac",
+      "email": "fova.f.c@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB10",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S10A-003",
       "name": "TALENTOS DEL SUR",
       "category": "SUB10",
-      "group": "A"
+      "group": "A",
+      "businessName": "TALENTOS DEL SUR",
+      "address": "Distrito de Pachacamac",
+      "email": "Carlosarrigoni13@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB10"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S10A-004",
       "name": "REMANENTE FC",
       "category": "SUB10",
-      "group": "A"
+      "group": "A",
+      "businessName": "REMANENTE FC",
+      "address": "Distrito de Pachacamac",
+      "email": "academiaremanentefc@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB10",
+        "SUB15"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S10A-005",
       "name": "SPORTING JF ONCE",
       "category": "SUB10",
-      "group": "A"
+      "group": "A",
+      "businessName": "SPORTING JF ONCE",
+      "address": "Distrito de Pachacamac",
+      "email": "sportinglaonce@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB10",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S10A-006",
       "name": "RENACE JUVENTUD",
       "category": "SUB10",
-      "group": "A"
+      "group": "A",
+      "businessName": "RENACE JUVENTUD",
+      "address": "Distrito de Pachacamac",
+      "email": "cuyacerdaefrain@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB8",
+        "SUB10",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S10A-007",
@@ -240,73 +474,202 @@ window.MF_MOCK_DATA = {
       "id": "EQ-S10B-001",
       "name": "TALENTOS UNIDOS",
       "category": "SUB10",
-      "group": "B"
+      "group": "B",
+      "businessName": "TALENTOS UNIDOS",
+      "address": "Distrito de Pachacamac",
+      "email": "steve.g.r@hotmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB10",
+        "SUB12",
+        "SUB15"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S10B-002",
       "name": "GUERREROS DE MANCHAY",
       "category": "SUB10",
-      "group": "B"
+      "group": "B",
+      "businessName": "GUERREROS DE MANCHAY",
+      "address": "Distrito de Pachacamac",
+      "email": "Elvisdennisroblessoto@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB8",
+        "SUB10",
+        "SUB12",
+        "SUB13",
+        "SUB15"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S10B-003",
       "name": "JM SPORT",
       "category": "SUB10",
-      "group": "B"
+      "group": "B",
+      "businessName": "JM SPORT",
+      "address": "Distrito de Pachacamac",
+      "email": "alex.cursos2020@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB8",
+        "SUB10",
+        "SUB12",
+        "SUB13"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S10B-004",
       "name": "DREAM TEAM",
       "category": "SUB10",
-      "group": "B"
+      "group": "B",
+      "businessName": "DREAM TEAM",
+      "address": "Distrito de Pachacamac",
+      "email": "samueluap@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB10",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S10B-005",
       "name": "VASQUEZ FC",
       "category": "SUB10",
-      "group": "B"
+      "group": "B",
+      "businessName": "VASQUEZ FC",
+      "address": "Distrito de Pachacamac",
+      "email": "Darvassan2806@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB10"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S10B-006",
       "name": "TOLENTINO FC",
       "category": "SUB10",
-      "group": "B"
+      "group": "B",
+      "businessName": "TOLENTINO FC",
+      "address": "Distrito de Pachacamac",
+      "email": "omar.pyj@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB8",
+        "SUB10",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S12A-001",
       "name": "GUERREROS DE MANCHAY",
       "category": "SUB12",
-      "group": "A"
+      "group": "A",
+      "businessName": "GUERREROS DE MANCHAY",
+      "address": "Distrito de Pachacamac",
+      "email": "Elvisdennisroblessoto@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB8",
+        "SUB10",
+        "SUB12",
+        "SUB13",
+        "SUB15"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S12A-002",
       "name": "TOLENTINO FC",
       "category": "SUB12",
-      "group": "A"
+      "group": "A",
+      "businessName": "TOLENTINO FC",
+      "address": "Distrito de Pachacamac",
+      "email": "omar.pyj@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB8",
+        "SUB10",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S12A-003",
       "name": "MATHE SPORT",
       "category": "SUB12",
-      "group": "A"
+      "group": "A",
+      "businessName": "MATHE SPORT",
+      "address": "Distrito de Pachacamac",
+      "email": "pascuallariosrai@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB10",
+        "SUB12",
+        "SUB15"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S12A-004",
       "name": "SPORTING JF ONCE",
       "category": "SUB12",
-      "group": "A"
+      "group": "A",
+      "businessName": "SPORTING JF ONCE",
+      "address": "Distrito de Pachacamac",
+      "email": "sportinglaonce@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB10",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S12A-005",
       "name": "FOVA",
       "category": "SUB12",
-      "group": "A"
+      "group": "A",
+      "businessName": "FOVA",
+      "address": "Distrito de Pachacamac",
+      "email": "fova.f.c@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB10",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S12A-006",
       "name": "JYB",
       "category": "SUB12",
-      "group": "A"
+      "group": "A",
+      "businessName": "JYB",
+      "address": "Distrito de Pachacamac",
+      "email": "josuepalominopablo@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S12A-007",
@@ -318,31 +681,82 @@ window.MF_MOCK_DATA = {
       "id": "EQ-S12B-001",
       "name": "JM SPORT",
       "category": "SUB12",
-      "group": "B"
+      "group": "B",
+      "businessName": "JM SPORT",
+      "address": "Distrito de Pachacamac",
+      "email": "alex.cursos2020@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB8",
+        "SUB10",
+        "SUB12",
+        "SUB13"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S12B-002",
       "name": "CLUB DEPORTIVO LARA",
       "category": "SUB12",
-      "group": "B"
+      "group": "B",
+      "businessName": "CLUB DEPORTIVO LARA",
+      "address": "Distrito de Pachacamac",
+      "email": "Huailla232@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S12B-003",
       "name": "RENACE JUVENTUD",
       "category": "SUB12",
-      "group": "B"
+      "group": "B",
+      "businessName": "RENACE JUVENTUD",
+      "address": "Distrito de Pachacamac",
+      "email": "cuyacerdaefrain@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB8",
+        "SUB10",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S12B-004",
       "name": "DREAM TEAM",
       "category": "SUB12",
-      "group": "B"
+      "group": "B",
+      "businessName": "DREAM TEAM",
+      "address": "Distrito de Pachacamac",
+      "email": "samueluap@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB10",
+        "SUB12"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S12B-005",
       "name": "CACHORROS FC",
       "category": "SUB12",
-      "group": "B"
+      "group": "B",
+      "businessName": "CACHORROS FC",
+      "address": "Distrito de Pachacamac",
+      "email": "Christiancarlossebastianiasmat@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB12",
+        "SUB13"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S12B-006",
@@ -354,7 +768,18 @@ window.MF_MOCK_DATA = {
       "id": "EQ-S12B-007",
       "name": "TALENTOS UNIDOS",
       "category": "SUB12",
-      "group": "B"
+      "group": "B",
+      "businessName": "TALENTOS UNIDOS",
+      "address": "Distrito de Pachacamac",
+      "email": "steve.g.r@hotmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB10",
+        "SUB12",
+        "SUB15"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S13-001",
@@ -366,7 +791,16 @@ window.MF_MOCK_DATA = {
       "id": "EQ-S13-002",
       "name": "CACHORROS FC",
       "category": "SUB13",
-      "group": "Único"
+      "group": "Único",
+      "businessName": "CACHORROS FC",
+      "address": "Distrito de Pachacamac",
+      "email": "Christiancarlossebastianiasmat@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB12",
+        "SUB13"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S13-003",
@@ -384,43 +818,141 @@ window.MF_MOCK_DATA = {
       "id": "EQ-S13-005",
       "name": "JM SPORT",
       "category": "SUB13",
-      "group": "Único"
+      "group": "Único",
+      "businessName": "JM SPORT",
+      "address": "Distrito de Pachacamac",
+      "email": "alex.cursos2020@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB8",
+        "SUB10",
+        "SUB12",
+        "SUB13"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S13-006",
       "name": "GUERREROS DE MANCHAY",
       "category": "SUB13",
-      "group": "Único"
+      "group": "Único",
+      "businessName": "GUERREROS DE MANCHAY",
+      "address": "Distrito de Pachacamac",
+      "email": "Elvisdennisroblessoto@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB8",
+        "SUB10",
+        "SUB12",
+        "SUB13",
+        "SUB15"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S15-001",
       "name": "GUERREROS DE MANCHAY",
       "category": "SUB15",
-      "group": "Único"
+      "group": "Único",
+      "businessName": "GUERREROS DE MANCHAY",
+      "address": "Distrito de Pachacamac",
+      "email": "Elvisdennisroblessoto@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB6",
+        "SUB8",
+        "SUB10",
+        "SUB12",
+        "SUB13",
+        "SUB15"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S15-002",
       "name": "MATHE SPORT",
       "category": "SUB15",
-      "group": "Único"
+      "group": "Único",
+      "businessName": "MATHE SPORT",
+      "address": "Distrito de Pachacamac",
+      "email": "pascuallariosrai@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB10",
+        "SUB12",
+        "SUB15"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S15-003",
       "name": "TALENTOS UNIDOS",
       "category": "SUB15",
-      "group": "Único"
+      "group": "Único",
+      "businessName": "TALENTOS UNIDOS",
+      "address": "Distrito de Pachacamac",
+      "email": "steve.g.r@hotmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB10",
+        "SUB12",
+        "SUB15"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S15-004",
       "name": "REMANENTE FC",
       "category": "SUB15",
-      "group": "Único"
+      "group": "Único",
+      "businessName": "REMANENTE FC",
+      "address": "Distrito de Pachacamac",
+      "email": "academiaremanentefc@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB10",
+        "SUB15"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S15-005",
       "name": "JUVENTUD COSTA FC",
       "category": "SUB15",
       "group": "Único"
+    },
+    {
+      "id": "EQ-S8B-006",
+      "name": "REMANENTE FC",
+      "category": "SUB8",
+      "group": "B",
+      "businessName": "REMANENTE FC",
+      "address": "Distrito de Pachacamac",
+      "email": "academiaremanentefc@gmail.com",
+      "whatsapp": "",
+      "enabledCategories": [
+        "SUB8",
+        "SUB10",
+        "SUB15"
+      ],
+      "badgeFileName": "logo-placeholder.svg"
+    },
+    {
+      "id": "EQ-PEND-001",
+      "name": "EQUIPO PENDIENTE",
+      "category": "PENDIENTE",
+      "group": "Pendiente",
+      "businessName": "Pendiente de asignación",
+      "enabledCategories": [],
+      "address": "Distrito de Pachacamac",
+      "email": "Maurocouch12@gmail.com",
+      "whatsapp": "",
+      "badgeFileName": "logo-placeholder.svg"
     }
   ],
   "fixture": [
@@ -811,9 +1343,9 @@ window.MF_MOCK_DATA = {
     {
       "id": "M033",
       "round": 3,
-      "dateLabel": "Fecha 03",
-      "field": "Por programar",
-      "time": "--:--",
+      "dateLabel": "31 de mayo",
+      "field": "Campo 1",
+      "time": "09:00",
       "home": "GUERREROS DE MANCHAY",
       "away": "JM SPORT",
       "category": "SUB6",
@@ -823,9 +1355,9 @@ window.MF_MOCK_DATA = {
     {
       "id": "M034",
       "round": 3,
-      "dateLabel": "Fecha 03",
-      "field": "Por programar",
-      "time": "--:--",
+      "dateLabel": "31 de mayo",
+      "field": "Campo 1",
+      "time": "09:40",
       "home": "TOLENTINO FC",
       "away": "CLUB DEPORTIVO LARA",
       "category": "SUB6",
@@ -835,9 +1367,9 @@ window.MF_MOCK_DATA = {
     {
       "id": "M035",
       "round": 3,
-      "dateLabel": "Fecha 03",
-      "field": "Por programar",
-      "time": "--:--",
+      "dateLabel": "31 de mayo",
+      "field": "Campo 1",
+      "time": "10:20",
       "home": "RENACE JUVENTUD",
       "away": "BENJAMIN FC",
       "category": "SUB6",
@@ -847,33 +1379,9 @@ window.MF_MOCK_DATA = {
     {
       "id": "M036",
       "round": 3,
-      "dateLabel": "Fecha 03",
-      "field": "Por programar",
-      "time": "--:--",
-      "home": "TOLENTINO FC",
-      "away": "DREAM TEAM",
-      "category": "SUB8",
-      "group": "A",
-      "status": "pendiente"
-    },
-    {
-      "id": "M037",
-      "round": 3,
-      "dateLabel": "Fecha 03",
-      "field": "Por programar",
-      "time": "--:--",
-      "home": "RENACE JUVENTUD",
-      "away": "JYB",
-      "category": "SUB8",
-      "group": "A",
-      "status": "pendiente"
-    },
-    {
-      "id": "M038",
-      "round": 3,
-      "dateLabel": "Fecha 03",
-      "field": "Por programar",
-      "time": "--:--",
+      "dateLabel": "31 de mayo",
+      "field": "Campo 1",
+      "time": "11:00",
       "home": "JM SPORT",
       "away": "FOVA",
       "category": "SUB8",
@@ -881,35 +1389,71 @@ window.MF_MOCK_DATA = {
       "status": "pendiente"
     },
     {
+      "id": "M037",
+      "round": 3,
+      "dateLabel": "31 de mayo",
+      "field": "Campo 2",
+      "time": "09:00",
+      "home": "TOLENTINO FC",
+      "away": "DREAM TEAM",
+      "category": "SUB8",
+      "group": "A",
+      "status": "pendiente"
+    },
+    {
+      "id": "M038",
+      "round": 3,
+      "dateLabel": "31 de mayo",
+      "field": "Campo 2",
+      "time": "09:40",
+      "home": "BENJAMIN FC",
+      "away": "REMANENTE FC",
+      "category": "SUB8",
+      "group": "B",
+      "status": "pendiente"
+    },
+    {
       "id": "M039",
       "round": 3,
-      "dateLabel": "Fecha 03",
-      "field": "Por programar",
-      "time": "--:--",
-      "home": "MATHE SPORT",
-      "away": "SPORTING JF ONCE",
-      "category": "SUB10",
+      "dateLabel": "31 de mayo",
+      "field": "Campo 2",
+      "time": "10:20",
+      "home": "RENACE JUVENTUD",
+      "away": "JYB",
+      "category": "SUB8",
       "group": "A",
       "status": "pendiente"
     },
     {
       "id": "M040",
       "round": 3,
-      "dateLabel": "Fecha 03",
-      "field": "Por programar",
-      "time": "--:--",
-      "home": "RENACE JUVENTUD",
-      "away": "TALENTOS DEL SUR",
-      "category": "SUB10",
-      "group": "A",
+      "dateLabel": "31 de mayo",
+      "field": "Campo 2",
+      "time": "11:00",
+      "home": "MATHE SPORT",
+      "away": "VASQUEZ FC",
+      "category": "SUB8",
+      "group": "B",
       "status": "pendiente"
     },
     {
       "id": "M041",
       "round": 3,
-      "dateLabel": "Fecha 03",
-      "field": "Por programar",
-      "time": "--:--",
+      "dateLabel": "31 de mayo",
+      "field": "Campo 2",
+      "time": "12:00",
+      "home": "TALENTOS UNIDOS",
+      "away": "JM SPORT",
+      "category": "SUB10",
+      "group": "B",
+      "status": "pendiente"
+    },
+    {
+      "id": "M042",
+      "round": 3,
+      "dateLabel": "31 de mayo",
+      "field": "Campo 2",
+      "time": "12:50",
       "home": "REMANENTE FC",
       "away": "FOVA",
       "category": "SUB10",
@@ -917,23 +1461,83 @@ window.MF_MOCK_DATA = {
       "status": "pendiente"
     },
     {
-      "id": "M042",
+      "id": "M043",
       "round": 3,
-      "dateLabel": "Fecha 03",
-      "field": "Por programar",
-      "time": "--:--",
-      "home": "GUERREROS DE MANCHAY",
-      "away": "JYB",
+      "dateLabel": "31 de mayo",
+      "field": "Campo 2",
+      "time": "13:40",
+      "home": "MATHE SPORT",
+      "away": "SPORTING JF ONCE",
+      "category": "SUB10",
+      "group": "A",
+      "status": "pendiente"
+    },
+    {
+      "id": "M044",
+      "round": 3,
+      "dateLabel": "31 de mayo",
+      "field": "Campo 2",
+      "time": "14:30",
+      "home": "DREAM TEAM",
+      "away": "VASQUEZ FC",
+      "category": "SUB10",
+      "group": "B",
+      "status": "pendiente"
+    },
+    {
+      "id": "M045",
+      "round": 3,
+      "dateLabel": "31 de mayo",
+      "field": "Campo 3",
+      "time": "09:00",
+      "home": "TOLENTINO FC",
+      "away": "MATHE SPORT",
       "category": "SUB12",
       "group": "A",
       "status": "pendiente"
     },
     {
-      "id": "M043",
+      "id": "M046",
       "round": 3,
-      "dateLabel": "Fecha 03",
-      "field": "Por programar",
-      "time": "--:--",
+      "dateLabel": "31 de mayo",
+      "field": "Campo 3",
+      "time": "09:50",
+      "home": "GUERREROS DE MANCHAY",
+      "away": "TOLENTINO FC",
+      "category": "SUB10",
+      "group": "B",
+      "status": "pendiente"
+    },
+    {
+      "id": "M047",
+      "round": 3,
+      "dateLabel": "31 de mayo",
+      "field": "Campo 3",
+      "time": "10:40",
+      "home": "RENACE JUVENTUD",
+      "away": "TALENTOS DEL SUR",
+      "category": "SUB10",
+      "group": "A",
+      "status": "pendiente"
+    },
+    {
+      "id": "M048",
+      "round": 3,
+      "dateLabel": "31 de mayo",
+      "field": "Campo 3",
+      "time": "11:30",
+      "home": "FOVITA",
+      "away": "CLUB DEPORTIVO LARA",
+      "category": "SUB12",
+      "group": "B",
+      "status": "pendiente"
+    },
+    {
+      "id": "M049",
+      "round": 3,
+      "dateLabel": "31 de mayo",
+      "field": "Campo 3",
+      "time": "12:20",
       "home": "BENJAMIN FC",
       "away": "FOVA",
       "category": "SUB12",
@@ -941,36 +1545,1225 @@ window.MF_MOCK_DATA = {
       "status": "pendiente"
     },
     {
-      "id": "M044",
+      "id": "M050",
       "round": 3,
-      "dateLabel": "Fecha 03",
-      "field": "Por programar",
-      "time": "--:--",
-      "home": "TOLENTINO FC",
-      "away": "MATHE SPORT",
+      "dateLabel": "31 de mayo",
+      "field": "Campo 3",
+      "time": "13:10",
+      "home": "JM SPORT",
+      "away": "TALENTOS UNIDOS",
+      "category": "SUB12",
+      "group": "B",
+      "status": "pendiente"
+    },
+    {
+      "id": "M051",
+      "round": 3,
+      "dateLabel": "31 de mayo",
+      "field": "Campo 3",
+      "time": "14:00",
+      "home": "GUERREROS DE MANCHAY",
+      "away": "JYB",
       "category": "SUB12",
       "group": "A",
       "status": "pendiente"
+    },
+    {
+      "id": "M052",
+      "round": 3,
+      "dateLabel": "31 de mayo",
+      "field": "Campo 3",
+      "time": "14:50",
+      "home": "RENACE JUVENTUD",
+      "away": "CACHORROS FC",
+      "category": "SUB12",
+      "group": "B",
+      "status": "pendiente"
+    },
+    {
+      "id": "M053",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 1",
+      "time": "09:00",
+      "home": "BENJAMIN FC",
+      "away": "GUERREROS DE MANCHAY",
+      "category": "SUB6",
+      "group": "Único",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M054",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 1",
+      "time": "09:40",
+      "home": "CLUB DEPORTIVO LARA",
+      "away": "RENACE JUVENTUD",
+      "category": "SUB6",
+      "group": "Único",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M055",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 1",
+      "time": "10:20",
+      "home": "JM SPORT",
+      "away": "TOLENTINO FC",
+      "category": "SUB6",
+      "group": "Único",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M056",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 1",
+      "time": "11:00",
+      "home": "DREAM TEAM",
+      "away": "FOVA",
+      "category": "SUB8",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M057",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 2",
+      "time": "09:00",
+      "home": "JM SPORT",
+      "away": "JYB",
+      "category": "SUB8",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M058",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 2",
+      "time": "09:40",
+      "home": "BENJAMIN FC",
+      "away": "GUERREROS DE MANCHAY",
+      "category": "SUB8",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M059",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 2",
+      "time": "10:20",
+      "home": "MATHE SPORT",
+      "away": "REMANENTE FC",
+      "category": "SUB8",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M060",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 2",
+      "time": "11:00",
+      "home": "TALENTOS UNIDOS",
+      "away": "VASQUEZ FC",
+      "category": "SUB8",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M061",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 2",
+      "time": "12:00",
+      "home": "BENJAMIN FC",
+      "away": "FOVA",
+      "category": "SUB10",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M062",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 2",
+      "time": "12:50",
+      "home": "MATHE SPORT",
+      "away": "REMANENTE FC",
+      "category": "SUB10",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M063",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 2",
+      "time": "13:40",
+      "home": "RENACE JUVENTUD",
+      "away": "SPORTING JF ONCE",
+      "category": "SUB10",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M064",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 2",
+      "time": "14:30",
+      "home": "DREAM TEAM",
+      "away": "JM SPORT",
+      "category": "SUB10",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M065",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 3",
+      "time": "09:00",
+      "home": "GUERREROS DE MANCHAY",
+      "away": "VASQUEZ FC",
+      "category": "SUB10",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M066",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 3",
+      "time": "09:50",
+      "home": "TALENTOS UNIDOS",
+      "away": "TOLENTINO FC",
+      "category": "SUB10",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M067",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 3",
+      "time": "10:40",
+      "home": "BENJAMIN FC",
+      "away": "GUERREROS DE MANCHAY",
+      "category": "SUB12",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M068",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 3",
+      "time": "11:30",
+      "home": "FOVA",
+      "away": "JYB",
+      "category": "SUB12",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M069",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 3",
+      "time": "12:20",
+      "home": "MATHE SPORT",
+      "away": "SPORTING JF ONCE",
+      "category": "SUB12",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M070",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 3",
+      "time": "13:10",
+      "home": "CACHORROS FC",
+      "away": "CLUB DEPORTIVO LARA",
+      "category": "SUB12",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M071",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 3",
+      "time": "14:00",
+      "home": "DREAM TEAM",
+      "away": "FOVITA",
+      "category": "SUB12",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M072",
+      "round": 4,
+      "dateLabel": "7 de junio",
+      "field": "Campo 3",
+      "time": "14:50",
+      "home": "JM SPORT",
+      "away": "RENACE JUVENTUD",
+      "category": "SUB12",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M073",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 1",
+      "time": "09:00",
+      "home": "BENJAMIN FC",
+      "away": "JM SPORT",
+      "category": "SUB6",
+      "group": "Único",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M074",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 1",
+      "time": "09:40",
+      "home": "CLUB DEPORTIVO LARA",
+      "away": "GUERREROS DE MANCHAY",
+      "category": "SUB6",
+      "group": "Único",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M075",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 1",
+      "time": "10:20",
+      "home": "RENACE JUVENTUD",
+      "away": "TOLENTINO FC",
+      "category": "SUB6",
+      "group": "Único",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M076",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 1",
+      "time": "11:00",
+      "home": "DREAM TEAM",
+      "away": "RENACE JUVENTUD",
+      "category": "SUB8",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M077",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 2",
+      "time": "09:00",
+      "home": "FOVA",
+      "away": "TOLENTINO FC",
+      "category": "SUB8",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M078",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 2",
+      "time": "09:40",
+      "home": "BENJAMIN FC",
+      "away": "TALENTOS UNIDOS",
+      "category": "SUB8",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M079",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 2",
+      "time": "10:20",
+      "home": "GUERREROS DE MANCHAY",
+      "away": "MATHE SPORT",
+      "category": "SUB8",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M080",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 2",
+      "time": "11:00",
+      "home": "REMANENTE FC",
+      "away": "VASQUEZ FC",
+      "category": "SUB8",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M081",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 2",
+      "time": "12:00",
+      "home": "BENJAMIN FC",
+      "away": "RENACE JUVENTUD",
+      "category": "SUB10",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M082",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 2",
+      "time": "12:50",
+      "home": "FOVA",
+      "away": "MATHE SPORT",
+      "category": "SUB10",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M083",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 2",
+      "time": "13:40",
+      "home": "REMANENTE FC",
+      "away": "SPORTING JF ONCE",
+      "category": "SUB10",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M084",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 2",
+      "time": "14:30",
+      "home": "DREAM TEAM",
+      "away": "TALENTOS UNIDOS",
+      "category": "SUB10",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M085",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 3",
+      "time": "09:00",
+      "home": "GUERREROS DE MANCHAY",
+      "away": "JM SPORT",
+      "category": "SUB10",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M086",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 3",
+      "time": "09:50",
+      "home": "TOLENTINO FC",
+      "away": "VASQUEZ FC",
+      "category": "SUB10",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M087",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 3",
+      "time": "10:40",
+      "home": "BENJAMIN FC",
+      "away": "JYB",
+      "category": "SUB12",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M088",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 3",
+      "time": "11:30",
+      "home": "FOVA",
+      "away": "GUERREROS DE MANCHAY",
+      "category": "SUB12",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M089",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 3",
+      "time": "12:20",
+      "home": "SPORTING JF ONCE",
+      "away": "TOLENTINO FC",
+      "category": "SUB12",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M090",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 3",
+      "time": "13:10",
+      "home": "CACHORROS FC",
+      "away": "DREAM TEAM",
+      "category": "SUB12",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M091",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 3",
+      "time": "14:00",
+      "home": "CLUB DEPORTIVO LARA",
+      "away": "JM SPORT",
+      "category": "SUB12",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M092",
+      "round": 5,
+      "dateLabel": "14 de junio",
+      "field": "Campo 3",
+      "time": "14:50",
+      "home": "FOVITA",
+      "away": "RENACE JUVENTUD",
+      "category": "SUB12",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M093",
+      "round": 6,
+      "dateLabel": "21 de junio",
+      "field": "Campo 1",
+      "time": "09:00",
+      "home": "JM SPORT",
+      "away": "RENACE JUVENTUD",
+      "category": "SUB8",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M094",
+      "round": 6,
+      "dateLabel": "21 de junio",
+      "field": "Campo 1",
+      "time": "09:40",
+      "home": "JYB",
+      "away": "TOLENTINO FC",
+      "category": "SUB8",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M095",
+      "round": 6,
+      "dateLabel": "21 de junio",
+      "field": "Campo 1",
+      "time": "10:20",
+      "home": "BENJAMIN FC",
+      "away": "VASQUEZ FC",
+      "category": "SUB8",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M096",
+      "round": 6,
+      "dateLabel": "21 de junio",
+      "field": "Campo 1",
+      "time": "11:00",
+      "home": "GUERREROS DE MANCHAY",
+      "away": "REMANENTE FC",
+      "category": "SUB8",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M097",
+      "round": 6,
+      "dateLabel": "21 de junio",
+      "field": "Campo 2",
+      "time": "09:00",
+      "home": "MATHE SPORT",
+      "away": "TALENTOS UNIDOS",
+      "category": "SUB8",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M098",
+      "round": 6,
+      "dateLabel": "21 de junio",
+      "field": "Campo 2",
+      "time": "09:40",
+      "home": "BENJAMIN FC",
+      "away": "SPORTING JF ONCE",
+      "category": "SUB10",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M099",
+      "round": 6,
+      "dateLabel": "21 de junio",
+      "field": "Campo 2",
+      "time": "10:20",
+      "home": "MATHE SPORT",
+      "away": "RENACE JUVENTUD",
+      "category": "SUB10",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M100",
+      "round": 6,
+      "dateLabel": "21 de junio",
+      "field": "Campo 2",
+      "time": "11:00",
+      "home": "REMANENTE FC",
+      "away": "TALENTOS DEL SUR",
+      "category": "SUB10",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M101",
+      "round": 6,
+      "dateLabel": "21 de junio",
+      "field": "Campo 2",
+      "time": "12:00",
+      "home": "DREAM TEAM",
+      "away": "TOLENTINO FC",
+      "category": "SUB10",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M102",
+      "round": 6,
+      "dateLabel": "21 de junio",
+      "field": "Campo 2",
+      "time": "12:50",
+      "home": "BENJAMIN FC",
+      "away": "MATHE SPORT",
+      "category": "SUB12",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M103",
+      "round": 6,
+      "dateLabel": "21 de junio",
+      "field": "Campo 2",
+      "time": "13:40",
+      "home": "FOVA",
+      "away": "TOLENTINO FC",
+      "category": "SUB12",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M104",
+      "round": 6,
+      "dateLabel": "21 de junio",
+      "field": "Campo 2",
+      "time": "14:30",
+      "home": "GUERREROS DE MANCHAY",
+      "away": "SPORTING JF ONCE",
+      "category": "SUB12",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M105",
+      "round": 6,
+      "dateLabel": "21 de junio",
+      "field": "Campo 3",
+      "time": "09:00",
+      "home": "CACHORROS FC",
+      "away": "FOVITA",
+      "category": "SUB12",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M106",
+      "round": 6,
+      "dateLabel": "21 de junio",
+      "field": "Campo 3",
+      "time": "09:50",
+      "home": "CLUB DEPORTIVO LARA",
+      "away": "RENACE JUVENTUD",
+      "category": "SUB12",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M107",
+      "round": 6,
+      "dateLabel": "21 de junio",
+      "field": "Campo 3",
+      "time": "10:40",
+      "home": "DREAM TEAM",
+      "away": "JM SPORT",
+      "category": "SUB12",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M108",
+      "round": 7,
+      "dateLabel": "28 de junio",
+      "field": "Campo 1",
+      "time": "09:00",
+      "home": "GUERREROS DE MANCHAY",
+      "away": "TALENTOS UNIDOS",
+      "category": "SUB8",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M109",
+      "round": 7,
+      "dateLabel": "28 de junio",
+      "field": "Campo 1",
+      "time": "09:40",
+      "home": "BENJAMIN FC",
+      "away": "TALENTOS DEL SUR",
+      "category": "SUB10",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M110",
+      "round": 7,
+      "dateLabel": "28 de junio",
+      "field": "Campo 1",
+      "time": "10:20",
+      "home": "FOVA",
+      "away": "SPORTING JF ONCE",
+      "category": "SUB10",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M111",
+      "round": 7,
+      "dateLabel": "28 de junio",
+      "field": "Campo 1",
+      "time": "11:00",
+      "home": "REMANENTE FC",
+      "away": "RENACE JUVENTUD",
+      "category": "SUB10",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M112",
+      "round": 7,
+      "dateLabel": "28 de junio",
+      "field": "Campo 2",
+      "time": "09:00",
+      "home": "BENJAMIN FC",
+      "away": "SPORTING JF ONCE",
+      "category": "SUB12",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M113",
+      "round": 7,
+      "dateLabel": "28 de junio",
+      "field": "Campo 2",
+      "time": "09:40",
+      "home": "FOVA",
+      "away": "MATHE SPORT",
+      "category": "SUB12",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M114",
+      "round": 7,
+      "dateLabel": "28 de junio",
+      "field": "Campo 2",
+      "time": "10:20",
+      "home": "GUERREROS DE MANCHAY",
+      "away": "TOLENTINO FC",
+      "category": "SUB12",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M115",
+      "round": 7,
+      "dateLabel": "28 de junio",
+      "field": "Campo 2",
+      "time": "11:00",
+      "home": "CACHORROS FC",
+      "away": "JM SPORT",
+      "category": "SUB12",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M116",
+      "round": 7,
+      "dateLabel": "28 de junio",
+      "field": "Campo 2",
+      "time": "12:00",
+      "home": "CLUB DEPORTIVO LARA",
+      "away": "TALENTOS UNIDOS",
+      "category": "SUB12",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M117",
+      "round": 7,
+      "dateLabel": "28 de junio",
+      "field": "Campo 2",
+      "time": "12:50",
+      "home": "DREAM TEAM",
+      "away": "RENACE JUVENTUD",
+      "category": "SUB12",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M118",
+      "round": 8,
+      "dateLabel": "5 de julio",
+      "field": "Campo 1",
+      "time": "09:00",
+      "home": "REMANENTE FC",
+      "away": "TALENTOS UNIDOS",
+      "category": "SUB8",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M119",
+      "round": 8,
+      "dateLabel": "5 de julio",
+      "field": "Campo 1",
+      "time": "09:40",
+      "home": "MATHE SPORT",
+      "away": "TALENTOS DEL SUR",
+      "category": "SUB10",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M120",
+      "round": 8,
+      "dateLabel": "5 de julio",
+      "field": "Campo 1",
+      "time": "10:20",
+      "home": "GUERREROS DE MANCHAY",
+      "away": "MATHE SPORT",
+      "category": "SUB12",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M121",
+      "round": 8,
+      "dateLabel": "5 de julio",
+      "field": "Campo 1",
+      "time": "11:00",
+      "home": "JYB",
+      "away": "SPORTING JF ONCE",
+      "category": "SUB12",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M122",
+      "round": 8,
+      "dateLabel": "5 de julio",
+      "field": "Campo 2",
+      "time": "09:00",
+      "home": "DREAM TEAM",
+      "away": "TALENTOS UNIDOS",
+      "category": "SUB12",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M123",
+      "round": 9,
+      "dateLabel": "12 de julio",
+      "field": "Campo 1",
+      "time": "09:00",
+      "home": "JYB",
+      "away": "TOLENTINO FC",
+      "category": "SUB12",
+      "group": "A",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M124",
+      "round": 9,
+      "dateLabel": "12 de julio",
+      "field": "Campo 1",
+      "time": "09:40",
+      "home": "FOVITA",
+      "away": "TALENTOS UNIDOS",
+      "category": "SUB12",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
+    },
+    {
+      "id": "M125",
+      "round": 10,
+      "dateLabel": "Fecha 10",
+      "field": "Campo 1",
+      "time": "09:00",
+      "home": "RENACE JUVENTUD",
+      "away": "TALENTOS UNIDOS",
+      "category": "SUB12",
+      "group": "B",
+      "status": "pendiente",
+      "note": "Programación sugerida"
     }
   ],
   "users": [
     {
       "id": "U001",
-      "username": "admin",
+      "username": "admin@pachacamac.gob.pe",
+      "email": "admin@pachacamac.gob.pe",
       "password": "admin123",
       "role": "admin",
-      "name": "Administrador",
-      "teamId": ""
+      "name": "Administrador General",
+      "teamId": "",
+      "status": "activo"
     },
     {
       "id": "U002",
-      "username": "guerreros",
-      "password": "demo123",
+      "username": "huailla232@gmail.com",
+      "email": "Huailla232@gmail.com",
+      "password": "72163801W2026",
       "role": "entrenador",
-      "name": "Elvis Robles",
-      "firstName":"Elvis",
-      "lastName":"Robles",
-      "teamId": "EQ-S6-003"
+      "name": "William Huailla Vergaray",
+      "firstName": "William",
+      "lastName": "Huailla Vergaray",
+      "dni": "72163801",
+      "teamId": "EQ-S6-004",
+      "teamName": "CLUB DEPORTIVO LARA",
+      "status": "activo"
+    },
+    {
+      "id": "U003",
+      "username": "academiaremanentefc@gmail.com",
+      "email": "academiaremanentefc@gmail.com",
+      "password": "75826825B2026",
+      "role": "entrenador",
+      "name": "Beider Joel Vasquez Guevara",
+      "firstName": "Beider Joel",
+      "lastName": "Vasquez Guevara",
+      "dni": "75826825",
+      "teamId": "EQ-S10A-004",
+      "teamName": "REMANENTE FC",
+      "status": "activo"
+    },
+    {
+      "id": "U004",
+      "username": "carlosarrigoni13@gmail.com",
+      "email": "Carlosarrigoni13@gmail.com",
+      "password": "74734612C2026",
+      "role": "entrenador",
+      "name": "Carlos Arturo Arrigoni Ramos",
+      "firstName": "Carlos Arturo",
+      "lastName": "Arrigoni Ramos",
+      "dni": "74734612",
+      "teamId": "EQ-S10A-003",
+      "teamName": "TALENTOS DEL SUR",
+      "status": "activo"
+    },
+    {
+      "id": "U005",
+      "username": "samueluap@gmail.com",
+      "email": "samueluap@gmail.com",
+      "password": "44052474S2026",
+      "role": "entrenador",
+      "name": "Samuel Diaz Montalvo",
+      "firstName": "Samuel",
+      "lastName": "Diaz Montalvo",
+      "dni": "44052474",
+      "teamId": "EQ-S8A-004",
+      "teamName": "DREAM TEAM",
+      "status": "activo"
+    },
+    {
+      "id": "U006",
+      "username": "maurocouch12@gmail.com",
+      "email": "Maurocouch12@gmail.com",
+      "password": "41479874M2026",
+      "role": "entrenador",
+      "name": "Mauro Meza Poma",
+      "firstName": "Mauro",
+      "lastName": "Meza Poma",
+      "dni": "41479874",
+      "teamId": "EQ-PEND-001",
+      "teamName": "EQUIPO PENDIENTE",
+      "status": "activo"
+    },
+    {
+      "id": "U007",
+      "username": "pascuallariosrai@gmail.com",
+      "email": "pascuallariosrai@gmail.com",
+      "password": "70373206R2026",
+      "role": "entrenador",
+      "name": "Rai Gustavo Pascual",
+      "firstName": "Rai Gustavo",
+      "lastName": "Pascual",
+      "dni": "70373206",
+      "teamId": "EQ-S10A-001",
+      "teamName": "MATHE SPORT",
+      "status": "activo"
+    },
+    {
+      "id": "U008",
+      "username": "cuyacerdaefrain@gmail.com",
+      "email": "cuyacerdaefrain@gmail.com",
+      "password": "43605397C2026",
+      "role": "entrenador",
+      "name": "César Efrain Cuya Cerda",
+      "firstName": "César Efrain",
+      "lastName": "Cuya Cerda",
+      "dni": "43605397",
+      "teamId": "EQ-S6-005",
+      "teamName": "RENACE JUVENTUD",
+      "status": "activo"
+    },
+    {
+      "id": "U009",
+      "username": "fova.f.c@gmail.com",
+      "email": "fova.f.c@gmail.com",
+      "password": "77148820M2026",
+      "role": "entrenador",
+      "name": "Marco Salvatierra Pareja",
+      "firstName": "Marco",
+      "lastName": "Salvatierra Pareja",
+      "dni": "77148820",
+      "teamId": "EQ-S8A-002",
+      "teamName": "FOVA",
+      "status": "activo"
+    },
+    {
+      "id": "U010",
+      "username": "alex.cursos2020@gmail.com",
+      "email": "alex.cursos2020@gmail.com",
+      "password": "75486684A2026",
+      "role": "entrenador",
+      "name": "Alex Carlos Rodríguez Guzman",
+      "firstName": "Alex Carlos",
+      "lastName": "Rodríguez Guzman",
+      "dni": "75486684",
+      "teamId": "EQ-S6-001",
+      "teamName": "JM SPORT",
+      "status": "activo"
+    },
+    {
+      "id": "U011",
+      "username": "elvisdennisroblessoto@gmail.com",
+      "email": "Elvisdennisroblessoto@gmail.com",
+      "password": "10499558E2026",
+      "role": "entrenador",
+      "name": "Elvis Dennis Robles Soto",
+      "firstName": "Elvis Dennis",
+      "lastName": "Robles Soto",
+      "dni": "10499558",
+      "teamId": "EQ-S6-003",
+      "teamName": "GUERREROS DE MANCHAY",
+      "status": "activo"
+    },
+    {
+      "id": "U012",
+      "username": "omar.pyj@gmail.com",
+      "email": "omar.pyj@gmail.com",
+      "password": "48087060O2026",
+      "role": "entrenador",
+      "name": "Omar Osorio Viera",
+      "firstName": "Omar",
+      "lastName": "Osorio Viera",
+      "dni": "48087060",
+      "teamId": "EQ-S6-002",
+      "teamName": "TOLENTINO FC",
+      "status": "activo"
+    },
+    {
+      "id": "U013",
+      "username": "christiancarlossebastianiasmat@gmail.com",
+      "email": "Christiancarlossebastianiasmat@gmail.com",
+      "password": "07503363C2026",
+      "role": "entrenador",
+      "name": "Christian Carlos Sebastiani Asmat",
+      "firstName": "Christian Carlos",
+      "lastName": "Sebastiani Asmat",
+      "dni": "07503363",
+      "teamId": "EQ-S12B-005",
+      "teamName": "CACHORROS FC",
+      "status": "activo"
+    },
+    {
+      "id": "U014",
+      "username": "darvassan2806@gmail.com",
+      "email": "Darvassan2806@gmail.com",
+      "password": "40335359V2026",
+      "role": "entrenador",
+      "name": "Vásquez Sánchez Darwin",
+      "firstName": "Vásquez",
+      "lastName": "Sánchez Darwin",
+      "dni": "40335359",
+      "teamId": "EQ-S8B-003",
+      "teamName": "VASQUEZ FC",
+      "status": "activo"
+    },
+    {
+      "id": "U015",
+      "username": "josuepalominopablo@gmail.com",
+      "email": "josuepalominopablo@gmail.com",
+      "password": "76042635J2026",
+      "role": "entrenador",
+      "name": "Josué Palomino Pablo",
+      "firstName": "Josué",
+      "lastName": "Palomino Pablo",
+      "dni": "76042635",
+      "teamId": "EQ-S8A-003",
+      "teamName": "JYB",
+      "status": "activo"
+    },
+    {
+      "id": "U016",
+      "username": "steve.g.r@hotmail.com",
+      "email": "steve.g.r@hotmail.com",
+      "password": "40997214S2026",
+      "role": "entrenador",
+      "name": "Steve Guzmán Reyes",
+      "firstName": "Steve",
+      "lastName": "Guzmán Reyes",
+      "dni": "40997214",
+      "teamId": "EQ-S8B-005",
+      "teamName": "TALENTOS UNIDOS",
+      "status": "activo"
+    },
+    {
+      "id": "U017",
+      "username": "sportinglaonce@gmail.com",
+      "email": "sportinglaonce@gmail.com",
+      "password": "43641584N2026",
+      "role": "entrenador",
+      "name": "Neysar Nuñez Castillo",
+      "firstName": "Neysar",
+      "lastName": "Nuñez Castillo",
+      "dni": "43641584",
+      "teamId": "EQ-S10A-005",
+      "teamName": "SPORTING JF ONCE",
+      "status": "activo"
     }
   ],
   "players": [

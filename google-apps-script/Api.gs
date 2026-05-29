@@ -38,7 +38,8 @@ function getAdminDashboard_() {
     fixture: sheetObjects_('Fixture'),
     players: sheetObjects_('Jugadores'),
     convocations: sheetObjects_('Convocatorias'),
-    categories: sheetObjects_('Categorias')
+    categories: sheetObjects_('Categorias'),
+    users: sheetObjects_('Usuarios')
   };
 }
 
@@ -93,11 +94,16 @@ function registerCoachRequest_(payload) {
   var userId = 'U-' + new Date().getTime();
   appendObject_('Usuarios', {
     id: userId,
-    username: dni,
+    username: String(payload.email || '').toLowerCase().trim() || dni,
+    email: String(payload.email || '').toLowerCase().trim(),
     password: tempPassword,
     role: 'entrenador',
     name: String(payload.firstName || '') + ' ' + String(payload.lastName || ''),
+    firstName: payload.firstName || '',
+    lastName: payload.lastName || '',
+    dni: dni,
     teamId: '',
+    teamName: payload.teamName || '',
     status: 'pendiente',
     createdAt: new Date()
   });
@@ -107,11 +113,12 @@ function registerCoachRequest_(payload) {
     firstName: payload.firstName || '',
     lastName: payload.lastName || '',
     dni: dni,
+    email: payload.email || '',
     whatsapp: payload.whatsapp || '',
     teamName: payload.teamName || '',
     tempPassword: tempPassword,
     status: 'pendiente',
     createdAt: new Date()
   });
-  return { ok: true, message: 'Solicitud registrada. Usuario temporal: ' + dni + ' | Clave temporal: ' + tempPassword, tempPassword: tempPassword };
+  return { ok: true, message: 'Solicitud registrada. Login temporal: ' + (payload.email || dni) + ' | Clave temporal: ' + tempPassword, tempPassword: tempPassword };
 }

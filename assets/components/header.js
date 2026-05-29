@@ -60,12 +60,12 @@
           <button class="tab-btn" data-login-tab="register">Registrarte</button>
         </div>
         <form id="modalLoginForm" class="modal-panel active" data-login-panel="login">
-          <label>Usuario</label>
-          <input id="modalUsername" autocomplete="username" placeholder="usuario" required>
+          <label>Correo electrónico</label>
+          <input id="modalUsername" autocomplete="username" placeholder="correo del entrenador" required>
           <label>Contraseña</label>
           <input id="modalPassword" type="password" autocomplete="current-password" placeholder="contraseña" required>
           <button class="btn btn-primary full" type="submit">Iniciar sesión</button>
-          <p class="sub mini">Demo: admin/admin123 o guerreros/demo123.</p>
+          <p class="sub mini">Demo: admin@pachacamac.gob.pe/admin123 o elvisdennisroblessoto@gmail.com/10499558E2026.</p>
         </form>
         <form id="modalRegisterForm" class="modal-panel" data-login-panel="register">
           <div class="form-grid">
@@ -73,6 +73,7 @@
             <div><label>Apellido</label><input id="regLastName" required></div>
           </div>
           <label>DNI</label><input id="regDni" placeholder="DNI del entrenador" required>
+          <label>Correo electrónico</label><input id="regEmail" type="email" placeholder="correo para login" required>
           <label>WhatsApp</label><input id="regWhatsapp" placeholder="+51 999 999 999">
           <label>Equipo</label><input id="regTeamName" placeholder="Nombre del equipo o academia" required>
           <button class="btn btn-primary full" type="submit">Solicitar registro</button>
@@ -115,6 +116,7 @@
         firstName: document.getElementById('regFirstName').value.trim(),
         lastName: document.getElementById('regLastName').value.trim(),
         dni: document.getElementById('regDni').value.trim(),
+        email: document.getElementById('regEmail').value.trim(),
         whatsapp: document.getElementById('regWhatsapp').value.trim(),
         teamName: document.getElementById('regTeamName').value.trim()
       };

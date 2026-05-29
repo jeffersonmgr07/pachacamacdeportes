@@ -72,3 +72,17 @@ Incluye:
 - Próximos partidos.
 - Convocatorias en modal.
 - Estado visual `Convocado` luego de guardar.
+
+
+## Actualización incluida
+
+- Accesos de entrenadores registrados con correo y clave temporal.
+- Login de entrenadores por correo electrónico.
+- Fecha 3 del 31 de mayo cargada desde la programación enviada.
+- Fechas siguientes generadas como programación sugerida.
+- Panel administrador con pestaña de accesos.
+- Google Apps Script se mantiene solo como API/backend; el frontend vive en GitHub Pages.
+
+Ver:
+- `docs/ACCESOS_ENTRENADORES.md`
+- `docs/PROGRAMACION_FECHA3_Y_SIGUIENTES.md`

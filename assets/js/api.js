@@ -32,9 +32,14 @@ const MF = (() => {
     const data = JSON.parse(JSON.stringify(mock));
 
     if (action === 'login') {
-      const user = data.users.find(u => String(u.username).toLowerCase() === String(payload.username).toLowerCase() && String(u.password) === String(payload.password));
+      const loginValue = String(payload.username || payload.email || '').toLowerCase().trim();
+      const user = data.users.find(u => 
+        (String(u.username || '').toLowerCase().trim() === loginValue || String(u.email || '').toLowerCase().trim() === loginValue) &&
+        String(u.password) === String(payload.password) &&
+        String(u.status || 'activo').toLowerCase() === 'activo'
+      );
       if (!user) return { ok: false, message: 'Usuario o contraseña incorrectos.' };
-      return { ok: true, user: { id: user.id, username: user.username, role: user.role, name: user.name, teamId: user.teamId } };
+      return { ok: true, user: { id: user.id, username: user.username, email: user.email, role: user.role, name: user.name, teamId: user.teamId, teamName: user.teamName } };
     }
 
     if (action === 'registerCoachRequest') {
@@ -55,7 +60,7 @@ const MF = (() => {
       team.businessName = team.businessName || 'Academia Deportiva Guerreros de Manchay';
       team.address = team.address || 'Distrito de Pachacamac';
       team.whatsapp = team.whatsapp || '+51 900 000 000';
-      team.email = team.email || 'guerreros@example.com';
+      team.email = team.email || (data.users.find(u => u.teamId === team.id)?.email || 'sin-correo@demo.local');
       team.badgeFileName = team.badgeFileName || 'logo-placeholder.svg';
       team.enabledCategories = team.enabledCategories || ['SUB6','SUB8','SUB10','SUB12'];
       const players = data.players.filter(p => p.teamId === team.id);
@@ -66,7 +71,7 @@ const MF = (() => {
     if (action === 'savePlayer') return { ok: true, message: 'Jugador registrado en modo demo.' };
     if (action === 'saveConvocation') return { ok: true, message: 'Convocatoria enviada en modo demo.', id: `CONV-${Date.now()}`, status: 'convocado' };
     if (action === 'getAdminDashboard') {
-      return { ok: true, ...data };
+      return { ok: true, ...data, users: data.users };
     }
     if (action === 'saveResult') return { ok: true, message: 'Resultado guardado en modo demo.' };
 
