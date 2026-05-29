@@ -16,15 +16,16 @@ function headerHTML(active = 'deportes', championship = false){
     <button type="button" data-open-login>Login</button>
   `;
   return `
-  <div class="topbar"><div class="container">Gestión Deportiva</div></div>
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <span>Gestión Deportiva</span>
+      <span>Distrito Pachacamac</span>
+    </div>
+  </div>
   <header class="header">
     <div class="container header-inner">
-      <a href="index.html" class="brand" aria-label="Ir al inicio">
+      <a href="index.html" class="brand brand-logo-only" aria-label="Ir al inicio">
         <img src="${logo}" onerror="this.src='${fallback}'" alt="Logo Pacha Deportes">
-        <div>
-          <div class="brand-title">Portal de deportes Pachacamac</div>
-          <div class="brand-subtitle">Distrito de Pachacamac</div>
-        </div>
       </a>
       <nav class="nav">${championship ? navChamp : navGeneral}</nav>
       <button class="mobile-menu" onclick="document.body.classList.toggle('show-nav')">Menú</button>
