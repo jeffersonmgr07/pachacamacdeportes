@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <title>Equipos participantes · Minetti Fútbol</title>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Torneo Municipal de Fútbol de Menores 2026 - fixture, resultados, tabla y paneles." />
+<link rel="stylesheet" href="assets/css/styles.css" />
+<script src="assets/js/config.js"></script>
+<script src="assets/js/mock-data.js"></script>
+<script src="assets/js/api.js"></script>
+
+    </head>
+    <body>
+      <script src="assets/components/header.js"></script>
+      <main>
+        <section class="hero" style="min-height:auto">
+          <div class="hero-inner" style="grid-template-columns:1fr;padding:50px 24px">
+            <div>
+              <span class="eyebrow">Portal público</span>
+              <h1 style="font-size:clamp(40px,7vw,76px)">Equipos participantes</h1>
+              <p class="lead">Tabla general de equipos por categoría y grupo.</p>
+            </div>
+          </div>
+        </section>
+        <section class="section">
+          <div class="filters">
+            <select id="categoryFilter"><option value="">Todas las categorías</option></select>
+            <select id="groupFilter"><option value="">Todos los grupos</option></select>
+            <select id="roundFilter"><option value="">Todas las fechas</option></select>
+          </div>
+          <div id="pageContent"></div>
+        </section>
+      </main>
+      <script src="assets/js/equipos.js"></script>
+      <script src="assets/components/footer.js"></script>
+    </body>
+    </html>

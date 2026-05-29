@@ -1,18 +1,66 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Minetti Fútbol - Portal del Campeonato</title>
-  <style>
-    :root{--navy:#07111f;--green:#047857;--gold:#f5c542;--bg:#f1f5f9;--muted:#64748b}*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:#0f172a}.wrap{max-width:1180px;margin:auto;padding:0 22px}.top{background:#020617;color:#cbd5e1;font-size:12px}.top .wrap{display:flex;justify-content:space-between;padding-top:8px;padding-bottom:8px}.nav{background:linear-gradient(90deg,#07111f,#0f172a 55%,#064e3b);color:white}.nav .wrap{min-height:78px;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:13px;font-weight:1000}.crest{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;color:#07111f;background:radial-gradient(circle at 30% 25%,#fff9c2,#f5c542 45%,#b7791f 80%);border:3px solid white}.menu{display:flex;gap:8px;flex-wrap:wrap}.menu a{color:white;text-decoration:none;font-weight:900;padding:10px 13px;border-radius:999px;background:rgba(255,255,255,.1)}.hero{background:linear-gradient(135deg,rgba(7,17,31,.98),rgba(5,95,70,.94));color:white}.hero .wrap{padding-top:86px;padding-bottom:86px;display:grid;grid-template-columns:1.15fr .85fr;gap:34px;align-items:center}h1{font-size:clamp(40px,7vw,82px);line-height:.9;letter-spacing:-.07em;margin:12px 0;font-weight:1000}p{line-height:1.65}.badge{display:inline-flex;border-radius:999px;background:rgba(245,197,66,.18);border:1px solid rgba(245,197,66,.4);color:#fde68a;padding:7px 12px;font-size:12px;font-weight:1000;text-transform:uppercase}.btn{display:inline-flex;text-decoration:none;border-radius:16px;background:linear-gradient(135deg,#f5c542,#d99b1f);color:#07111f;font-weight:1000;padding:14px 18px;margin-right:10px}.btn.secondary{background:white;color:#064e3b}.card{background:white;border:1px solid #e2e8f0;border-radius:26px;padding:24px;box-shadow:0 14px 36px rgba(15,23,42,.08)}.hero .card{background:rgba(255,255,255,.12);color:white;border-color:rgba(255,255,255,.18)}.section{padding:42px 0}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.kpi strong{font-size:38px;color:#064e3b}footer{background:#07111f;color:#cbd5e1;padding:30px 0;margin-top:30px}@media(max-width:850px){.hero .wrap,.grid{grid-template-columns:1fr}.menu{display:none}.top .wrap{flex-direction:column;gap:4px}}
-  </style>
+  <title>Minetti Fútbol · Torneo Municipal de Menores</title>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Torneo Municipal de Fútbol de Menores 2026 - fixture, resultados, tabla y paneles." />
+<link rel="stylesheet" href="assets/css/styles.css" />
+<script src="assets/js/config.js"></script>
+<script src="assets/js/mock-data.js"></script>
+<script src="assets/js/api.js"></script>
+
 </head>
 <body>
-  <div class="top"><div class="wrap"><span>Municipalidad Distrital de Pachacamac</span><span>Estadio Sector B · Huertos de Manchay</span></div></div>
-  <header class="nav"><div class="wrap"><div class="brand"><div class="crest">MF</div><div><small style="color:#facc15">TORNEO MUNICIPAL</small><br>Minetti Fútbol</div></div><nav class="menu"><a href="#">Inicio</a><a href="#">Fixture</a><a href="#">Resultados</a><a href="#">Login</a></nav></div></header>
-  <section class="hero"><div class="wrap"><div><span class="badge">Portal deportivo del campeonato</span><h1>Fútbol de menores con control digital</h1><p>Web pública, login de entrenadores, registro de equipos, nómina de jugadores y convocatorias por partido usando Google Sheets + Apps Script.</p><a class="btn" href="apps-script/Index.html">Ver maqueta HTML</a><a class="btn secondary" href="docs/INSTRUCCIONES_LOGIN_ENTRENADORES.md">Instrucciones</a></div><div class="card"><h2>Qué incluye este avance</h2><p>Login admin y entrenador, registro de equipo, categorías, jugadores con foto, próximos partidos y envío de convocatorias al administrador.</p></div></div></section>
-  <section class="section"><div class="wrap grid"><div class="card kpi"><strong>01</strong><p>Google Sheets será la base editable.</p></div><div class="card kpi"><strong>02</strong><p>Apps Script publica el HTML.</p></div><div class="card kpi"><strong>03</strong><p>Entrenadores registran equipos y jugadores.</p></div></div></section>
-  <footer><div class="wrap">Minetti Fútbol · Archivo raíz de presentación. La aplicación real se publica desde Google Apps Script.</div></footer>
+  <script src="assets/components/header.js"></script>
+  <main>
+    <section class="hero">
+      <div class="hero-inner">
+        <div>
+          <span class="eyebrow">⚽ Campeonato oficial · Pachacamac</span>
+          <h1>Torneo Municipal <span>de Menores</span></h1>
+          <p class="lead">Portal deportivo para consultar fixture, resultados, tablas de posiciones y gestionar convocatorias de equipos por categoría.</p>
+          <div class="cta-row">
+            <a class="btn btn-primary" href="fixture.html">Ver fixture</a>
+            <a class="btn btn-ghost" href="login.html">Acceso entrenadores</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="scoreboard-title">
+            <div>
+              <span class="chip">Próximos partidos</span>
+              <h3>Fecha destacada</h3>
+            </div>
+            <div class="ball">⚽</div>
+          </div>
+          <div id="homeNextMatches"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>Panel del campeonato</h2>
+          <p class="sub">Información pública actualizable desde Google Sheets mediante Apps Script.</p>
+        </div>
+      </div>
+      <div class="grid grid-4" id="homeMetrics"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2>Últimos resultados</h2>
+          <p class="sub">Cuando el administrador cargue marcadores, la tabla se actualizará automáticamente.</p>
+        </div>
+        <a class="btn btn-light" href="resultados.html">Ver resultados</a>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Categoría</th><th>Campo</th><th>Partido</th><th>Estado</th></tr></thead><tbody id="homeResults"></tbody></table></div>
+    </section>
+  </main>
+  <script src="assets/js/home.js"></script>
+  <script src="assets/components/footer.js"></script>
 </body>
 </html>
