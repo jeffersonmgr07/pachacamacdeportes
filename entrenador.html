@@ -1,32 +1,43 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <title>Panel Entrenador · Minetti Fútbol</title>
-
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="description" content="Torneo Municipal de Fútbol de Menores 2026 - fixture, resultados, tabla y paneles." />
-<link rel="stylesheet" href="assets/css/styles.css" />
-<script src="assets/js/config.js"></script>
-<script src="assets/js/mock-data.js"></script>
-<script src="assets/js/api.js"></script>
-
+  <title>Panel Entrenador · Gestión Deportiva Municipal</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Panel de entrenador para registrar equipo, jugadores y convocatorias." />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/mock-data.js"></script>
+  <script src="assets/js/api.js"></script>
 </head>
 <body>
   <script src="assets/components/header.js"></script>
-  <main class="dashboard">
+  <main class="dashboard coach-dashboard">
     <aside class="sidebar">
-      <div class="brand compact" style="margin-bottom:24px"><span class="brand-shield">DT</span><span><strong>Entrenador</strong><small>Perfil del equipo</small></span></div>
-      <a href="#" class="active" data-panel-link="perfil">Perfil equipo</a>
+      <div class="coach-card-side">
+        <div class="coach-avatar">DT</div>
+        <strong id="sidebarCoachName">Entrenador</strong>
+        <small id="sidebarTeamName">Perfil del equipo</small>
+      </div>
+      <a href="#" class="active" data-panel-link="perfil">Perfil de equipo</a>
       <a href="#" data-panel-link="jugadores">Jugadores</a>
-      <a href="#" data-panel-link="convocatoria">Convocatorias</a>
+      <div class="sidebar-group">
+        <button type="button" class="sidebar-parent" data-toggle-submenu="campeonatos">Campeonatos ▾</button>
+        <div class="sidebar-submenu open" id="submenu-campeonatos">
+          <a href="#" data-panel-link="campeonatos">Mis campeonatos</a>
+          <a href="#" data-panel-link="proximos">Próximos partidos</a>
+          <a href="#" data-panel-link="convocatorias">Convocatorias</a>
+        </div>
+      </div>
       <button data-logout>Salir</button>
     </aside>
     <section class="dash-main">
-      <div id="coachWelcome" class="card" style="margin-bottom:20px"></div>
+      <div id="coachWelcome" class="card welcome-card" style="margin-bottom:20px"></div>
       <div id="panel-perfil" class="panel active"></div>
       <div id="panel-jugadores" class="panel"></div>
-      <div id="panel-convocatoria" class="panel"></div>
+      <div id="panel-campeonatos" class="panel"></div>
+      <div id="panel-proximos" class="panel"></div>
+      <div id="panel-convocatorias" class="panel"></div>
     </section>
   </main>
   <script src="assets/js/entrenador.js"></script>

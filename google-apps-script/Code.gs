@@ -29,6 +29,7 @@ function handleRequest_(params) {
 
     switch (action) {
       case 'login': return json_(login_(payload.username, payload.password));
+      case 'registerCoachRequest': return json_(registerCoachRequest_(payload));
       case 'getPublicData': return json_({ ok: true, data: getPublicData_() });
       case 'getFixture': return json_({ ok: true, fixture: sheetObjects_('Fixture'), categories: sheetObjects_('Categorias') });
       case 'getTeams': return json_({ ok: true, teams: sheetObjects_('Equipos'), categories: sheetObjects_('Categorias') });

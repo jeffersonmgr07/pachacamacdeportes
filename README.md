@@ -1,56 +1,74 @@
-# Minetti Fútbol - GitHub Pages + Google Apps Script
+# Gestión Deportiva Municipal · Pachacamac
 
-Proyecto HTML/CSS/JS para publicar en GitHub Pages, conectado a Google Sheets mediante Google Apps Script.
+Proyecto HTML/CSS/JS para GitHub Pages con Google Apps Script como API/backend y Google Sheets como base editable.
 
-## Estructura
+## Estructura principal
+
+- `index.html`: portal general de deportes.
+- `campeonatos.html`: cards de campeonatos disponibles.
+- `campeonato-futbol-menores-2026.html`: portada del Torneo Municipal de Fútbol de Menores 2026.
+- `fixture.html`: programación y partidos.
+- `resultados.html`: resultados.
+- `tabla-posiciones.html`: tabla de posiciones.
+- `equipos.html`: equipos participantes.
+- `login.html`: página de login alternativa.
+- `entrenador.html`: panel de entrenador.
+- `admin.html`: panel administrador.
+
+## Logo
+
+El header usa:
 
 ```txt
-index.html
-login.html
-admin.html
-entrenador.html
-fixture.html
-resultados.html
-tabla-posiciones.html
-equipos.html
-
-assets/
-  css/styles.css
-  js/config.js
-  js/api.js
-  js/mock-data.js
-  components/header.js
-  components/footer.js
-  img/jugadores/
-
-google-apps-script/
-  Code.gs
-  Setup.gs
-  Api.gs
-  Auth.gs
-  Sheets.gs
-  SeedData.gs
-  appsscript.json
+assets/img/logo-pacha-deportes.svg
 ```
 
-## Funcionamiento
+Si tienes tu logo real, reemplaza ese archivo o cambia la ruta en:
 
-- GitHub Pages muestra toda la web visual.
-- Google Apps Script funciona solo como API/backend.
-- Google Sheets guarda usuarios, equipos, jugadores, fixture, resultados y convocatorias.
+```txt
+assets/components/header.js
+assets/components/footer.js
+```
 
-## Usuarios demo
+## Login demo
 
-- Administrador: `admin / admin123`
-- Entrenador demo: `guerreros / demo123`
+- Admin: `admin` / `admin123`
+- Entrenador: `guerreros` / `demo123`
 
-## Para conectar Apps Script
+El botón `Login` abre un modal. El formulario de registro sugiere clave temporal con esta regla:
 
-1. Crea o abre tu Google Sheet.
-2. Ve a Extensiones > Apps Script.
-3. Copia los archivos `.gs` de la carpeta `google-apps-script`.
-4. Ejecuta `setupMinettiFutbol`.
-5. Publica como Aplicación web.
-6. Copia la URL `/exec`.
-7. Pégala en `assets/js/config.js` en `API_URL`.
-8. Cambia `DEMO_MODE` a `false`.
+```txt
+DNI + inicial del primer nombre + 2026
+```
+
+Ejemplo: DNI `12345678`, nombre `Carlos` → `12345678C2026`.
+
+## Modo demo y Apps Script
+
+Por defecto trabaja en modo demo desde `assets/js/config.js`:
+
+```js
+DEMO_MODE: true
+API_URL: ""
+```
+
+Cuando publiques Apps Script como API, cambia a:
+
+```js
+DEMO_MODE: false
+API_URL: "https://script.google.com/macros/s/TU_ID/exec"
+```
+
+## Panel entrenador
+
+Incluye:
+
+- Perfil de equipo en modo lectura.
+- Botón editar para habilitar campos.
+- Insignia del equipo.
+- Categorías habilitadas.
+- Registro de jugadores con máximo 15.
+- Categorías elegibles por fecha de nacimiento.
+- Próximos partidos.
+- Convocatorias en modal.
+- Estado visual `Convocado` luego de guardar.

@@ -37,6 +37,12 @@ const MF = (() => {
       return { ok: true, user: { id: user.id, username: user.username, role: user.role, name: user.name, teamId: user.teamId } };
     }
 
+    if (action === 'registerCoachRequest') {
+      const initial = String(payload.firstName || '').trim().charAt(0).toUpperCase();
+      const tempPassword = `${String(payload.dni || '').replace(/\D/g,'')}${initial}2026`;
+      return { ok: true, message: `Solicitud registrada en modo demo. Clave temporal sugerida: ${tempPassword}`, tempPassword };
+    }
+
     if (action === 'getPublicData') return { ok: true, data };
     if (action === 'getFixture') return { ok: true, fixture: data.fixture, categories: data.rules.categories };
     if (action === 'getTeams') return { ok: true, teams: data.teams, categories: data.rules.categories };
@@ -46,13 +52,19 @@ const MF = (() => {
     }
     if (action === 'getCoachDashboard') {
       const team = data.teams.find(t => t.id === payload.teamId) || data.teams.find(t => t.name === 'GUERREROS DE MANCHAY');
+      team.businessName = team.businessName || 'Academia Deportiva Guerreros de Manchay';
+      team.address = team.address || 'Distrito de Pachacamac';
+      team.whatsapp = team.whatsapp || '+51 900 000 000';
+      team.email = team.email || 'guerreros@example.com';
+      team.badgeFileName = team.badgeFileName || 'logo-placeholder.svg';
+      team.enabledCategories = team.enabledCategories || ['SUB6','SUB8','SUB10','SUB12'];
       const players = data.players.filter(p => p.teamId === team.id);
-      const matches = data.fixture.filter(m => [m.home, m.away].includes(team.name));
-      return { ok: true, team, players, matches, categories: data.rules.categories };
+      const matches = data.fixture.filter(m => [m.home, m.away].includes(team.name)).map(m => ({...m, isOpen: Number(m.round) === 3, isFuture: Number(m.round) > 3}));
+      return { ok: true, team, players, matches, categories: data.rules.categories, championships: data.championships || [] };
     }
     if (action === 'saveTeamProfile') return { ok: true, message: 'Perfil guardado en modo demo.' };
     if (action === 'savePlayer') return { ok: true, message: 'Jugador registrado en modo demo.' };
-    if (action === 'saveConvocation') return { ok: true, message: 'Convocatoria enviada en modo demo.', id: `CONV-${Date.now()}` };
+    if (action === 'saveConvocation') return { ok: true, message: 'Convocatoria enviada en modo demo.', id: `CONV-${Date.now()}`, status: 'convocado' };
     if (action === 'getAdminDashboard') {
       return { ok: true, ...data };
     }
@@ -127,7 +139,25 @@ const MF = (() => {
     return `${cfg.PHOTO_BASE_PATH}${file}`;
   }
 
-  return { call, getSession, setSession, logout, requireRole, categoryLabel, normalize, calculateStandings, toast, imgForPlayer };
+
+
+  function eligibleCategoriesForBirthDate(birthDate) {
+    const year = new Date(birthDate).getFullYear();
+    if (!year || Number.isNaN(year)) return [];
+    const cats = mock.rules?.categories || [];
+    return cats.filter(c => {
+      const years = String(c.birthYears || '').match(/\d{4}/g) || [];
+      if (!years.length) return false;
+      const nums = years.map(Number);
+      return year >= Math.min(...nums);
+    });
+  }
+
+  function generateTempPassword(dni, firstName) {
+    return `${String(dni || '').replace(/\D/g,'')}${String(firstName || '').trim().charAt(0).toUpperCase()}2026`;
+  }
+
+  return { call, getSession, setSession, logout, requireRole, categoryLabel, normalize, calculateStandings, toast, imgForPlayer, eligibleCategoriesForBirthDate, generateTempPassword };
 })();
 
 window.addEventListener('DOMContentLoaded', () => {

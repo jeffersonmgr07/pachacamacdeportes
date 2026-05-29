@@ -1,4 +1,9 @@
 window.MF_MOCK_DATA = {
+  "championships": [
+    {"id":"CH-FUT-MEN-2026","name":"Torneo Municipal de Fútbol de Menores 2026","sport":"Fútbol","status":"Activo","url":"campeonato-futbol-menores-2026.html"},
+    {"id":"CH-VOL-MEN-2026","name":"Torneo Municipal de Vóley de Menores","sport":"Vóley","status":"Próximamente","url":"#"},
+    {"id":"CH-REL-LIB-2026","name":"Torneo Relámpago Categoría Libre","sport":"Fútbol","status":"Próximamente","url":"#"}
+  ],
   "tournament": {
     "name": "Torneo Municipal de Fútbol de Menores 2026",
     "organizer": "Municipalidad Distrital de Pachacamac",
@@ -97,7 +102,13 @@ window.MF_MOCK_DATA = {
       "id": "EQ-S6-003",
       "name": "GUERREROS DE MANCHAY",
       "category": "SUB6",
-      "group": "Único"
+      "group": "Único",
+      "businessName": "Academia Deportiva Guerreros de Manchay",
+      "address": "Distrito de Pachacamac",
+      "whatsapp": "+51 900 000 000",
+      "email": "guerreros@example.com",
+      "enabledCategories": ["SUB6", "SUB8", "SUB10", "SUB12"],
+      "badgeFileName": "logo-placeholder.svg"
     },
     {
       "id": "EQ-S6-004",
@@ -956,7 +967,9 @@ window.MF_MOCK_DATA = {
       "username": "guerreros",
       "password": "demo123",
       "role": "entrenador",
-      "name": "Delegado Guerreros",
+      "name": "Elvis Robles",
+      "firstName":"Elvis",
+      "lastName":"Robles",
       "teamId": "EQ-S6-003"
     }
   ],

@@ -28,7 +28,7 @@ function getCoachDashboard_(teamId) {
   var fixture = sheetObjects_('Fixture').filter(function(m){
     return String(m.home).trim() === String(team.name).trim() || String(m.away).trim() === String(team.name).trim();
   });
-  return { ok: true, team: team, players: players, matches: fixture, categories: sheetObjects_('Categorias') };
+  return { ok: true, team: team, players: players, matches: fixture, categories: sheetObjects_('Categorias'), championships: sheetObjects_('Campeonatos') }; 
 }
 
 function getAdminDashboard_() {
@@ -83,4 +83,35 @@ function saveResult_(payload) {
     updatedAt: new Date()
   });
   return ok ? { ok: true, message: 'Resultado guardado.' } : { ok: false, message: 'Partido no encontrado.' };
+}
+
+
+function registerCoachRequest_(payload) {
+  var dni = String(payload.dni || '').replace(/\D/g, '');
+  var initial = String(payload.firstName || '').trim().charAt(0).toUpperCase();
+  var tempPassword = dni + initial + '2026';
+  var userId = 'U-' + new Date().getTime();
+  appendObject_('Usuarios', {
+    id: userId,
+    username: dni,
+    password: tempPassword,
+    role: 'entrenador',
+    name: String(payload.firstName || '') + ' ' + String(payload.lastName || ''),
+    teamId: '',
+    status: 'pendiente',
+    createdAt: new Date()
+  });
+  appendObject_('Solicitudes_Registro', {
+    id: 'SOL-' + new Date().getTime(),
+    userId: userId,
+    firstName: payload.firstName || '',
+    lastName: payload.lastName || '',
+    dni: dni,
+    whatsapp: payload.whatsapp || '',
+    teamName: payload.teamName || '',
+    tempPassword: tempPassword,
+    status: 'pendiente',
+    createdAt: new Date()
+  });
+  return { ok: true, message: 'Solicitud registrada. Usuario temporal: ' + dni + ' | Clave temporal: ' + tempPassword, tempPassword: tempPassword };
 }

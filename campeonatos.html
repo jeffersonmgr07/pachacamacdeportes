@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <title>Campeonatos · Gestión Deportiva Municipal</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/mock-data.js"></script>
+  <script src="assets/js/api.js"></script>
+</head>
+<body>
+  <script src="assets/components/header.js"></script>
+  <main>
+    <section class="page-hero compact-hero">
+      <span class="eyebrow">🏆 Gestión deportiva</span>
+      <h1>Campeonatos</h1>
+      <p>Selecciona un campeonato para ver fixture, resultados, tablas, equipos y accesos internos.</p>
+    </section>
+    <section class="section">
+      <div class="championship-grid">
+        <article class="championship-card featured">
+          <div class="champ-icon">⚽</div>
+          <span class="chip gold">Activo 2026</span>
+          <h2>Torneo Municipal de Fútbol de Menores 2026</h2>
+          <p>Categorías Sub 6, Sub 8, Sub 10 y Sub 12. Fase de grupos, resultados, tablas y convocatoria de jugadores.</p>
+          <a class="btn btn-primary" href="campeonato-futbol-menores-2026.html">Abrir campeonato</a>
+        </article>
+        <article class="championship-card disabled-card">
+          <div class="champ-icon">🏐</div>
+          <span class="chip">Próximamente</span>
+          <h2>Torneo Municipal de Vóley de Menores</h2>
+          <p>Programación, equipos y categorías por confirmar.</p>
+          <button class="btn btn-light" disabled>En preparación</button>
+        </article>
+        <article class="championship-card disabled-card">
+          <div class="champ-icon">⚡</div>
+          <span class="chip">Próximamente</span>
+          <h2>Torneo Relámpago Categoría Libre</h2>
+          <p>Competencia corta para categoría libre, fixture y bases por confirmar.</p>
+          <button class="btn btn-light" disabled>En preparación</button>
+        </article>
+      </div>
+    </section>
+  </main>
+  <script src="assets/components/footer.js"></script>
+</body>
+</html>
