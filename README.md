@@ -1,88 +1,57 @@
-# Gestión Deportiva Municipal · Pachacamac
+# Portal de deportes Pachacamac
 
-Proyecto HTML/CSS/JS para GitHub Pages con Google Apps Script como API/backend y Google Sheets como base editable.
+Proyecto estático para GitHub Pages con HTML, CSS y JavaScript.  
+Google Apps Script funciona únicamente como API/backend y Google Sheets funciona como base de datos editable.
 
-## Estructura principal
+## Páginas principales
 
-- `index.html`: portal general de deportes.
-- `campeonatos.html`: cards de campeonatos disponibles.
-- `campeonato-futbol-menores-2026.html`: portada del Torneo Municipal de Fútbol de Menores 2026.
-- `fixture.html`: programación y partidos.
-- `resultados.html`: resultados.
-- `tabla-posiciones.html`: tabla de posiciones.
-- `equipos.html`: equipos participantes.
-- `login.html`: página de login alternativa.
-- `entrenador.html`: panel de entrenador.
-- `admin.html`: panel administrador.
+- `index.html` — portal general deportivo.
+- `campeonatos.html` — cards de campeonatos.
+- `campeonato-futbol-menores-2026.html` — portal del campeonato de fútbol de menores.
+- `fixture.html` — programación.
+- `resultados.html` — resultados.
+- `tabla-posiciones.html` — tabla calculada por resultados.
+- `equipos.html` — equipos.
+- `login.html` — login.
+- `entrenador.html` — panel entrenador.
+- `admin.html` — panel administrador.
 
 ## Logo
 
-El header usa:
+Coloca tu logo real en:
 
 ```txt
-assets/img/logo-pacha-deportes.svg
+assets/IMG/logo-pacha-deportes.png
 ```
 
-Si tienes tu logo real, reemplaza ese archivo o cambia la ruta en:
+El proyecto incluye un fallback SVG si todavía no subiste el PNG.
 
-```txt
-assets/components/header.js
-assets/components/footer.js
+## Conexión con Google Sheets
+
+1. Sube `docs/pacha-deportes-google-sheets-maestro.xlsx` a Google Drive.
+2. Ábrelo como Google Sheets.
+3. Entra a `Extensiones > Apps Script`.
+4. Copia los archivos de `google-apps-script/`.
+5. Ejecuta `setupPachaDeportes`.
+6. Publica como aplicación web.
+7. Copia la URL `/exec`.
+8. En `assets/js/config.js`, cambia:
+
+```js
+DEMO_MODE: false,
+API_URL: "https://script.google.com/macros/s/TU_ID/exec"
 ```
 
 ## Login demo
 
-- Admin: `admin` / `admin123`
-- Entrenador: `guerreros` / `demo123`
-
-El botón `Login` abre un modal. El formulario de registro sugiere clave temporal con esta regla:
+Administrador:
 
 ```txt
-DNI + inicial del primer nombre + 2026
+admin@pachacamac.gob.pe / admin123
 ```
 
-Ejemplo: DNI `12345678`, nombre `Carlos` → `12345678C2026`.
+Entrenador:
 
-## Modo demo y Apps Script
-
-Por defecto trabaja en modo demo desde `assets/js/config.js`:
-
-```js
-DEMO_MODE: true
-API_URL: ""
+```txt
+elvisdennisroblessoto@gmail.com / 10499558E2026
 ```
-
-Cuando publiques Apps Script como API, cambia a:
-
-```js
-DEMO_MODE: false
-API_URL: "https://script.google.com/macros/s/TU_ID/exec"
-```
-
-## Panel entrenador
-
-Incluye:
-
-- Perfil de equipo en modo lectura.
-- Botón editar para habilitar campos.
-- Insignia del equipo.
-- Categorías habilitadas.
-- Registro de jugadores con máximo 15.
-- Categorías elegibles por fecha de nacimiento.
-- Próximos partidos.
-- Convocatorias en modal.
-- Estado visual `Convocado` luego de guardar.
-
-
-## Actualización incluida
-
-- Accesos de entrenadores registrados con correo y clave temporal.
-- Login de entrenadores por correo electrónico.
-- Fecha 3 del 31 de mayo cargada desde la programación enviada.
-- Fechas siguientes generadas como programación sugerida.
-- Panel administrador con pestaña de accesos.
-- Google Apps Script se mantiene solo como API/backend; el frontend vive en GitHub Pages.
-
-Ver:
-- `docs/ACCESOS_ENTRENADORES.md`
-- `docs/PROGRAMACION_FECHA3_Y_SIGUIENTES.md`

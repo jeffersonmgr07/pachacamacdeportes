@@ -1,45 +1,41 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <title>Panel Entrenador · Gestión Deportiva Municipal</title>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Panel de entrenador para registrar equipo, jugadores y convocatorias." />
-  <link rel="stylesheet" href="assets/css/styles.css" />
-  <script src="assets/js/config.js"></script>
-  <script src="assets/js/mock-data.js"></script>
-  <script src="assets/js/api.js"></script>
-</head>
-<body>
-  <script src="assets/components/header.js"></script>
-  <main class="dashboard coach-dashboard">
-    <aside class="sidebar">
-      <div class="coach-card-side">
-        <div class="coach-avatar">DT</div>
-        <strong id="sidebarCoachName">Entrenador</strong>
-        <small id="sidebarTeamName">Perfil del equipo</small>
-      </div>
-      <a href="#" class="active" data-panel-link="perfil">Perfil de equipo</a>
-      <a href="#" data-panel-link="jugadores">Jugadores</a>
-      <div class="sidebar-group">
-        <button type="button" class="sidebar-parent" data-toggle-submenu="campeonatos">Campeonatos ▾</button>
-        <div class="sidebar-submenu open" id="submenu-campeonatos">
-          <a href="#" data-panel-link="campeonatos">Mis campeonatos</a>
-          <a href="#" data-panel-link="proximos">Próximos partidos</a>
-          <a href="#" data-panel-link="convocatorias">Convocatorias</a>
-        </div>
-      </div>
-      <button data-logout>Salir</button>
-    </aside>
-    <section class="dash-main">
-      <div id="coachWelcome" class="card welcome-card" style="margin-bottom:20px"></div>
-      <div id="panel-perfil" class="panel active"></div>
-      <div id="panel-jugadores" class="panel"></div>
-      <div id="panel-campeonatos" class="panel"></div>
-      <div id="panel-proximos" class="panel"></div>
-      <div id="panel-convocatorias" class="panel"></div>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Panel entrenador</title><link rel="stylesheet" href="assets/css/styles.css"></head><body>
+<div class="panel-layout">
+  <aside class="sidebar">
+    <div class="side-brand"><img src="assets/IMG/logo-pacha-deportes.png" onerror="this.src='assets/IMG/logo-pacha-deportes.svg'" alt=""><div><strong>Panel entrenador</strong><span>Fútbol de menores</span></div></div>
+    <div class="side-user"><strong id="coachName">Entrenador</strong><span>Delegado autorizado</span></div>
+    <nav class="side-menu">
+      <button data-tab="perfil" class="active">Perfil de equipo</button>
+      <button data-tab="jugadores">Jugadores</button>
+      <button data-tab="campeonatos">Campeonatos</button>
+      <button data-tab="partidos">Próximos partidos</button>
+      <button data-tab="convocatorias">Convocatorias</button>
+      <a href="campeonato-futbol-menores-2026.html">Ver campeonato</a>
+      <button id="logoutBtn">Salir</button>
+    </nav>
+  </aside>
+  <main class="panel-main">
+    <section class="welcome"><div><h1 id="coachWelcome">Bienvenido</h1><p id="coachSubtitle"></p></div></section>
+    <section id="tab-perfil" class="tabs-content active"><div class="section-head"><div><h2 class="section-title">Perfil del equipo</h2><p class="section-subtitle">Datos generales del club o academia.</p></div></div><div class="card" id="profileBox"></div></section>
+    <section id="tab-jugadores" class="tabs-content"><div class="section-head"><div><h2 class="section-title">Nómina general de jugadores</h2><p class="section-subtitle"><span id="playerCount">0 jugadores</span> · máximo 15 jugadores por equipo.</p></div></div>
+      <div class="card" style="margin-bottom:20px"><h3>Registrar jugador</h3><form id="playerForm" class="form-grid">
+        <div><label>Nombre y apellidos</label><input class="input" name="fullName" required></div>
+        <div><label>DNI</label><input class="input" name="dni" required></div>
+        <div><label>Fecha de nacimiento</label><input class="input" name="birthDate" type="date" required></div>
+        <div><label>Foto del jugador</label><input class="input" name="photoUrl" placeholder="assets/IMG/jugadores/DNI.png"></div>
+        <div style="grid-column:1/-1"><label>Categorías permitidas según fecha de nacimiento</label><div id="playerCatChecks" class="category-checks"></div></div>
+        <div style="grid-column:1/-1"><button class="btn btn-primary">Registrar jugador</button></div>
+      </form></div>
+      <div class="grid grid-2" id="playersGrid"></div>
     </section>
+    <section id="tab-campeonatos" class="tabs-content"><div class="card"><span class="badge badge-green">Activo</span><h3>Campeonato Municipal de Fútbol de Menores 2026</h3><p>Accesos rápidos del campeonato.</p><div class="actions"><a class="btn btn-secondary" href="fixture.html">Ver fixture</a><a class="btn btn-secondary" href="tabla-posiciones.html">Ver tabla de posiciones</a><button class="btn btn-primary" onclick="setTab('partidos')">Próximos partidos</button></div></div></section>
+    <section id="tab-partidos" class="tabs-content"><div class="section-head"><div><h2 class="section-title">Próximos partidos</h2><p class="section-subtitle">Solo aparecen partidos programados de tu equipo.</p></div><a class="btn btn-secondary" href="fixture.html">Ver todos los partidos</a></div><div class="grid grid-2" id="coachMatches"></div></section>
+    <section id="tab-convocatorias" class="tabs-content"><div class="section-head"><div><h2 class="section-title">Convocatorias</h2><p class="section-subtitle">Abre una convocatoria desde el partido habilitado de la fecha actual.</p></div></div><div class="grid grid-2" id="coachMatches"></div></section>
   </main>
-  <script src="assets/js/entrenador.js"></script>
-</body>
-</html>
+</div>
+<div class="modal" id="rosterModal"><div class="modal-dialog"><div class="modal-header"><div><h3 id="rosterTitle">Convocatoria</h3><p id="rosterSubtitle" style="margin:3px 0 0;color:#9fb1ca"></p></div><button class="modal-close" data-close-modal="rosterModal">×</button></div><div class="modal-body">
+  <div class="card" style="margin-bottom:16px"><h3>Jugadores disponibles</h3><div id="availablePlayers" class="roster-list"></div></div>
+  <div class="roster-columns"><div class="card"><h3>Titulares</h3><div id="startersList" class="roster-list"></div></div><div class="card"><h3>Suplentes</h3><div id="subsList" class="roster-list"></div></div></div>
+  <div class="actions"><button class="btn btn-primary" id="saveRosterBtn">Guardar convocatoria</button></div>
+</div></div></div>
+<script src="assets/js/config.js"></script><script src="assets/js/mock-data.js"></script><script src="assets/js/api.js"></script><script src="assets/js/entrenador.js"></script>
+</body></html>

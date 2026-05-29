@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<rect width="512" height="512" rx="96" fill="#071225"/>
+<circle cx="256" cy="256" r="190" fill="#ffffff"/>
+<circle cx="256" cy="256" r="162" fill="#7fb515"/>
+<path d="M126 292c52-98 208-98 260 0" fill="none" stroke="#071225" stroke-width="30" stroke-linecap="round"/>
+<circle cx="256" cy="210" r="66" fill="#071225"/>
+<text x="256" y="385" font-family="Arial" font-size="54" font-weight="900" text-anchor="middle" fill="#071225">PACHA</text>
+</svg>

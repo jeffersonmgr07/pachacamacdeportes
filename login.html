@@ -1,40 +1,13 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <title>Login · Gestión Deportiva Municipal</title>
-
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="description" content="Torneo Municipal de Fútbol de Menores 2026 - fixture, resultados, tabla y paneles." />
-<link rel="stylesheet" href="assets/css/styles.css" />
-<script src="assets/js/config.js"></script>
-<script src="assets/js/mock-data.js"></script>
-<script src="assets/js/api.js"></script>
-
-</head>
-<body>
-  <script src="assets/components/header.js"></script>
-  <main class="login-shell">
-    <section class="login-card">
-      <div class="brand" style="color:#06101f;margin-bottom:20px"><img class="brand-logo" src="assets/img/logo-pacha-deportes.svg" alt="Pacha Deportes"><span><strong>Login privado</strong><small>Entrenadores y administración</small></span></div>
-      <div class="tabs">
-        <button class="tab-btn active" data-fill="coach">Entrenador demo</button>
-        <button class="tab-btn" data-fill="admin">Admin demo</button>
-      </div>
-      <form id="loginForm">
-        <div style="margin-bottom:14px">
-          <label>Correo electrónico</label>
-          <input id="username" name="username" autocomplete="username" placeholder="Ejemplo: elvisdennisroblessoto@gmail.com" required />
-        </div>
-        <div style="margin-bottom:18px">
-          <label>Contraseña</label>
-          <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Ejemplo: 10499558E2026" required />
-        </div>
-        <button class="btn btn-primary" type="submit" style="width:100%">Ingresar al panel</button>
-        <p class="sub" style="margin-top:16px">Usuarios demo: <b>elvisdennisroblessoto@gmail.com / 10499558E2026</b> o <b>admin@pachacamac.gob.pe / admin123</b>.</p>
-      </form>
-    </section>
-  </main>
-  <script src="assets/js/login.js"></script>
-</body>
-</html>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Login</title><link rel="stylesheet" href="assets/css/styles.css"></head><body>
+<div data-header data-active="campeonatos"></div>
+<section class="login-shell"><div class="login-card"><h2 class="section-title" style="font-size:30px">Login</h2><p class="section-subtitle">Ingresa con tu correo y clave temporal.</p>
+<form data-login-form>
+<div style="margin:16px 0"><label>Correo electrónico</label><input class="input" name="email" type="email" required></div>
+<div style="margin:16px 0"><label>Clave</label><input class="input" name="password" type="password" required></div>
+<button class="btn btn-primary" style="width:100%">Iniciar sesión</button>
+</form>
+<div class="actions"><button class="btn btn-secondary btn-small" data-demo-coach>Demo entrenador</button><button class="btn btn-secondary btn-small" data-demo-admin>Demo admin</button></div>
+<a class="btn btn-secondary" style="width:100%;margin-top:12px" href="registro.html">Registrarte</a>
+</div></section><div data-footer></div>
+<script src="assets/components/header.js"></script><script src="assets/components/footer.js"></script><script src="assets/js/config.js"></script><script src="assets/js/mock-data.js"></script><script src="assets/js/api.js"></script><script src="assets/js/login.js"></script>
+</body></html>

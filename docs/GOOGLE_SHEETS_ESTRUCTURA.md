@@ -1,35 +1,62 @@
-# Estructura de Google Sheets
+# Estructura Google Sheets
 
-Crea estas hojas con los encabezados exactos en la fila 1.
+El archivo maestro está en:
 
-## Config
-`name | organizer | venue | season | status`
+```txt
+docs/pacha-deportes-google-sheets-maestro.xlsx
+```
 
-## Categorias
-`id | label | birthYears | fieldPlayers | minPlayers | gameTime | break`
+## Pestañas
 
-## Usuarios
-`id | username | password | role | name | teamId | status`
+### Config
+Configuración general.
 
-## Equipos
-`id | name | category | group`
+### Categorias
+Reglas de categorías, años de nacimiento, titulares y mínimos.
 
-## Equipos_Perfil
-`id | name | businessName | address | whatsapp | email | updatedAt`
+### Usuarios
+Login de administradores y entrenadores.
 
-## Jugadores
-`id | teamId | teamName | category | firstName | lastName | dni | birthDate | photoFileName | status | createdAt`
+Columnas principales:
 
-## Fixture
-`id | round | dateLabel | field | time | home | away | category | group | status | homeScore | awayScore | updatedAt`
+```txt
+email
+password
+role
+status
+teamId
+```
 
-## Convocatorias
-`id | matchId | teamId | status | createdAt`
+### Entrenadores
+Datos de entrenadores y equipos.
 
-## Convocatoria_Detalle
-`convocationId | playerId | type`
+### Equipos
+Datos generales de equipos, razón social, dirección, WhatsApp, correo e insignia.
 
-## Sanciones
-`id | playerId | matchId | type | matches | status | notes`
+### Jugadores
+Nómina general de jugadores.
 
-Puedes ejecutar `setupMinettiFutbol` desde Apps Script para crear estas hojas automáticamente.
+Máximo recomendado por equipo: 15 jugadores.
+
+### Fixture
+Programación de partidos y resultados.
+
+Para cargar un resultado:
+
+```txt
+status = jugado
+homeScore = goles local
+awayScore = goles visitante
+resultType = normal / W.O. / reclamo
+```
+
+### Convocatorias
+Se llena desde el panel entrenador cuando se guarda una convocatoria.
+
+### Sanciones
+Registro de tarjetas, expulsiones y suspensiones.
+
+## Importante
+
+No cambies los nombres de las pestañas ni los encabezados de la fila 1.
+El Apps Script lee exactamente esos nombres.

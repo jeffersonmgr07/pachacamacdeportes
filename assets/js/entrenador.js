@@ -1,253 +1,165 @@
-let dashboard = null;
-let localPlayers = [];
-let selectedMatch = null;
-let starters = [];
-let substitutes = [];
-let convocationState = {};
+let coachState = {user:null, team:null, categories:[], players:[], fixture:[], convocatorias:[]};
 
-const OPEN_ROUND = 3;
-
-const $ = (id) => document.getElementById(id);
-
-function normalizePlayer(p){
-  const cats = Array.isArray(p.categories) ? p.categories : (typeof p.categories === 'string' ? p.categories.split(',').map(x => x.trim()).filter(Boolean) : (p.category ? [p.category] : []));
-  return { ...p, categories: cats }; 
+function categoryOptionsByBirthDate(birthDate){
+  if(!birthDate) return [];
+  const y = new Date(birthDate).getFullYear();
+  // En menores puede jugar en su categoría o categorías superiores.
+  return coachState.categories.filter(c => y >= Number(c.minYear) && y <= 2021 && Number(c.minYear) <= y || (y >= Number(c.minYear) && y <= Number(c.maxYear)))
+    .concat(coachState.categories.filter(c => {
+      const min = Number(c.minYear), max=Number(c.maxYear);
+      return y > max && y <= 2021; // nacido más joven puede subir
+    }))
+    .filter((v,i,a)=>a.findIndex(x=>x.categoryId===v.categoryId)===i);
+}
+function simpleCategoryByDOB(birthDate){
+  if(!birthDate) return '';
+  const y = new Date(birthDate).getFullYear();
+  const exact = coachState.categories.find(c=>y>=Number(c.minYear) && y<=Number(c.maxYear));
+  return exact ? exact.name : '';
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-  const session = MF.requireRole(['entrenador']);
-  if (!session) return;
-  const res = await MF.call('getCoachDashboard', { teamId: session.teamId });
-  dashboard = res;
-  localPlayers = (res.players || []).map(normalizePlayer);
-  convocationState = JSON.parse(localStorage.getItem('mf_convocations_demo') || '{}');
-  renderCoach(session, res);
-  bindDashboardNav();
-});
-
-function bindDashboardNav(){
-  document.querySelectorAll('[data-panel-link]').forEach(link => link.addEventListener('click', e => {
-    e.preventDefault();
-    document.querySelectorAll('[data-panel-link]').forEach(a=>a.classList.remove('active'));
-    link.classList.add('active');
-    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-    const panel = $(`panel-${link.dataset.panelLink}`);
-    if (panel) panel.classList.add('active');
-  }));
-  document.querySelectorAll('[data-toggle-submenu]').forEach(btn => btn.addEventListener('click', () => {
-    const menu = $(`submenu-${btn.dataset.toggleSubmenu}`);
-    if (menu) menu.classList.toggle('open');
-  }));
+function renderShell(){
+  const user = coachState.user;
+  document.querySelector('#coachName').textContent = user.shortName || user.fullName;
+  document.querySelector('#coachWelcome').textContent = `Bienvenido ${user.shortName || user.fullName}`;
+  document.querySelector('#coachSubtitle').textContent = 'Gestiona tu perfil, jugadores, partidos y convocatorias del equipo.';
 }
-
-function renderCoach(session, data){
-  $('sidebarCoachName').textContent = session.name || 'Entrenador';
-  $('sidebarTeamName').textContent = data.team.name;
-  $('coachWelcome').innerHTML = `<div class="welcome-card__content"><div><span class="chip gold">Panel entrenador</span><h2>${data.team.name}</h2><p class="sub">Bienvenido, <b>${session.name || session.username}</b>. Gestiona perfil, jugadores y convocatorias del equipo.</p></div><a class="btn btn-light" href="campeonato-futbol-menores-2026.html">Ver campeonato</a></div>`;
-  renderProfile(data, false);
-  renderPlayers(data);
-  renderChampionships(data);
-  renderUpcoming(data);
-  renderConvocations(data);
+function setTab(tab){
+  document.querySelectorAll('.side-menu button[data-tab]').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  document.querySelectorAll('.tabs-content').forEach(s=>s.classList.toggle('active', s.id===`tab-${tab}`));
 }
-
-function enabledCategories(){
-  const value = dashboard.team.enabledCategories || dashboard.team.categories || dashboard.team.category;
-  if (Array.isArray(value)) return value;
-  if (typeof value === 'string') return value.split(',').map(x => x.trim()).filter(Boolean);
-  return [dashboard.team.category].filter(Boolean);
+function renderProfile(edit=false){
+  const t = coachState.team || {};
+  const view = document.querySelector('#profileBox');
+  const cats = coachState.categories.map(c => `
+    <label class="category-check"><input type="checkbox" value="${c.name}" ${(t.categories||'SUB 6,SUB 8,SUB 10,SUB 12').includes(c.name)?'checked':''} ${edit?'':'disabled'}> ${c.label}</label>`).join('');
+  view.innerHTML = edit ? `
+    <div class="form-grid">
+      <div><label>Nombre del equipo</label><input class="input" id="teamNameInput" value="${t.teamName||''}"></div>
+      <div><label>Razón social</label><input class="input" id="legalNameInput" value="${t.legalName||''}"></div>
+      <div><label>Dirección</label><input class="input" id="addressInput" value="${t.address||''}"></div>
+      <div><label>Correo del equipo</label><input class="input" id="teamEmailInput" value="${t.email||''}"></div>
+      <div><label>WhatsApp</label><input class="input" id="whatsappInput" value="${t.whatsapp||''}"></div>
+      <div><label>Insignia del equipo</label><input class="input" id="crestInput" placeholder="URL o ruta de imagen" value="${t.crestUrl||''}"></div>
+    </div>
+    <div style="margin-top:14px"><label>Categorías habilitadas</label><div class="category-checks">${cats}</div></div>
+    <div class="actions"><button class="btn btn-primary" id="saveProfileBtn">Guardar perfil</button><button class="btn btn-secondary" id="cancelEditProfile">Cancelar</button></div>
+  ` : `
+    <div class="form-grid">
+      <div><label>Nombre del equipo</label><div class="readonly-field">${t.teamName||'-'}</div></div>
+      <div><label>Razón social</label><div class="readonly-field">${t.legalName||'Sin razón social registrada'}</div></div>
+      <div><label>Dirección</label><div class="readonly-field">${t.address||'Pendiente'}</div></div>
+      <div><label>Correo</label><div class="readonly-field">${t.email||'-'}</div></div>
+      <div><label>WhatsApp</label><div class="readonly-field">${t.whatsapp||'Pendiente'}</div></div>
+      <div><label>Insignia del equipo</label><div class="readonly-field">${t.crestUrl ? 'Insignia cargada' : 'Pendiente'}</div></div>
+    </div>
+    <div style="margin-top:14px"><label>Categorías habilitadas</label><div class="category-checks">${cats}</div></div>
+    <div class="actions"><button class="btn btn-primary" id="editProfileBtn">Editar perfil</button></div>
+  `;
+  document.querySelector('#editProfileBtn')?.addEventListener('click',()=>renderProfile(true));
+  document.querySelector('#cancelEditProfile')?.addEventListener('click',()=>renderProfile(false));
+  document.querySelector('#saveProfileBtn')?.addEventListener('click',async()=>{
+    const categories = [...view.querySelectorAll('.category-check input:checked')].map(i=>i.value).join(',');
+    const payload = {
+      teamId:t.teamId, teamName:document.querySelector('#teamNameInput').value, legalName:document.querySelector('#legalNameInput').value,
+      address:document.querySelector('#addressInput').value, email:document.querySelector('#teamEmailInput').value, whatsapp:document.querySelector('#whatsappInput').value,
+      crestUrl:document.querySelector('#crestInput').value, categories
+    };
+    const res = await API.saveTeamProfile(payload);
+    if(res.ok){ coachState.team = {...coachState.team, ...payload}; toast('Perfil actualizado'); renderProfile(false); }
+  });
 }
-
-function renderProfile(data, editMode){
-  const catLabels = (data.categories || []).filter(c => enabledCategories().includes(c.id)).map(c => `<span class="chip">${c.label}</span>`).join('');
-  if (!editMode) {
-    $('panel-perfil').innerHTML = `<div class="section-head"><div><h2>Perfil de equipo</h2><p class="sub">Información registrada del club o academia. Presiona editar para modificar datos.</p></div><button class="btn btn-primary" id="editProfileBtn">Editar perfil</button></div>
-      <div class="card profile-display">
-        <div class="team-badge-box"><img src="assets/img/${data.team.badgeFileName || 'logo-placeholder.svg'}" alt="Insignia del equipo"></div>
-        <div>
-          <div class="info-grid">
-            <div class="info-item"><small>Equipo</small><strong>${data.team.name}</strong></div>
-            <div class="info-item"><small>Razón social</small><strong>${data.team.businessName || 'No registrado'}</strong></div>
-            <div class="info-item"><small>Dirección</small><strong>${data.team.address || 'No registrado'}</strong></div>
-            <div class="info-item"><small>WhatsApp</small><strong>${data.team.whatsapp || 'No registrado'}</strong></div>
-            <div class="info-item"><small>Correo</small><strong>${data.team.email || 'No registrado'}</strong></div>
-            <div class="info-item"><small>Categorías habilitadas</small><div class="pill-row" style="margin-top:8px">${catLabels}</div></div>
-          </div>
-        </div>
-      </div>`;
-    $('editProfileBtn').addEventListener('click', () => renderProfile(data, true));
-    return;
+function renderPlayers(){
+  const grid = document.querySelector('#playersGrid');
+  document.querySelector('#playerCount').textContent = `${coachState.players.length} jugadores`;
+  grid.innerHTML = coachState.players.map(p=>`
+    <article class="card player-card">
+      <img class="avatar" src="${p.photoUrl||`assets/IMG/jugadores/${p.dni}.png`}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'avatar-fallback',textContent:'${(p.fullName||'J').slice(0,2).toUpperCase()}'}))">
+      <div><h3>${p.fullName}</h3><p>DNI: ${p.dni}</p><p>Fecha de nacimiento: ${p.birthDate}</p><p>Categoría: ${p.categories||simpleCategoryByDOB(p.birthDate)}</p></div>
+    </article>`).join('') || `<div class="card">Aún no hay jugadores registrados.</div>`;
+}
+function renderPlayerForm(){
+  const form = document.querySelector('#playerForm');
+  const birth = form.querySelector('[name=birthDate]');
+  const catBox = form.querySelector('#playerCatChecks');
+  function refreshCats(){
+    const y = birth.value ? new Date(birth.value).getFullYear() : null;
+    const eligible = coachState.categories.filter(c=>{
+      if(!y) return true;
+      const min=Number(c.minYear), max=Number(c.maxYear);
+      return (y>=min && y<=max) || (y>max && y<=2021); // puede subir
+    });
+    catBox.innerHTML = eligible.map(c=>`<label class="category-check"><input type="checkbox" value="${c.name}"> ${c.label}</label>`).join('') || '<p>No aplica a ninguna categoría registrada.</p>';
   }
-
-  const cats = (data.categories || []).map(c => `<label class="category-check"><input type="checkbox" value="${c.id}" ${enabledCategories().includes(c.id)?'checked':''}> ${c.label}</label>`).join('');
-  $('panel-perfil').innerHTML = `<div class="section-head"><div><h2>Editar perfil de equipo</h2><p class="sub">Actualiza la información institucional y categorías habilitadas.</p></div><button class="btn btn-light" id="cancelProfileBtn">Cancelar</button></div>
-    <form id="teamForm" class="card">
-      <div class="form-grid">
-        <div><label>Nombre del equipo</label><input id="teamName" value="${data.team.name || ''}"></div>
-        <div><label>Razón social / academia</label><input id="businessName" value="${data.team.businessName || ''}"></div>
-        <div><label>Dirección</label><input id="address" value="${data.team.address || ''}"></div>
-        <div><label>WhatsApp</label><input id="whatsapp" value="${data.team.whatsapp || ''}"></div>
-        <div><label>Correo</label><input id="email" type="email" value="${data.team.email || ''}"></div>
-        <div><label>Insignia del equipo</label><input id="badge" type="file" accept="image/png,image/jpeg,image/svg+xml"><small class="sub mini">En GitHub puedes subirla a assets/img/</small></div>
-      </div>
-      <h3>Categorías habilitadas</h3>
-      <div class="category-checks">${cats}</div>
-      <button class="btn btn-primary" style="margin-top:18px">Guardar perfil</button>
-    </form>`;
-  $('cancelProfileBtn').addEventListener('click', () => renderProfile(data, false));
-  $('teamForm').addEventListener('submit', async e => {
+  birth.addEventListener('change',refreshCats); refreshCats();
+  form.addEventListener('submit', async e=>{
     e.preventDefault();
-    const selected = [...document.querySelectorAll('#teamForm .category-check input:checked')].map(i => i.value);
-    dashboard.team = {...dashboard.team, name:teamName.value, businessName:businessName.value, address:address.value, whatsapp:whatsapp.value, email:email.value, enabledCategories:selected};
-    const res = await MF.call('saveTeamProfile', dashboard.team, 'POST');
-    MF.toast(res.message || 'Perfil guardado');
-    renderProfile(dashboard, false);
+    if(coachState.players.length >= 15){ toast('Máximo 15 jugadores por equipo'); return; }
+    const fd = new FormData(form);
+    const cats = [...catBox.querySelectorAll('input:checked')].map(i=>i.value).join(', ');
+    if(!cats){ toast('Selecciona al menos una categoría válida'); return; }
+    const player = {teamId:coachState.team.teamId, teamName:coachState.team.teamName, fullName:fd.get('fullName'), dni:fd.get('dni'), birthDate:fd.get('birthDate'), categories:cats, photoUrl:fd.get('photoUrl') || `assets/IMG/jugadores/${fd.get('dni')}.png`};
+    const res = await API.savePlayer(player);
+    if(res.ok){ coachState.players.push(res.player); toast('Jugador registrado'); form.reset(); refreshCats(); renderPlayers(); }
+    else toast(res.message||'No se pudo registrar');
   });
 }
-
-function renderPlayers(data){
-  const maxReached = localPlayers.length >= 15;
-  $('panel-jugadores').innerHTML = `<div class="section-head"><div><h2>Jugadores</h2><p class="sub">Registra hasta 15 jugadores. La categoría elegible se calcula desde la fecha de nacimiento.</p></div><span class="player-count">${localPlayers.length}/15 jugadores registrados</span></div>
-  <form id="playerForm" class="card form-grid three" style="margin-bottom:20px">
-    <div><label>Nombres</label><input id="firstName" required ${maxReached?'disabled':''}></div>
-    <div><label>Apellidos</label><input id="lastName" required ${maxReached?'disabled':''}></div>
-    <div><label>DNI</label><input id="dni" required ${maxReached?'disabled':''}></div>
-    <div><label>Fecha de nacimiento</label><input id="birthDate" type="date" required ${maxReached?'disabled':''}></div>
-    <div><label>Categorías elegibles</label><div id="playerCategoryChecks" class="category-checks"><small class="future-note">Ingresa fecha de nacimiento.</small></div></div>
-    <div><label>Foto del jugador</label><input id="photo" type="file" accept="image/png,image/jpeg" ${maxReached?'disabled':''}><small class="sub mini">Recomendado: DNI.png en assets/img/jugadores/</small></div>
-    <button class="btn btn-primary" ${maxReached?'disabled':''}>Registrar jugador</button>
-  </form>
-  <div class="player-grid" id="playerCards">${localPlayers.map(playerCard).join('')}</div>`;
-  if (maxReached) return;
-  $('birthDate').addEventListener('change', renderEligibleCategoryChecks);
-  $('playerForm').addEventListener('submit', async e => {
-    e.preventDefault();
-    const selectedCats = [...document.querySelectorAll('#playerCategoryChecks input:checked')].map(i => i.value);
-    if (!selectedCats.length) return MF.toast('Selecciona al menos una categoría elegible.', 'error');
-    if (localPlayers.length >= 15) return MF.toast('Máximo 15 jugadores por equipo.', 'error');
-    const payload = { id:`LOCAL-${Date.now()}`, teamId:dashboard.team.id, teamName:dashboard.team.name, firstName:firstName.value, lastName:lastName.value, dni:dni.value, birthDate:birthDate.value, categories:selectedCats, category:selectedCats[0], photoFileName:`${dni.value}.png` };
-    const res = await MF.call('savePlayer', payload, 'POST');
-    localPlayers.push(payload);
-    MF.toast(res.message || 'Jugador guardado');
-    renderPlayers(dashboard);
-  });
-}
-
-function renderEligibleCategoryChecks(){
-  const birthDate = $('birthDate').value;
-  const eligible = MF.eligibleCategoriesForBirthDate(birthDate).filter(c => enabledCategories().includes(c.id));
-  $('playerCategoryChecks').innerHTML = eligible.length ? eligible.map(c => `<label class="category-check"><input type="checkbox" value="${c.id}" checked> ${c.label}</label>`).join('') : '<small class="future-note">No hay categorías habilitadas para esa fecha.</small>';
-}
-
-function renderChampionships(data){
-  const championships = data.championships || [{name:'Torneo Municipal de Fútbol de Menores 2026', status:'Activo'}];
-  $('panel-campeonatos').innerHTML = `<h2>Mis campeonatos</h2><p class="sub">Campeonatos asociados a tu equipo.</p>${championships.map(ch => `<div class="champ-mini"><span>⚽</span><div><b>${ch.name}</b><br><small>${ch.status || 'Activo'}</small></div><a class="btn btn-light" href="${ch.url || '#'}">Abrir</a></div>`).join('')}`;
-}
-
-function renderUpcoming(data){
-  $('panel-proximos').innerHTML = `<h2>Próximos partidos</h2><p class="sub">La convocatoria solo se habilita para la siguiente fecha disponible.</p><div class="grid grid-3">${matchCards(data.matches || []).join('')}</div>`;
-}
-
-function renderConvocations(data){
-  $('panel-convocatorias').innerHTML = `<h2>Convocatorias</h2><p class="sub">Abre la convocatoria habilitada, elige titulares y suplentes, y guarda.</p><div class="grid grid-3">${matchCards(data.matches || []).join('')}</div>`;
-  bindMatchButtons();
-}
-
-function matchCards(matches){
-  return matches.filter(m => Number(m.round) >= OPEN_ROUND).map(m => {
-    const saved = convocationState[m.id];
-    const canOpen = Number(m.round) === OPEN_ROUND;
-    const isFuture = Number(m.round) > OPEN_ROUND;
-    const cls = saved ? 'convocado' : (canOpen ? '' : 'disabled');
-    const btnLabel = saved ? 'Editar convocatoria' : 'Abrir convocatoria';
-    return `<article class="card match-card ${cls}">
-      <span class="chip ${saved?'':'gold'}">${saved ? 'Convocado' : `Fecha ${m.round}`}</span>
-      <h3>${m.home} vs ${m.away}</h3>
-      <p>${m.dateLabel || 'Por programar'} · ${m.time || '--:--'} · ${m.field || 'Campo por confirmar'}</p>
-      <p class="future-note">${MF.categoryLabel(m.category)} · Grupo ${m.group}</p>
-      <div class="match-card-footer">
-        ${canOpen || saved ? `<button class="btn btn-primary" data-open-convocation="${m.id}">${btnLabel}</button>` : `<button class="btn btn-light" disabled>No habilitado</button>`}
-        ${isFuture ? '<small class="future-note">Se habilitará en la siguiente fecha.</small>' : ''}
+function renderMatches(){
+  const box = document.querySelector('#coachMatches');
+  const current = Number(window.APP_CONFIG.CURRENT_ROUND || 3);
+  box.innerHTML = coachState.fixture.map(m=>{
+    const round = Number(m.round);
+    const isOpen = round === current;
+    const conv = coachState.convocatorias.find(c=>c.matchId===m.matchId);
+    return `<article class="card match-card ${conv?'convocado':''} ${!isOpen?'locked':''}">
+      <div class="match-meta"><span class="badge badge-green">Fecha ${m.round}</span><span class="badge badge-blue">${m.dateLabel}</span><span class="badge badge-gold">${m.field} · ${m.time}</span></div>
+      <div class="match-teams"><span>${m.home}</span><span>VS</span><span class="away">${m.away}</span></div>
+      <p>${m.category}</p>
+      <div class="actions">
+        ${isOpen ? `<button class="btn btn-primary" data-open-roster="${m.matchId}">${conv?'Editar convocatoria':'Abrir convocatoria'}</button>` : `<button class="btn btn-secondary btn-disabled">Convocatoria bloqueada</button>`}
+        ${conv ? `<span class="badge badge-green">Convocado</span>`:''}
       </div>
     </article>`;
-  });
+  }).join('') || `<div class="card">No hay partidos programados para tu equipo.</div>`;
+  document.querySelectorAll('[data-open-roster]').forEach(btn=>btn.addEventListener('click',()=>openRoster(btn.dataset.openRoster)));
 }
-
-function bindMatchButtons(){
-  document.querySelectorAll('[data-open-convocation]').forEach(btn => btn.addEventListener('click', () => openConvocation(btn.dataset.openConvocation)));
+function openRoster(matchId){
+  const match = coachState.fixture.find(m=>m.matchId===matchId);
+  const existing = coachState.convocatorias.find(c=>c.matchId===matchId) || {starters:[], substitutes:[]};
+  const modal = document.querySelector('#rosterModal');
+  modal.classList.add('open');
+  document.querySelector('#rosterTitle').textContent = `${match.home} vs ${match.away}`;
+  document.querySelector('#rosterSubtitle').textContent = `${match.dateLabel} · ${match.field} · ${match.time} · ${match.category}`;
+  let starters = [...existing.starters], substitutes = [...existing.substitutes];
+  function draw(){
+    const selected = new Set([...starters, ...substitutes]);
+    const available = coachState.players.filter(p=>!selected.has(p.playerId));
+    document.querySelector('#availablePlayers').innerHTML = available.map(p=>`
+      <div class="roster-item"><span>${p.fullName}</span><div><button class="btn btn-small btn-primary" data-add-starter="${p.playerId}">Titular</button> <button class="btn btn-small btn-secondary" data-add-sub="${p.playerId}">Suplente</button></div></div>`).join('') || '<p>No quedan jugadores disponibles.</p>';
+    const printList = ids => ids.map(id=>coachState.players.find(p=>p.playerId===id)).filter(Boolean).map(p=>`<div class="roster-item"><span>${p.fullName}</span><button class="btn btn-small btn-danger" data-remove="${p.playerId}">Quitar</button></div>`).join('') || '<p>Sin jugadores.</p>';
+    document.querySelector('#startersList').innerHTML = printList(starters);
+    document.querySelector('#subsList').innerHTML = printList(substitutes);
+    document.querySelectorAll('[data-add-starter]').forEach(b=>b.onclick=()=>{starters.push(b.dataset.addStarter);draw()});
+    document.querySelectorAll('[data-add-sub]').forEach(b=>b.onclick=()=>{substitutes.push(b.dataset.addSub);draw()});
+    document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{starters=starters.filter(x=>x!==b.dataset.remove);substitutes=substitutes.filter(x=>x!==b.dataset.remove);draw()});
+  }
+  draw();
+  document.querySelector('#saveRosterBtn').onclick = async ()=>{
+    const res = await API.saveConvocatoria({matchId, teamId:coachState.team.teamId, teamName:coachState.team.teamName, starters, substitutes});
+    if(res.ok){ 
+      const idx = coachState.convocatorias.findIndex(c=>c.matchId===matchId);
+      if(idx>=0) coachState.convocatorias[idx]=res.convocatoria; else coachState.convocatorias.push(res.convocatoria);
+      toast('Convocatoria guardada'); modal.classList.remove('open'); renderMatches();
+    }
+  };
 }
-
-function openConvocation(matchId){
-  selectedMatch = dashboard.matches.find(m => m.id === matchId);
-  const saved = convocationState[matchId];
-  starters = saved?.starters || [];
-  substitutes = saved?.substitutes || [];
-  drawConvocationModal();
-}
-
-function drawConvocationModal(){
-  const old = $('convocationModal');
-  if (old) old.remove();
-  const chosen = new Set([...starters, ...substitutes]);
-  const available = localPlayers.filter(p => !chosen.has(p.id) && (p.categories || [p.category]).includes(selectedMatch.category));
-  const rules = dashboard.categories.find(c => c.id === selectedMatch.category) || {};
-  const modal = document.createElement('div');
-  modal.className = 'login-modal open';
-  modal.id = 'convocationModal';
-  modal.innerHTML = `<div class="login-modal__backdrop" data-close-convocation></div>
-  <section class="login-modal__panel modal-wide">
-    <button class="modal-close" data-close-convocation>×</button>
-    <span class="chip gold">${selectedMatch.dateLabel} · ${selectedMatch.time} · ${selectedMatch.field}</span>
-    <h2>${selectedMatch.home} vs ${selectedMatch.away}</h2>
-    <p class="sub">${MF.categoryLabel(selectedMatch.category)} · Titulares requeridos: ${rules.fieldPlayers || 7}. Mínimo para iniciar: ${rules.minPlayers || 5}.</p>
-    <div class="convocation-picker">
-      <div class="form-grid">
-        <div><label>Jugador disponible</label><select id="playerPick">${available.map(p => `<option value="${p.id}">${p.firstName} ${p.lastName} · DNI ${p.dni}</option>`).join('')}</select></div>
-        <div><label>Tipo</label><select id="playerType"><option value="titular">Titular</option><option value="suplente">Suplente</option></select></div>
-      </div>
-      <button class="btn btn-primary" id="addPlayerBtn" style="margin-top:14px">Agregar al partido</button>
-    </div>
-    <div class="convocation-modal-layout" style="margin-top:18px">
-      <div><h3>Titulares (${starters.length})</h3><div class="pick-list">${starters.map(id => pickItem(id)).join('') || '<p class="sub">Sin titulares.</p>'}</div></div>
-      <div><h3>Suplentes (${substitutes.length})</h3><div class="pick-list">${substitutes.map(id => pickItem(id)).join('') || '<p class="sub">Sin suplentes.</p>'}</div></div>
-    </div>
-    <button class="btn btn-dark full" id="saveConvocationBtn">Guardar convocatoria</button>
-  </section>`;
-  document.body.appendChild(modal);
-  document.querySelectorAll('[data-close-convocation]').forEach(el => el.addEventListener('click', () => modal.remove()));
-  $('addPlayerBtn').addEventListener('click', () => {
-    const id = $('playerPick').value;
-    if (!id) return MF.toast('No quedan jugadores disponibles para esta categoría.', 'error');
-    if ($('playerType').value === 'titular') starters.push(id); else substitutes.push(id);
-    drawConvocationModal();
-  });
-  document.querySelectorAll('[data-remove-player]').forEach(btn => btn.addEventListener('click', () => {
-    starters = starters.filter(x => x !== btn.dataset.removePlayer);
-    substitutes = substitutes.filter(x => x !== btn.dataset.removePlayer);
-    drawConvocationModal();
-  }));
-  $('saveConvocationBtn').addEventListener('click', async () => {
-    const payload = { matchId:selectedMatch.id, starters, substitutes };
-    const res = await MF.call('saveConvocation', payload, 'POST');
-    convocationState[selectedMatch.id] = payload;
-    localStorage.setItem('mf_convocations_demo', JSON.stringify(convocationState));
-    MF.toast(res.message || 'Convocatoria enviada');
-    modal.remove();
-    renderUpcoming(dashboard);
-    renderConvocations(dashboard);
-  });
-}
-
-function pickItem(id){
-  const p = localPlayers.find(x => x.id === id);
-  if (!p) return '';
-  return `<div class="player-mini"><span><b>${p.firstName} ${p.lastName}</b><br><small>DNI ${p.dni}</small></span><button class="btn btn-danger" data-remove-player="${id}">Quitar</button></div>`;
-}
-
-function playerCard(p){
-  const cats = (p.categories || [p.category]).map(MF.categoryLabel).join(', ');
-  return `<article class="player-card">
-    <img class="avatar" src="${MF.imgForPlayer(p)}" onerror="this.src='assets/img/logo-placeholder.svg'">
-    <div class="player-meta"><b>${p.firstName} ${p.lastName}</b><small>DNI: ${p.dni}</small><small>Nac.: ${p.birthDate}</small><span class="category-pill">${cats}</span></div>
-  </article>`;
-}
+document.addEventListener('DOMContentLoaded', async ()=>{
+  const user = Store.getUser();
+  if(!user || user.role!=='entrenador'){ location.href='login.html'; return; }
+  coachState.user = user;
+  const res = await API.getCoachDashboard(user);
+  Object.assign(coachState, res);
+  renderShell(); renderProfile(false); renderPlayers(); renderPlayerForm(); renderMatches();
+  document.querySelectorAll('.side-menu button[data-tab]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+  document.querySelector('#logoutBtn').addEventListener('click',()=>Store.logout());
+});

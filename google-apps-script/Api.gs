@@ -1,124 +1,59 @@
 function getPublicData_() {
   return {
-    tournament: firstObject_('Config'),
-    rules: { categories: sheetObjects_('Categorias') },
-    teams: sheetObjects_('Equipos'),
-    fixture: sheetObjects_('Fixture'),
-    players: sheetObjects_('Jugadores'),
-    convocations: sheetObjects_('Convocatorias')
+    ok:true,
+    users: readTable_('Usuarios'),
+    trainers: readTable_('Entrenadores'),
+    categories: readTable_('Categorias'),
+    fixture: readTable_('Fixture'),
+    players: readTable_('Jugadores'),
+    convocatorias: readTable_('Convocatorias')
   };
 }
-
-function firstObject_(sheetName) {
-  var rows = sheetObjects_(sheetName);
-  return rows.length ? rows[0] : {};
+function getCoachDashboard_(user) {
+  if (!user || !user.teamId) return {ok:false, message:'Usuario entrenador inválido'};
+  var teamId = user.teamId;
+  var trainers = readTable_('Entrenadores');
+  var team = trainers.find(function(t){ return String(t.teamId) === String(teamId); }) || user;
+  var players = readTable_('Jugadores').filter(function(p){ return String(p.teamId) === String(teamId); });
+  var fixture = readTable_('Fixture').filter(function(m){ return String(m.home) === String(team.teamName) || String(m.away) === String(team.teamName); });
+  var convocatorias = readTable_('Convocatorias').filter(function(c){ return String(c.teamId) === String(teamId); });
+  return {ok:true, user:user, team:team, categories:readTable_('Categorias'), players:players, fixture:fixture, convocatorias:convocatorias};
 }
-
-function getPlayers_(teamId) {
-  var players = sheetObjects_('Jugadores');
-  if (!teamId) return players;
-  return players.filter(function(p){ return String(p.teamId) === String(teamId); });
+function saveTeamProfile_(p) {
+  if(!p.teamId) return {ok:false, message:'Falta teamId'};
+  var ok = updateRowByKey_('Entrenadores', 'teamId', p.teamId, p);
+  return {ok:ok, team:p, message: ok ? 'Perfil actualizado' : 'Equipo no encontrado'};
 }
-
-function getCoachDashboard_(teamId) {
-  var teams = sheetObjects_('Equipos');
-  var team = teams.find(function(t){ return String(t.id) === String(teamId); });
-  if (!team) return { ok: false, message: 'Equipo no encontrado.' };
-  var players = getPlayers_(teamId);
-  var fixture = sheetObjects_('Fixture').filter(function(m){
-    return String(m.home).trim() === String(team.name).trim() || String(m.away).trim() === String(team.name).trim();
-  });
-  return { ok: true, team: team, players: players, matches: fixture, categories: sheetObjects_('Categorias'), championships: sheetObjects_('Campeonatos') }; 
+function savePlayer_(p) {
+  if(!p.teamId) return {ok:false, message:'Falta teamId'};
+  var players = readTable_('Jugadores').filter(function(x){ return String(x.teamId) === String(p.teamId); });
+  if(players.length >= 15) return {ok:false, message:'Máximo 15 jugadores por equipo'};
+  p.playerId = p.playerId || nextId_('P','Jugadores','playerId');
+  p.createdAt = new Date();
+  appendRowByHeaders_('Jugadores', p);
+  return {ok:true, player:p};
 }
-
-function getAdminDashboard_() {
-  return {
-    ok: true,
-    teams: sheetObjects_('Equipos'),
-    fixture: sheetObjects_('Fixture'),
-    players: sheetObjects_('Jugadores'),
-    convocations: sheetObjects_('Convocatorias'),
-    categories: sheetObjects_('Categorias'),
-    users: sheetObjects_('Usuarios')
+function saveConvocatoria_(p) {
+  if(!p.matchId || !p.teamId) return {ok:false, message:'Falta matchId o teamId'};
+  var id = p.matchId + '_' + p.teamId;
+  var row = {
+    convocatoriaId: id,
+    matchId: p.matchId,
+    teamId: p.teamId,
+    teamName: p.teamName,
+    starters: JSON.stringify(p.starters || []),
+    substitutes: JSON.stringify(p.substitutes || []),
+    status: 'convocado',
+    savedAt: new Date()
   };
+  var updated = updateRowByKey_('Convocatorias','convocatoriaId',id,row);
+  if(!updated) appendRowByHeaders_('Convocatorias', row);
+  return {ok:true, convocatoria: row};
 }
-
-function saveTeamProfile_(payload) {
-  payload.updatedAt = new Date();
-  if (!payload.id) return { ok: false, message: 'Falta ID de equipo.' };
-  updateRowById_('Equipos_Perfil', 'id', payload.id, payload);
-  return { ok: true, message: 'Perfil de equipo guardado.' };
-}
-
-function savePlayer_(payload) {
-  payload.id = payload.id || ('P-' + new Date().getTime());
-  payload.status = payload.status || 'pendiente';
-  payload.createdAt = new Date();
-  appendObject_('Jugadores', payload);
-  return { ok: true, message: 'Jugador registrado.' };
-}
-
-function saveConvocation_(payload) {
-  var convId = 'CONV-' + new Date().getTime();
-  appendObject_('Convocatorias', {
-    id: convId,
-    matchId: payload.matchId,
-    teamId: payload.teamId || '',
-    status: 'enviada',
-    createdAt: new Date()
+function saveResult_(p) {
+  if(!p.matchId) return {ok:false, message:'Falta matchId'};
+  var ok = updateRowByKey_('Fixture','matchId',p.matchId,{
+    homeScore:p.homeScore, awayScore:p.awayScore, status:'jugado', resultType:p.resultType || 'normal', notes:p.notes || ''
   });
-  (payload.starters || []).forEach(function(playerId){
-    appendObject_('Convocatoria_Detalle', { convocationId: convId, playerId: playerId, type: 'titular' });
-  });
-  (payload.substitutes || []).forEach(function(playerId){
-    appendObject_('Convocatoria_Detalle', { convocationId: convId, playerId: playerId, type: 'suplente' });
-  });
-  return { ok: true, message: 'Convocatoria enviada.', id: convId };
-}
-
-function saveResult_(payload) {
-  var ok = updateRowById_('Fixture', 'id', payload.matchId, {
-    homeScore: Number(payload.homeScore),
-    awayScore: Number(payload.awayScore),
-    status: 'jugado',
-    updatedAt: new Date()
-  });
-  return ok ? { ok: true, message: 'Resultado guardado.' } : { ok: false, message: 'Partido no encontrado.' };
-}
-
-
-function registerCoachRequest_(payload) {
-  var dni = String(payload.dni || '').replace(/\D/g, '');
-  var initial = String(payload.firstName || '').trim().charAt(0).toUpperCase();
-  var tempPassword = dni + initial + '2026';
-  var userId = 'U-' + new Date().getTime();
-  appendObject_('Usuarios', {
-    id: userId,
-    username: String(payload.email || '').toLowerCase().trim() || dni,
-    email: String(payload.email || '').toLowerCase().trim(),
-    password: tempPassword,
-    role: 'entrenador',
-    name: String(payload.firstName || '') + ' ' + String(payload.lastName || ''),
-    firstName: payload.firstName || '',
-    lastName: payload.lastName || '',
-    dni: dni,
-    teamId: '',
-    teamName: payload.teamName || '',
-    status: 'pendiente',
-    createdAt: new Date()
-  });
-  appendObject_('Solicitudes_Registro', {
-    id: 'SOL-' + new Date().getTime(),
-    userId: userId,
-    firstName: payload.firstName || '',
-    lastName: payload.lastName || '',
-    dni: dni,
-    email: payload.email || '',
-    whatsapp: payload.whatsapp || '',
-    teamName: payload.teamName || '',
-    tempPassword: tempPassword,
-    status: 'pendiente',
-    createdAt: new Date()
-  });
-  return { ok: true, message: 'Solicitud registrada. Login temporal: ' + (payload.email || dni) + ' | Clave temporal: ' + tempPassword, tempPassword: tempPassword };
+  return {ok:ok};
 }

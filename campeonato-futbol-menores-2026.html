@@ -1,49 +1,35 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <title>Torneo Municipal de Fútbol de Menores 2026</title>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="assets/css/styles.css" />
-  <script src="assets/js/config.js"></script>
-  <script src="assets/js/mock-data.js"></script>
-  <script src="assets/js/api.js"></script>
-</head>
-<body>
-  <script src="assets/components/header.js"></script>
-  <main>
-    <section class="hero tournament-hero">
-      <div class="hero-inner">
-        <div>
-          <span class="eyebrow">⚽ Campeonato activo · 2026</span>
-          <h1>Fútbol <span>de Menores</span></h1>
-          <p class="lead">Consulta programación, marcadores, tablas y equipos del Torneo Municipal de Fútbol de Menores 2026.</p>
-          <div class="cta-row">
-            <a class="btn btn-primary" href="fixture.html">Ver fixture</a>
-            <a class="btn btn-ghost" href="tabla-posiciones.html">Tabla de posiciones</a>
-            <a class="btn btn-ghost" href="#login" data-open-login>Login</a>
-          </div>
-        </div>
-        <div class="hero-card">
-          <span class="chip gold">Reglas principales</span>
-          <ul class="rule-list">
-            <li>Sub 6 y Sub 8 juegan con 7 jugadores; mínimo 5.</li>
-            <li>Sub 10 y Sub 12 juegan con 9 jugadores; mínimo 7.</li>
-            <li>La relación de titulares y suplentes debe presentarse antes de cada partido.</li>
-            <li>Ganador: 3 puntos · Empate: 1 punto · Perdedor: 0 puntos.</li>
-          </ul>
-        </div>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fútbol de Menores 2026</title><link rel="stylesheet" href="assets/css/styles.css"></head><body>
+<div data-header data-active="campeonato" data-championship="true"></div>
+<section class="hero"><div class="container hero-content"><div><span class="kicker">Campeonato activo</span><h1>Fútbol de Menores 2026</h1><p>Torneo Municipal de Fútbol de Menores. Consulta fixture, resultados, tablas de posiciones y equipos participantes.</p>
+<div class="actions"><a class="btn btn-primary" href="fixture.html">Ver fixture</a><a class="btn btn-secondary" href="tabla-posiciones.html">Ver tablas</a></div></div><div id="homeNextMatches" class="grid"></div></div></section>
+<section class="section"><div class="container"><div class="grid grid-3">
+<article class="card"><span class="badge badge-green">Fixture</span><h3>Programación</h3><p>Fechas, campos y horarios por categoría.</p><a class="btn btn-secondary" href="fixture.html">Ver fixture</a></article>
+<article class="card"><span class="badge badge-gold">Resultados</span><h3>Marcadores</h3><p>Resultados cargados desde Google Sheets.</p><a class="btn btn-secondary" href="resultados.html">Ver resultados</a></article>
+<article class="card"><span class="badge badge-blue">Tablas</span><h3>Posiciones</h3><p>Tablas calculadas automáticamente leyendo resultados.</p><a class="btn btn-secondary" href="tabla-posiciones.html">Ver tablas</a></article>
+</div></div></section>
+
+<div class="modal" id="loginModal">
+  <div class="modal-dialog" style="width:min(520px,100%)">
+    <div class="modal-header">
+      <h3>Login</h3>
+      <button class="modal-close" data-close-modal="loginModal">×</button>
+    </div>
+    <div class="modal-body">
+      <form data-login-form>
+        <div style="margin-bottom:14px"><label>Correo electrónico</label><input class="input" name="email" type="email" required placeholder="correo@ejemplo.com"></div>
+        <div style="margin-bottom:14px"><label>Clave</label><input class="input" name="password" type="password" required placeholder="Clave temporal"></div>
+        <button class="btn btn-primary" style="width:100%">Iniciar sesión</button>
+      </form>
+      <div class="actions">
+        <button class="btn btn-secondary btn-small" data-demo-coach>Entrar demo entrenador</button>
+        <button class="btn btn-secondary btn-small" data-demo-admin>Entrar demo admin</button>
       </div>
-    </section>
-    <section class="section">
-      <div class="grid grid-4">
-        <a class="route-card" href="fixture.html"><span>📅</span><h3>Fixture</h3><p>Programación por fecha, campo, categoría y grupo.</p></a>
-        <a class="route-card" href="resultados.html"><span>🥅</span><h3>Resultados</h3><p>Marcadores cargados por jornada.</p></a>
-        <a class="route-card" href="tabla-posiciones.html"><span>📊</span><h3>Tabla</h3><p>Posiciones calculadas por categoría y grupo.</p></a>
-        <a class="route-card" href="equipos.html"><span>🛡️</span><h3>Equipos</h3><p>Clubes y academias participantes.</p></a>
-      </div>
-    </section>
-  </main>
-  <script src="assets/components/footer.js"></script>
-</body>
-</html>
+      <p style="color:#9fb1ca;margin-top:16px">¿No tienes acceso? Usa la opción de registro para solicitar activación al administrador.</p>
+      <a class="btn btn-secondary" style="width:100%" href="registro.html">Registrarte</a>
+    </div>
+  </div>
+</div>
+
+<div data-footer></div>
+<script src="assets/components/header.js"></script><script src="assets/components/footer.js"></script><script src="assets/js/config.js"></script><script src="assets/js/mock-data.js"></script><script src="assets/js/api.js"></script><script src="assets/js/login.js"></script><script src="assets/js/home.js"></script>
+</body></html>

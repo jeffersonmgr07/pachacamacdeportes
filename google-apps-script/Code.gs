@@ -1,54 +1,46 @@
 /**
- * Minetti Fútbol - Apps Script API
- * Este proyecto NO sirve HTML.
- * Solo funciona como backend/API para el frontend publicado en GitHub Pages.
+ * Backend API para GitHub Pages + Google Sheets.
+ * Publicar como Aplicación web: ejecutar como "Yo", acceso "Cualquier usuario".
+ * El frontend usa JSONP para evitar problemas CORS en GitHub Pages.
  */
-
 function doGet(e) {
-  return handleRequest_(e.parameter || {});
+  return handleRequest_(e);
 }
-
 function doPost(e) {
-  var body = {};
-  try {
-    body = JSON.parse(e.postData.contents || '{}');
-  } catch (err) {
-    return json_({ ok: false, message: 'JSON inválido.' });
-  }
-  return handleRequest_({ action: body.action, payload: body.payload || {} });
+  return handleRequest_(e);
 }
-
-function handleRequest_(params) {
+function handleRequest_(e) {
+  var params = e && e.parameter ? e.parameter : {};
+  var action = params.action || 'ping';
+  var callback = params.callback || '';
+  var payload = {};
   try {
-    var action = params.action;
-    var payload = params.payload || params;
-
-    if (typeof payload === 'string') {
-      try { payload = JSON.parse(payload); } catch(e) {}
-    }
-
-    switch (action) {
-      case 'login': return json_(login_(payload.username, payload.password));
-      case 'registerCoachRequest': return json_(registerCoachRequest_(payload));
-      case 'getPublicData': return json_({ ok: true, data: getPublicData_() });
-      case 'getFixture': return json_({ ok: true, fixture: sheetObjects_('Fixture'), categories: sheetObjects_('Categorias') });
-      case 'getTeams': return json_({ ok: true, teams: sheetObjects_('Equipos'), categories: sheetObjects_('Categorias') });
-      case 'getPlayers': return json_({ ok: true, players: getPlayers_(payload.teamId) });
-      case 'getCoachDashboard': return json_(getCoachDashboard_(payload.teamId));
-      case 'getAdminDashboard': return json_(getAdminDashboard_());
-      case 'saveTeamProfile': return json_(saveTeamProfile_(payload));
-      case 'savePlayer': return json_(savePlayer_(payload));
-      case 'saveConvocation': return json_(saveConvocation_(payload));
-      case 'saveResult': return json_(saveResult_(payload));
-      default: return json_({ ok: false, message: 'Acción no reconocida: ' + action });
-    }
+    payload = params.payload ? JSON.parse(params.payload) : {};
   } catch (err) {
-    return json_({ ok: false, message: err.message, stack: err.stack });
+    payload = {};
   }
+  var result;
+  try {
+    result = routeAction_(action, payload);
+  } catch (err) {
+    result = { ok:false, message: err.message || String(err) };
+  }
+  var output = callback
+    ? callback + '(' + JSON.stringify(result) + ');'
+    : JSON.stringify(result);
+  return ContentService.createTextOutput(output)
+    .setMimeType(callback ? ContentService.MimeType.JAVASCRIPT : ContentService.MimeType.JSON);
 }
-
-function json_(obj) {
-  return ContentService
-    .createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
+function routeAction_(action, payload) {
+  switch(action) {
+    case 'ping': return {ok:true, message:'Minetti/Pacha Deportes API activa'};
+    case 'login': return login_(payload.email, payload.password);
+    case 'getPublicData': return getPublicData_();
+    case 'getCoachDashboard': return getCoachDashboard_(payload.user);
+    case 'saveTeamProfile': return saveTeamProfile_(payload);
+    case 'savePlayer': return savePlayer_(payload);
+    case 'saveConvocatoria': return saveConvocatoria_(payload);
+    case 'saveResult': return saveResult_(payload);
+    default: return {ok:false, message:'Acción no reconocida: ' + action};
+  }
 }

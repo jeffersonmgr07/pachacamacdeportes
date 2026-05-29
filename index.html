@@ -1,56 +1,13 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <title>Gestión Deportiva Municipal · Pachacamac</title>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Portal de Gestión Deportiva Municipal del Distrito de Pachacamac." />
-  <link rel="stylesheet" href="assets/css/styles.css" />
-  <script src="assets/js/config.js"></script>
-  <script src="assets/js/mock-data.js"></script>
-  <script src="assets/js/api.js"></script>
-</head>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Portal de deportes Pachacamac</title><link rel="stylesheet" href="assets/css/styles.css"></head>
 <body>
-  <script src="assets/components/header.js"></script>
-  <main>
-    <section class="hero hero-general">
-      <div class="hero-inner">
-        <div>
-          <span class="eyebrow">🏆 Distrito de Pachacamac</span>
-          <h1>Gestión <span>Deportiva Municipal</span></h1>
-          <p class="lead">Plataforma oficial para organizar campeonatos, talleres, comunicados y actividades deportivas del distrito.</p>
-          <div class="cta-row">
-            <a class="btn btn-primary" href="campeonatos.html">Ver campeonatos</a>
-            <a class="btn btn-ghost" href="talleres.html">Talleres deportivos</a>
-          </div>
-        </div>
-        <div class="hero-card trophy-card">
-          <span class="chip gold">Portal deportivo</span>
-          <h2>Campeonatos activos</h2>
-          <p>Consulta calendarios, resultados, tablas de posiciones y equipos participantes.</p>
-          <div class="mini-stats">
-            <div><strong>3</strong><span>campeonatos</span></div>
-            <div><strong>6</strong><span>categorías</span></div>
-            <div><strong>2026</strong><span>temporada</span></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-head">
-        <div>
-          <h2>Deportes y gestión municipal</h2>
-          <p class="sub">Este inicio funciona como portal general. Desde aquí se ingresa a cada campeonato específico.</p>
-        </div>
-      </div>
-      <div class="grid grid-3">
-        <article class="feature-card"><span>⚽</span><h3>Campeonatos</h3><p>Fixture, resultados, tablas y equipos por disciplina.</p><a href="campeonatos.html">Ingresar</a></article>
-        <article class="feature-card"><span>🏃</span><h3>Talleres</h3><p>Actividades deportivas y formativas para la comunidad.</p><a href="talleres.html">Ver talleres</a></article>
-        <article class="feature-card"><span>📣</span><h3>Comunicados</h3><p>Avisos oficiales, programación, cambios y sanciones.</p><a href="comunicados.html">Ver comunicados</a></article>
-      </div>
-    </section>
-  </main>
-  <script src="assets/components/footer.js"></script>
-</body>
-</html>
+<div data-header data-active="deportes"></div>
+<section class="hero"><div class="container hero-content">
+  <div><span class="kicker">Portal deportivo</span><h1>Portal de deportes Pachacamac</h1><p>Plataforma para organizar campeonatos, talleres y actividades deportivas del distrito.</p>
+  <div class="actions"><a class="btn btn-primary" href="campeonatos.html">Ver campeonatos</a><a class="btn btn-secondary" href="talleres.html">Talleres deportivos</a></div></div>
+  <div class="stat-grid"><div class="stat-card"><div class="stat-number">3</div><div class="stat-label">Campeonatos</div></div><div class="stat-card"><div class="stat-number">6</div><div class="stat-label">Categorías</div></div><div class="stat-card"><div class="stat-number">+40</div><div class="stat-label">Equipos</div></div><div class="stat-card"><div class="stat-number">Activo</div><div class="stat-label">Estado del portal</div></div></div>
+</div></section>
+<section class="section"><div class="container"><div class="section-head"><div><h2 class="section-title">Deportes</h2><p class="section-subtitle">Gestiona actividades deportivas municipales desde un solo portal.</p></div></div>
+<div class="grid grid-3"><article class="card"><span class="badge badge-green">Campeonatos</span><h3>Calendarios y resultados</h3><p>Consulta fixture, resultados, tablas y equipos participantes.</p></article><article class="card"><span class="badge badge-gold">Talleres</span><h3>Escuelas deportivas</h3><p>Espacio para publicar talleres y actividades deportivas.</p></article><article class="card"><span class="badge badge-blue">Gestión</span><h3>Paneles internos</h3><p>Accesos para administradores y entrenadores autorizados.</p></article></div></div></section>
+<div data-footer></div>
+<script src="assets/components/header.js"></script><script src="assets/components/footer.js"></script>
+</body></html>

@@ -1,20 +1,22 @@
-let all = [];
-document.addEventListener('DOMContentLoaded', async () => {
-  const res = await MF.call('getFixture');
-  all = res.fixture || [];
-  fillFilters(res.categories || []);
-  render();
-  ['categoryFilter','groupFilter','roundFilter'].forEach(id => document.getElementById(id).addEventListener('change', render));
+function matchVal(m, key, index){return m[key] ?? m[index];}
+document.addEventListener('DOMContentLoaded', async ()=>{
+  const res = await API.getPublicData(); if(!res.ok) return;
+  const tbody = document.querySelector('#fixtureBody');
+  const cat = document.querySelector('#filterCategory');
+  const round = document.querySelector('#filterRound');
+  const cats = [...new Set(res.fixture.map(m=>matchVal(m,'category',8)).filter(Boolean))].sort();
+  const rounds = [...new Set(res.fixture.map(m=>matchVal(m,'round',1)).filter(Boolean))].sort((a,b)=>a-b);
+  if(cat) cat.innerHTML = '<option value="">Todas las categorías</option>' + cats.map(c=>`<option>${c}</option>`).join('');
+  if(round) round.innerHTML = '<option value="">Todas las fechas</option>' + rounds.map(r=>`<option value="${r}">Fecha ${r}</option>`).join('');
+  function render(){
+    const c = cat?.value || '', r = round?.value || '';
+    const rows = res.fixture.filter(m=>(!c||matchVal(m,'category',8)===c)&&(!r||String(matchVal(m,'round',1))===String(r)));
+    tbody.innerHTML = rows.map(m=>`
+      <tr>
+        <td>${matchVal(m,'dateLabel',2)}</td><td>${matchVal(m,'field',4)}</td><td>${matchVal(m,'time',5)}</td>
+        <td>${matchVal(m,'home',6)}</td><td>VS</td><td>${matchVal(m,'away',7)}</td><td>${matchVal(m,'category',8)}</td>
+        <td>${matchVal(m,'status',9) || 'programado'}</td>
+      </tr>`).join('');
+  }
+  cat?.addEventListener('change',render); round?.addEventListener('change',render); render();
 });
-function fillFilters(categories){
-  document.getElementById('categoryFilter').innerHTML += categories.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
-  document.getElementById('groupFilter').innerHTML += [...new Set(all.map(m => m.group))].map(g => `<option value="${g}">Grupo ${g}</option>`).join('');
-  document.getElementById('roundFilter').innerHTML += [...new Set(all.map(m => m.round))].sort((a,b)=>a-b).map(r => `<option value="${r}">Fecha ${r}</option>`).join('');
-}
-function render(){
-  const c = categoryFilter.value, g = groupFilter.value, r = roundFilter.value;
-  const rows = all.filter(m => (!c || m.category===c) && (!g || m.group===g) && (!r || String(m.round)===r));
-  pageContent.innerHTML = `<div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Hora</th><th>Campo</th><th>Categoría</th><th>Local</th><th>Marcador</th><th>Visitante</th><th>Estado</th></tr></thead><tbody>
-    ${rows.map(m => `<tr><td>${m.dateLabel}</td><td>${m.time}</td><td>${m.field}</td><td>${MF.categoryLabel(m.category)} ${m.group}</td><td><b>${m.home}</b></td><td>${m.status === 'jugado' ? `<span class="score">${m.homeScore} - ${m.awayScore}</span>` : 'vs'}</td><td><b>${m.away}</b></td><td><span class="status ${m.status}">${m.status}</span></td></tr>`).join('')}
-  </tbody></table></div>`;
-}
