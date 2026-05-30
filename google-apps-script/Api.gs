@@ -27,8 +27,21 @@ function saveTeamProfile_(p) {
 function savePlayer_(p) {
   if(!p.teamId) return {ok:false, message:'Falta teamId'};
   var players = readTable_('Jugadores').filter(function(x){ return String(x.teamId) === String(p.teamId); });
-  if(players.length >= 15) return {ok:false, message:'Máximo 15 jugadores por equipo'};
+  var selected = String(p.categories || '').split(',').map(function(c){
+    return String(c).replace(/\s*\(.+?\)/g,'').trim().toUpperCase();
+  }).filter(Boolean);
+  for (var i=0; i<selected.length; i++) {
+    var cat = selected[i];
+    var count = players.filter(function(x){
+      return String(x.categories || '').split(',').map(function(c){
+        return String(c).replace(/\s*\(.+?\)/g,'').trim().toUpperCase();
+      }).indexOf(cat) !== -1;
+    }).length;
+    if (count >= 15) return {ok:false, message:'Máximo 15 jugadores en ' + cat};
+  }
   p.playerId = p.playerId || nextId_('P','Jugadores','playerId');
+  p.fullName = p.fullName || [p.firstName || '', p.lastName || ''].join(' ').trim();
+  p.documentType = p.documentType || 'DNI';
   p.createdAt = new Date();
   appendRowByHeaders_('Jugadores', p);
   return {ok:true, player:p};

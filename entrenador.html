@@ -1,7 +1,7 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Panel entrenador</title><link rel="stylesheet" href="assets/css/styles.css"></head><body>
 <div class="panel-layout">
   <aside class="sidebar">
-    <div class="side-brand"><img src="assets/IMG/logo-pacha-deportes.png" onerror="this.src='assets/IMG/logo-pacha-deportes.svg'" alt=""><div><strong>Panel entrenador</strong><span>Fútbol de menores</span></div></div>
+    <div class="side-brand"><img id="teamCrestSidebar" src="assets/img/logo-pacha-deportes.png" onerror="this.src='assets/img/logo-pacha-deportes.svg'" alt="Escudo del equipo"><div><strong>Panel entrenador</strong><span>Fútbol de menores</span></div></div>
     <div class="side-user"><strong id="coachName">Entrenador</strong><span>Delegado autorizado</span></div>
     <nav class="side-menu">
       <button data-tab="perfil" class="active">Perfil de equipo</button>
@@ -10,28 +10,42 @@
       <button data-tab="partidos">Próximos partidos</button>
       <button data-tab="convocatorias">Convocatorias</button>
       <a href="campeonato-futbol-menores-2026.html">Ver campeonato</a>
-      <button id="logoutBtn">Salir</button>
+      <button id="logoutBtn">Cerrar sesión</button>
     </nav>
   </aside>
   <main class="panel-main">
     <section class="welcome"><div><h1 id="coachWelcome">Bienvenido</h1><p id="coachSubtitle"></p></div></section>
     <section id="tab-perfil" class="tabs-content active"><div class="section-head"><div><h2 class="section-title">Perfil del equipo</h2><p class="section-subtitle">Datos generales del club o academia.</p></div></div><div class="card" id="profileBox"></div></section>
-    <section id="tab-jugadores" class="tabs-content"><div class="section-head"><div><h2 class="section-title">Nómina general de jugadores</h2><p class="section-subtitle"><span id="playerCount">0 jugadores</span> · máximo 15 jugadores por equipo.</p></div></div>
-      <div class="card" style="margin-bottom:20px"><h3>Registrar jugador</h3><form id="playerForm" class="form-grid">
-        <div><label>Nombre y apellidos</label><input class="input" name="fullName" required></div>
-        <div><label>DNI</label><input class="input" name="dni" required></div>
-        <div><label>Fecha de nacimiento</label><input class="input" name="birthDate" type="date" required></div>
-        <div><label>Foto del jugador</label><input class="input" name="photoUrl" placeholder="assets/IMG/jugadores/DNI.png"></div>
-        <div style="grid-column:1/-1"><label>Categorías permitidas según fecha de nacimiento</label><div id="playerCatChecks" class="category-checks"></div></div>
-        <div style="grid-column:1/-1"><button class="btn btn-primary">Registrar jugador</button></div>
-      </form></div>
+    <section id="tab-jugadores" class="tabs-content">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Nómina general de jugadores</h2>
+          <p class="section-subtitle">Esta es la nómina general de jugadores. Se permiten un máximo de 15 jugadores por categoría.</p>
+        </div>
+        <button class="btn btn-primary" id="openPlayerModalBtn">+ Agregar jugador</button>
+      </div>
+      <div class="filters player-filters"><button class="btn btn-secondary active" data-player-filter="TODOS">Todos los jugadores</button><div id="playerCategoryFilters" class="filters"></div></div>
+      <p class="section-subtitle" id="playerCount" style="margin-bottom:16px">0 jugadores registrados.</p>
       <div class="grid grid-2" id="playersGrid"></div>
     </section>
     <section id="tab-campeonatos" class="tabs-content"><div class="card"><span class="badge badge-green">Activo</span><h3>Campeonato Municipal de Fútbol de Menores 2026</h3><p>Accesos rápidos del campeonato.</p><div class="actions"><a class="btn btn-secondary" href="fixture.html">Ver fixture</a><a class="btn btn-secondary" href="tabla-posiciones.html">Ver tabla de posiciones</a><button class="btn btn-primary" onclick="setTab('partidos')">Próximos partidos</button></div></div></section>
-    <section id="tab-partidos" class="tabs-content"><div class="section-head"><div><h2 class="section-title">Próximos partidos</h2><p class="section-subtitle">Solo aparecen partidos programados de tu equipo.</p></div><a class="btn btn-secondary" href="fixture.html">Ver todos los partidos</a></div><div class="grid grid-2" id="coachMatches"></div></section>
-    <section id="tab-convocatorias" class="tabs-content"><div class="section-head"><div><h2 class="section-title">Convocatorias</h2><p class="section-subtitle">Abre una convocatoria desde el partido habilitado de la fecha actual.</p></div></div><div class="grid grid-2" id="coachMatches"></div></section>
+    <section id="tab-partidos" class="tabs-content"><div class="section-head"><div><h2 class="section-title">Calendario de partidos</h2><p class="section-subtitle">Tus partidos organizados por fecha deportiva.</p></div><a class="btn btn-secondary" href="fixture.html">Ver todos los partidos</a></div><div id="coachCalendar"></div></section>
+    <section id="tab-convocatorias" class="tabs-content"><div class="section-head"><div><h2 class="section-title">Convocatorias</h2><p class="section-subtitle">Elige titulares y suplentes para los partidos habilitados de tu equipo.</p></div></div><div class="grid grid-2" id="coachConvocatorias"></div></section>
   </main>
 </div>
+
+<div class="modal" id="playerModal"><div class="modal-dialog" style="width:min(780px,100%)"><div class="modal-header"><h3>Registrar jugador</h3><button class="modal-close" data-close-modal="playerModal">×</button></div><div class="modal-body">
+  <form id="playerForm" class="form-grid">
+    <div><label>Nombres</label><input class="input" name="firstName" required></div>
+    <div><label>Apellidos</label><input class="input" name="lastName" required></div>
+    <div><label>Tipo de documento</label><select class="input" name="documentType"><option value="DNI">DNI</option><option value="CE">Carné de extranjería</option><option value="PASAPORTE">Pasaporte</option></select></div>
+    <div><label>Número de documento</label><input class="input" name="dni" required></div>
+    <div><label>Fecha de nacimiento</label><input class="input" name="birthDate" type="date" required></div>
+    <div><label>Foto del jugador</label><input class="input" name="photoUrl" placeholder="assets/img/jugadores/DNI.png o URL pública"></div>
+    <div style="grid-column:1/-1"><label>Categorías permitidas según fecha de nacimiento</label><div id="playerCatChecks" class="category-checks"></div></div>
+    <div style="grid-column:1/-1"><button class="btn btn-primary">Registrar jugador</button></div>
+  </form>
+</div></div></div>
 <div class="modal" id="rosterModal"><div class="modal-dialog"><div class="modal-header"><div><h3 id="rosterTitle">Convocatoria</h3><p id="rosterSubtitle" style="margin:3px 0 0;color:#9fb1ca"></p></div><button class="modal-close" data-close-modal="rosterModal">×</button></div><div class="modal-body">
   <div class="card" style="margin-bottom:16px"><h3>Jugadores disponibles</h3><div id="availablePlayers" class="roster-list"></div></div>
   <div class="roster-columns"><div class="card"><h3>Titulares</h3><div id="startersList" class="roster-list"></div></div><div class="card"><h3>Suplentes</h3><div id="subsList" class="roster-list"></div></div></div>

@@ -123,3 +123,56 @@ label{display:block;color:#c9d8ee;font-weight:850;font-size:13px;margin-bottom:6
 #loginModal .modal-body .input{background:#f8fafc;border:1px solid #d7dee9;color:#071225}
 #loginModal .modal-body .btn-secondary{background:#eef3f8;border:1px solid #d7dee9;color:#071225}
 @media(max-width:860px){.topbar-inner{font-size:11px}.brand-logo-only img{width:138px;height:56px}.brand-logo-only{min-width:138px}}
+
+/* Mejora visual solicitada: logo sin recuadro blanco y barra superior más fina */
+.topbar{font-weight:200;letter-spacing:.14em}
+.brand img,.brand-logo-only img{background:transparent!important;padding:0!important;border-radius:0!important;box-shadow:none!important}
+.brand-logo-only img{width:178px;height:66px;object-fit:contain}
+.brand-logo-only{min-width:178px}
+
+/* Login: copy más natural */
+.login-card .section-subtitle{font-size:14px}
+
+/* Panel entrenador más claro */
+.panel-layout{background:#f5f7fb;color:#102033}
+.sidebar{background:#ffffff;border-right:1px solid #e4eaf2;box-shadow:10px 0 30px rgba(15,23,42,.04)}
+.side-brand strong,.side-user strong{color:#102033}
+.side-brand span,.side-user span{color:#64748b;font-size:12px}
+.side-brand img{background:transparent!important;padding:0!important;border-radius:12px;object-fit:contain;border:1px solid #e7edf5}
+.side-user{background:#f8fafc;border:1px solid #e4eaf2}
+.side-menu button,.side-menu a{color:#26364d}
+.side-menu button.active,.side-menu a.active,.side-menu button:hover,.side-menu a:hover{background:rgba(127,181,21,.13);color:#29520b}
+.panel-main{background:#f5f7fb;color:#102033}
+.panel-main .card{background:#ffffff;border:1px solid #e2e8f0;box-shadow:0 18px 42px rgba(15,23,42,.08);color:#102033}
+.panel-main .card p,.panel-main .section-subtitle,.panel-main .welcome p{color:#64748b}
+.panel-main .section-title,.panel-main h1,.panel-main h2,.panel-main h3{color:#102033}
+.panel-main label{color:#34445c}
+.panel-main .input,.panel-main select,.panel-main textarea{background:#f8fafc;border:1px solid #d9e2ee;color:#102033}
+.panel-main .readonly-field{background:#f8fafc;border:1px solid #e0e7f0;color:#102033}
+.panel-main .welcome{background:linear-gradient(135deg,#ffffff,#eef7df);border:1px solid #e2e8f0;box-shadow:0 18px 42px rgba(15,23,42,.08)}
+.panel-main .category-check{background:#f8fafc;border:1px solid #dfe7f1;color:#102033}
+.panel-main .btn-secondary{background:#edf3f8;border:1px solid #d8e2ef;color:#102033}
+.panel-main .btn-danger{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
+.panel-main .roster-item{background:#f8fafc;border:1px solid #e0e7f0;color:#102033}
+.panel-main .modal .card{background:#ffffff}
+.category-pill{display:inline-flex;align-items:center;background:#edf7d9;border:1px solid #cbeaa1;color:#30580f;border-radius:999px;padding:8px 12px;font-weight:900;margin:3px 6px 3px 0;white-space:nowrap}
+.category-list-readonly{display:flex;gap:8px;flex-wrap:wrap;align-items:center;min-height:46px}
+.profile-summary{display:grid;grid-template-columns:120px 1fr;gap:20px;align-items:start}
+.team-crest-large{width:110px;height:110px;object-fit:contain;border-radius:24px;background:#f8fafc;border:1px solid #e0e7f0;padding:8px}
+.field-help{font-size:12px!important;color:#64748b!important;margin:6px 0 0!important;line-height:1.4!important}
+.player-filters{align-items:center;margin-top:-8px;margin-bottom:16px}
+.player-filters .btn.active{background:linear-gradient(135deg,var(--green2),var(--green));color:#071225;border:0}
+.round-card{margin-bottom:18px}
+.round-card .grid{margin-top:12px}
+
+/* Mantener modales de convocatoria oscuros, pero el modal de jugador en estilo claro */
+#playerModal .modal-dialog{background:#ffffff;color:#102033;border:1px solid rgba(15,23,42,.12)}
+#playerModal .modal-body{background:#ffffff;color:#102033;border-radius:0 0 28px 28px}
+#playerModal label{color:#34445c}
+#playerModal .input,#playerModal select{background:#f8fafc;border:1px solid #d9e2ee;color:#102033}
+#playerModal .category-check{background:#f8fafc;border:1px solid #dfe7f1;color:#102033}
+
+@media(max-width:860px){
+  .brand-logo-only img{width:142px;height:56px}.brand-logo-only{min-width:142px}
+  .profile-summary{grid-template-columns:1fr}.team-crest-large{width:92px;height:92px}
+}

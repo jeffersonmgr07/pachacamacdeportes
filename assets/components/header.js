@@ -1,4 +1,14 @@
+function getStoredUserForHeader(){
+  try{return JSON.parse(localStorage.getItem('mf_user') || 'null')}catch(e){return null}
+}
+function firstName(name){
+  const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+  return parts[0] || '';
+}
 function headerHTML(active = 'deportes', championship = false){
+  const user = getStoredUserForHeader();
+  const welcome = user ? `<span>Bienvenido ${firstName(user.shortName || user.fullName || user.nombre)} - Distrito Pachacamac</span>` : `<span>Distrito Pachacamac</span>`;
+  const loginLabel = user ? (user.role === 'admin' ? 'Panel admin' : 'Panel entrenador') : 'Login';
   const logo = 'assets/img/logo-pacha-deportes.png';
   const fallback = 'assets/img/logo-pacha-deportes.svg';
   const navGeneral = `
@@ -13,13 +23,13 @@ function headerHTML(active = 'deportes', championship = false){
     <a class="${active==='resultados'?'active':''}" href="resultados.html">Resultados</a>
     <a class="${active==='tabla'?'active':''}" href="tabla-posiciones.html">Tabla</a>
     <a class="${active==='equipos'?'active':''}" href="equipos.html">Equipos</a>
-    <button type="button" data-open-login>Login</button>
+    <button type="button" data-open-login>${loginLabel}</button>
   `;
   return `
   <div class="topbar">
     <div class="container topbar-inner">
       <span>Gestión Deportiva</span>
-      <span>Distrito Pachacamac</span>
+      ${welcome}
     </div>
   </div>
   <header class="header">

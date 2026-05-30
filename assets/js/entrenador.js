@@ -1,15 +1,23 @@
-let coachState = {user:null, team:null, categories:[], players:[], fixture:[], convocatorias:[]};
+let coachState = {user:null, team:null, categories:[], players:[], fixture:[], convocatorias:[], playerFilter:'TODOS'};
 
+function categoryBaseName(value){
+  return String(value || '').replace(/\s*\(.+?\)/g,'').trim().toUpperCase();
+}
+function playerCategoriesArray(p){
+  return String(p.categories || p.category || '').split(',').map(x=>categoryBaseName(x)).filter(Boolean);
+}
+function teamCategoriesArray(){
+  const raw = coachState.team?.categories || 'SUB 6,SUB 8,SUB 10,SUB 12';
+  return String(raw).split(',').map(x=>categoryBaseName(x)).filter(Boolean);
+}
 function categoryOptionsByBirthDate(birthDate){
-  if(!birthDate) return [];
+  if(!birthDate) return coachState.categories;
   const y = new Date(birthDate).getFullYear();
-  // En menores puede jugar en su categoría o categorías superiores.
-  return coachState.categories.filter(c => y >= Number(c.minYear) && y <= 2021 && Number(c.minYear) <= y || (y >= Number(c.minYear) && y <= Number(c.maxYear)))
-    .concat(coachState.categories.filter(c => {
-      const min = Number(c.minYear), max=Number(c.maxYear);
-      return y > max && y <= 2021; // nacido más joven puede subir
-    }))
-    .filter((v,i,a)=>a.findIndex(x=>x.categoryId===v.categoryId)===i);
+  // Puede jugar en su categoría natural y en categorías superiores.
+  return coachState.categories.filter(c => {
+    const min = Number(c.minYear), max = Number(c.maxYear);
+    return (y >= min && y <= max) || (y > max && y <= 2021);
+  });
 }
 function simpleCategoryByDOB(birthDate){
   if(!birthDate) return '';
@@ -17,22 +25,36 @@ function simpleCategoryByDOB(birthDate){
   const exact = coachState.categories.find(c=>y>=Number(c.minYear) && y<=Number(c.maxYear));
   return exact ? exact.name : '';
 }
-
+function shortCoachName(user){
+  const source = user.shortName || user.fullName || 'Entrenador';
+  const parts = String(source).trim().split(/\s+/).filter(Boolean);
+  return parts.length >= 2 ? `${parts[0]} ${parts[1]}` : parts[0] || 'Entrenador';
+}
+function crestSrc(){
+  return coachState.team?.crestUrl || coachState.team?.crest || 'assets/img/logo-pacha-deportes.png';
+}
 function renderShell(){
   const user = coachState.user;
-  document.querySelector('#coachName').textContent = user.shortName || user.fullName;
-  document.querySelector('#coachWelcome').textContent = `Bienvenido ${user.shortName || user.fullName}`;
+  document.querySelector('#coachName').textContent = shortCoachName(user);
+  document.querySelector('#coachWelcome').textContent = `Bienvenido ${shortCoachName(user)}`;
   document.querySelector('#coachSubtitle').textContent = 'Gestiona tu perfil, jugadores, partidos y convocatorias del equipo.';
+  const crest = document.querySelector('#teamCrestSidebar');
+  if(crest){ crest.src = crestSrc(); }
 }
 function setTab(tab){
   document.querySelectorAll('.side-menu button[data-tab]').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
   document.querySelectorAll('.tabs-content').forEach(s=>s.classList.toggle('active', s.id===`tab-${tab}`));
 }
+function renderCategoryBadges(){
+  const cats = teamCategoriesArray();
+  return cats.map(c=>`<span class="category-pill">${c.replace('SUB','Sub')}</span>`).join('') || '<span class="section-subtitle">Sin categorías habilitadas</span>';
+}
 function renderProfile(edit=false){
   const t = coachState.team || {};
   const view = document.querySelector('#profileBox');
+  const teamCats = teamCategoriesArray();
   const cats = coachState.categories.map(c => `
-    <label class="category-check"><input type="checkbox" value="${c.name}" ${(t.categories||'SUB 6,SUB 8,SUB 10,SUB 12').includes(c.name)?'checked':''} ${edit?'':'disabled'}> ${c.label}</label>`).join('');
+    <label class="category-check"><input type="checkbox" value="${c.name}" ${teamCats.includes(categoryBaseName(c.name))?'checked':''}> ${c.label}</label>`).join('');
   view.innerHTML = edit ? `
     <div class="form-grid">
       <div><label>Nombre del equipo</label><input class="input" id="teamNameInput" value="${t.teamName||''}"></div>
@@ -40,20 +62,22 @@ function renderProfile(edit=false){
       <div><label>Dirección</label><input class="input" id="addressInput" value="${t.address||''}"></div>
       <div><label>Correo del equipo</label><input class="input" id="teamEmailInput" value="${t.email||''}"></div>
       <div><label>WhatsApp</label><input class="input" id="whatsappInput" value="${t.whatsapp||''}"></div>
-      <div><label>Insignia del equipo</label><input class="input" id="crestInput" placeholder="URL o ruta de imagen" value="${t.crestUrl||''}"></div>
+      <div><label>Insignia del equipo</label><input class="input" id="crestInput" placeholder="URL pública o ruta: assets/img/equipos/escudo.png" value="${t.crestUrl||''}"><p class="field-help">En GitHub Pages puedes usar una ruta de imagen. Para subida real a Drive se requiere ampliar el Apps Script.</p></div>
     </div>
     <div style="margin-top:14px"><label>Categorías habilitadas</label><div class="category-checks">${cats}</div></div>
     <div class="actions"><button class="btn btn-primary" id="saveProfileBtn">Guardar perfil</button><button class="btn btn-secondary" id="cancelEditProfile">Cancelar</button></div>
   ` : `
-    <div class="form-grid">
-      <div><label>Nombre del equipo</label><div class="readonly-field">${t.teamName||'-'}</div></div>
-      <div><label>Razón social</label><div class="readonly-field">${t.legalName||'Sin razón social registrada'}</div></div>
-      <div><label>Dirección</label><div class="readonly-field">${t.address||'Pendiente'}</div></div>
-      <div><label>Correo</label><div class="readonly-field">${t.email||'-'}</div></div>
-      <div><label>WhatsApp</label><div class="readonly-field">${t.whatsapp||'Pendiente'}</div></div>
-      <div><label>Insignia del equipo</label><div class="readonly-field">${t.crestUrl ? 'Insignia cargada' : 'Pendiente'}</div></div>
+    <div class="profile-summary">
+      <img class="team-crest-large" src="${crestSrc()}" onerror="this.src='assets/img/logo-pacha-deportes.svg'" alt="Escudo del equipo">
+      <div class="form-grid">
+        <div><label>Nombre del equipo</label><div class="readonly-field">${t.teamName||'-'}</div></div>
+        <div><label>Razón social</label><div class="readonly-field">${t.legalName||'Sin razón social registrada'}</div></div>
+        <div><label>Dirección</label><div class="readonly-field">${t.address||'Pendiente'}</div></div>
+        <div><label>Correo</label><div class="readonly-field">${t.email||'-'}</div></div>
+        <div><label>WhatsApp</label><div class="readonly-field">${t.whatsapp||'Pendiente'}</div></div>
+        <div><label>Categorías habilitadas</label><div class="category-list-readonly">${renderCategoryBadges()}</div></div>
+      </div>
     </div>
-    <div style="margin-top:14px"><label>Categorías habilitadas</label><div class="category-checks">${cats}</div></div>
     <div class="actions"><button class="btn btn-primary" id="editProfileBtn">Editar perfil</button></div>
   `;
   document.querySelector('#editProfileBtn')?.addEventListener('click',()=>renderProfile(true));
@@ -66,62 +90,93 @@ function renderProfile(edit=false){
       crestUrl:document.querySelector('#crestInput').value, categories
     };
     const res = await API.saveTeamProfile(payload);
-    if(res.ok){ coachState.team = {...coachState.team, ...payload}; toast('Perfil actualizado'); renderProfile(false); }
+    if(res.ok){ coachState.team = {...coachState.team, ...payload}; toast('Perfil actualizado'); renderShell(); renderProfile(false); }
+  });
+}
+function renderPlayerFilters(){
+  const wrap = document.querySelector('#playerCategoryFilters');
+  if(!wrap) return;
+  const cats = teamCategoriesArray();
+  wrap.innerHTML = cats.map(c=>`<button class="btn btn-secondary ${coachState.playerFilter===c?'active':''}" data-player-filter="${c}">${c.replace('SUB','Sub')}</button>`).join('');
+  document.querySelectorAll('[data-player-filter]').forEach(btn=>{
+    btn.addEventListener('click',()=>{coachState.playerFilter = btn.dataset.playerFilter; renderPlayers();});
   });
 }
 function renderPlayers(){
+  renderPlayerFilters();
+  document.querySelectorAll('[data-player-filter]').forEach(b=>b.classList.toggle('active', b.dataset.playerFilter===coachState.playerFilter));
   const grid = document.querySelector('#playersGrid');
-  document.querySelector('#playerCount').textContent = `${coachState.players.length} jugadores`;
-  grid.innerHTML = coachState.players.map(p=>`
+  const filtered = coachState.playerFilter==='TODOS' ? coachState.players : coachState.players.filter(p=>playerCategoriesArray(p).includes(coachState.playerFilter));
+  const label = coachState.playerFilter==='TODOS' ? 'todos los jugadores' : `categoría ${coachState.playerFilter.replace('SUB','Sub')}`;
+  document.querySelector('#playerCount').textContent = `${filtered.length} jugador(es) en ${label}.`;
+  grid.innerHTML = filtered.map(p=>`
     <article class="card player-card">
-      <img class="avatar" src="${p.photoUrl||`assets/IMG/jugadores/${p.dni}.png`}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'avatar-fallback',textContent:'${(p.fullName||'J').slice(0,2).toUpperCase()}'}))">
-      <div><h3>${p.fullName}</h3><p>DNI: ${p.dni}</p><p>Fecha de nacimiento: ${p.birthDate}</p><p>Categoría: ${p.categories||simpleCategoryByDOB(p.birthDate)}</p></div>
-    </article>`).join('') || `<div class="card">Aún no hay jugadores registrados.</div>`;
+      <img class="avatar" src="${p.photoUrl||`assets/img/jugadores/${p.dni}.png`}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'avatar-fallback',textContent:'${(p.fullName||p.firstName||'J').slice(0,2).toUpperCase()}'}))">
+      <div><h3>${p.fullName || `${p.firstName||''} ${p.lastName||''}`}</h3><p>Documento: ${p.documentType || 'DNI'} ${p.dni}</p><p>Fecha de nacimiento: ${p.birthDate}</p><p>Categoría: ${p.categories||simpleCategoryByDOB(p.birthDate)}</p></div>
+    </article>`).join('') || `<div class="card">No hay jugadores en este filtro.</div>`;
 }
 function renderPlayerForm(){
   const form = document.querySelector('#playerForm');
   const birth = form.querySelector('[name=birthDate]');
   const catBox = form.querySelector('#playerCatChecks');
   function refreshCats(){
-    const y = birth.value ? new Date(birth.value).getFullYear() : null;
-    const eligible = coachState.categories.filter(c=>{
-      if(!y) return true;
-      const min=Number(c.minYear), max=Number(c.maxYear);
-      return (y>=min && y<=max) || (y>max && y<=2021); // puede subir
-    });
-    catBox.innerHTML = eligible.map(c=>`<label class="category-check"><input type="checkbox" value="${c.name}"> ${c.label}</label>`).join('') || '<p>No aplica a ninguna categoría registrada.</p>';
+    const eligible = categoryOptionsByBirthDate(birth.value).filter(c=>teamCategoriesArray().includes(categoryBaseName(c.name)));
+    catBox.innerHTML = eligible.map(c=>`<label class="category-check"><input type="checkbox" value="${c.name}"> ${c.label}</label>`).join('') || '<p>No aplica a ninguna categoría habilitada para este equipo.</p>';
   }
   birth.addEventListener('change',refreshCats); refreshCats();
+  document.querySelector('#openPlayerModalBtn')?.addEventListener('click',()=>document.querySelector('#playerModal').classList.add('open'));
   form.addEventListener('submit', async e=>{
     e.preventDefault();
-    if(coachState.players.length >= 15){ toast('Máximo 15 jugadores por equipo'); return; }
     const fd = new FormData(form);
     const cats = [...catBox.querySelectorAll('input:checked')].map(i=>i.value).join(', ');
     if(!cats){ toast('Selecciona al menos una categoría válida'); return; }
-    const player = {teamId:coachState.team.teamId, teamName:coachState.team.teamName, fullName:fd.get('fullName'), dni:fd.get('dni'), birthDate:fd.get('birthDate'), categories:cats, photoUrl:fd.get('photoUrl') || `assets/IMG/jugadores/${fd.get('dni')}.png`};
+    const selectedCats = cats.split(',').map(c=>categoryBaseName(c));
+    for(const c of selectedCats){
+      const count = coachState.players.filter(p=>playerCategoriesArray(p).includes(c)).length;
+      if(count >= 15){ toast(`Máximo 15 jugadores en ${c.replace('SUB','Sub')}`); return; }
+    }
+    const firstName = fd.get('firstName'), lastName = fd.get('lastName');
+    const player = {teamId:coachState.team.teamId, teamName:coachState.team.teamName, firstName, lastName, fullName:`${firstName} ${lastName}`.trim(), documentType:fd.get('documentType'), dni:fd.get('dni'), birthDate:fd.get('birthDate'), categories:cats, photoUrl:fd.get('photoUrl') || `assets/img/jugadores/${fd.get('dni')}.png`};
     const res = await API.savePlayer(player);
-    if(res.ok){ coachState.players.push(res.player); toast('Jugador registrado'); form.reset(); refreshCats(); renderPlayers(); }
+    if(res.ok){ coachState.players.push(res.player); toast('Jugador registrado'); form.reset(); refreshCats(); document.querySelector('#playerModal').classList.remove('open'); renderPlayers(); }
     else toast(res.message||'No se pudo registrar');
   });
 }
-function renderMatches(){
-  const box = document.querySelector('#coachMatches');
+function matchRoundGroups(){
+  return coachState.fixture.reduce((acc,m)=>{(acc[m.round] ||= []).push(m); return acc;},{});
+}
+function renderCalendar(){
+  const box = document.querySelector('#coachCalendar');
+  if(!box) return;
+  const groups = matchRoundGroups();
+  box.innerHTML = Object.keys(groups).sort((a,b)=>Number(a)-Number(b)).map(round=>`
+    <div class="card round-card">
+      <div class="section-head" style="margin-bottom:12px"><div><h3>Fecha ${round}</h3><p>${groups[round][0]?.dateLabel || ''}</p></div><span class="badge badge-blue">${groups[round].length} partido(s)</span></div>
+      <div class="grid grid-2">${groups[round].map(m=>renderMatchCard(m,false)).join('')}</div>
+    </div>`).join('') || '<div class="card">No hay partidos programados.</div>';
+}
+function renderMatchCard(m, showAction=true){
   const current = Number(window.APP_CONFIG.CURRENT_ROUND || 3);
-  box.innerHTML = coachState.fixture.map(m=>{
-    const round = Number(m.round);
-    const isOpen = round === current;
-    const conv = coachState.convocatorias.find(c=>c.matchId===m.matchId);
-    return `<article class="card match-card ${conv?'convocado':''} ${!isOpen?'locked':''}">
-      <div class="match-meta"><span class="badge badge-green">Fecha ${m.round}</span><span class="badge badge-blue">${m.dateLabel}</span><span class="badge badge-gold">${m.field} · ${m.time}</span></div>
-      <div class="match-teams"><span>${m.home}</span><span>VS</span><span class="away">${m.away}</span></div>
-      <p>${m.category}</p>
-      <div class="actions">
-        ${isOpen ? `<button class="btn btn-primary" data-open-roster="${m.matchId}">${conv?'Editar convocatoria':'Abrir convocatoria'}</button>` : `<button class="btn btn-secondary btn-disabled">Convocatoria bloqueada</button>`}
-        ${conv ? `<span class="badge badge-green">Convocado</span>`:''}
-      </div>
-    </article>`;
-  }).join('') || `<div class="card">No hay partidos programados para tu equipo.</div>`;
+  const round = Number(m.round);
+  const isOpen = round === current;
+  const conv = coachState.convocatorias.find(c=>c.matchId===m.matchId);
+  return `<article class="card match-card ${conv?'convocado':''} ${!isOpen?'locked':''}">
+    <div class="match-meta"><span class="badge badge-green">Fecha ${m.round}</span><span class="badge badge-blue">${m.dateLabel}</span><span class="badge badge-gold">${m.field} · ${m.time}</span></div>
+    <div class="match-teams"><span>${m.home}</span><span>VS</span><span class="away">${m.away}</span></div>
+    <p>${m.category}</p>
+    ${showAction ? `<div class="actions">
+      ${isOpen ? `<button class="btn btn-primary" data-open-roster="${m.matchId}">${conv?'Editar convocatoria':'Abrir convocatoria'}</button>` : `<button class="btn btn-secondary btn-disabled">Convocatoria bloqueada</button>`}
+      ${conv ? `<span class="badge badge-green">Convocatoria lista</span>`:`<span class="badge badge-gold">Convocatoria pendiente</span>`}
+    </div>` : ''}
+  </article>`;
+}
+function renderMatches(){
+  const box = document.querySelector('#coachConvocatorias');
+  const current = Number(window.APP_CONFIG.CURRENT_ROUND || 3);
+  const candidates = coachState.fixture.filter(m=>Number(m.round) >= current);
+  box.innerHTML = candidates.map(m=>renderMatchCard(m,true)).join('') || `<div class="card">No hay convocatorias disponibles para tu equipo.</div>`;
   document.querySelectorAll('[data-open-roster]').forEach(btn=>btn.addEventListener('click',()=>openRoster(btn.dataset.openRoster)));
+  renderCalendar();
 }
 function openRoster(matchId){
   const match = coachState.fixture.find(m=>m.matchId===matchId);
@@ -130,12 +185,14 @@ function openRoster(matchId){
   modal.classList.add('open');
   document.querySelector('#rosterTitle').textContent = `${match.home} vs ${match.away}`;
   document.querySelector('#rosterSubtitle').textContent = `${match.dateLabel} · ${match.field} · ${match.time} · ${match.category}`;
-  let starters = [...existing.starters], substitutes = [...existing.substitutes];
+  let starters = Array.isArray(existing.starters) ? [...existing.starters] : JSON.parse(existing.starters || '[]');
+  let substitutes = Array.isArray(existing.substitutes) ? [...existing.substitutes] : JSON.parse(existing.substitutes || '[]');
   function draw(){
     const selected = new Set([...starters, ...substitutes]);
-    const available = coachState.players.filter(p=>!selected.has(p.playerId));
+    const matchCat = categoryBaseName(match.category);
+    const available = coachState.players.filter(p=>!selected.has(p.playerId) && playerCategoriesArray(p).includes(matchCat));
     document.querySelector('#availablePlayers').innerHTML = available.map(p=>`
-      <div class="roster-item"><span>${p.fullName}</span><div><button class="btn btn-small btn-primary" data-add-starter="${p.playerId}">Titular</button> <button class="btn btn-small btn-secondary" data-add-sub="${p.playerId}">Suplente</button></div></div>`).join('') || '<p>No quedan jugadores disponibles.</p>';
+      <div class="roster-item"><span>${p.fullName}</span><div><button class="btn btn-small btn-primary" data-add-starter="${p.playerId}">Titular</button> <button class="btn btn-small btn-secondary" data-add-sub="${p.playerId}">Suplente</button></div></div>`).join('') || '<p>No quedan jugadores disponibles para esta categoría.</p>';
     const printList = ids => ids.map(id=>coachState.players.find(p=>p.playerId===id)).filter(Boolean).map(p=>`<div class="roster-item"><span>${p.fullName}</span><button class="btn btn-small btn-danger" data-remove="${p.playerId}">Quitar</button></div>`).join('') || '<p>Sin jugadores.</p>';
     document.querySelector('#startersList').innerHTML = printList(starters);
     document.querySelector('#subsList').innerHTML = printList(substitutes);
@@ -146,7 +203,7 @@ function openRoster(matchId){
   draw();
   document.querySelector('#saveRosterBtn').onclick = async ()=>{
     const res = await API.saveConvocatoria({matchId, teamId:coachState.team.teamId, teamName:coachState.team.teamName, starters, substitutes});
-    if(res.ok){ 
+    if(res.ok){
       const idx = coachState.convocatorias.findIndex(c=>c.matchId===matchId);
       if(idx>=0) coachState.convocatorias[idx]=res.convocatoria; else coachState.convocatorias.push(res.convocatoria);
       toast('Convocatoria guardada'); modal.classList.remove('open'); renderMatches();

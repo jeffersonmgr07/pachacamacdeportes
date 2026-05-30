@@ -12,13 +12,20 @@ function toast(msg){
   t.textContent = msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2600);
 }
 
+function normalizeMatch(m){
+  if(!Array.isArray(m)) return m;
+  return {
+    matchId:m[0], round:m[1], dateLabel:m[2], date:m[3], field:m[4], time:m[5],
+    home:m[6], away:m[7], category:m[8], status:m[9], homeScore:m[10] || '', awayScore:m[11] || '', resultType:m[12] || ''
+  };
+}
 function mockDB(){
   const m = window.MINETTI_MOCK_DATA || {};
   return {
     users: Store.get('mf_users', m.users || []),
     trainers: Store.get('mf_trainers', m.trainers || []),
     categories: Store.get('mf_categories', m.categories || []),
-    fixture: Store.get('mf_fixture', m.fixture || []),
+    fixture: Store.get('mf_fixture', (m.fixture || []).map(normalizeMatch)).map(normalizeMatch),
     players: Store.get('mf_players', m.players || []),
     convocatorias: Store.get('mf_convocatorias', [])
   }
@@ -98,6 +105,11 @@ const API = {
 };
 
 function openLoginModal(){
+  const user = Store.getUser();
+  if(user){
+    location.href = user.role === 'admin' ? 'admin.html' : 'entrenador.html';
+    return;
+  }
   const modal = document.querySelector('#loginModal');
   if(modal) modal.classList.add('open');
   else location.href='login.html';
