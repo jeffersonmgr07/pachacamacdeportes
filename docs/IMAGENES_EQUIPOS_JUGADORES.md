@@ -1,47 +1,56 @@
 # Imágenes de equipos y jugadores
 
-## Opción simple recomendada por ahora
+## Insignias de equipos
 
-Subir manualmente las imágenes al repositorio de GitHub:
+Guardar los logos/escudos de los equipos en:
 
 ```txt
 assets/img/equipos/
-assets/img/jugadores/
 ```
 
-### Insignias de equipos
-
-Nombre recomendado:
+Puedes usar dos formas de nombre:
 
 ```txt
-assets/img/equipos/EQ001.png
+assets/img/equipos/EQ010.png
+assets/img/equipos/guerreros-de-manchay.png
+```
+
+La forma recomendada es usar el `teamId` que aparece en la hoja `Equipos`.
+
+Ejemplo para Guerreros de Manchay:
+
+```txt
 assets/img/equipos/EQ010.png
 ```
 
-También puedes colocar una ruta personalizada en el perfil del equipo, en el campo `crestUrl`.
+## Fotos de jugadores
 
-### Fotos de jugadores
+Guardar las fotos de jugadores en:
+
+```txt
+assets/img/jugadores/
+```
 
 Nombre recomendado:
 
 ```txt
-assets/img/jugadores/DNI.png
+DNI.png
 ```
 
 Ejemplo:
 
 ```txt
-assets/img/jugadores/10499558.png
+assets/img/jugadores/94768639.png
+assets/img/jugadores/91972988.png
+assets/img/jugadores/92523349.png
 ```
 
-## Subida automática de imágenes
+En la hoja `Jugadores`, el campo `photoUrl` puede quedar así:
 
-Se puede implementar, pero con la arquitectura actual GitHub Pages + Apps Script API no es tan directo como cuando todo el HTML vive dentro de Apps Script.
+```txt
+assets/img/jugadores/94768639.png
+```
 
-Para permitir subida real a Drive se necesitaría una de estas opciones:
+## Nota
 
-1. Crear un formulario de carga alojado en Apps Script para recibir archivos y guardarlos en Google Drive.
-2. Usar un servicio externo de imágenes como Cloudinary, Firebase Storage o Supabase Storage.
-3. Implementar subida base64 hacia Apps Script con control de tamaño, lo cual no es recomendable para fotos grandes.
-
-Por ahora el proyecto queda preparado para leer imágenes desde ruta o URL pública.
+Si quieres que los entrenadores suban imágenes directamente desde el panel web, se debe implementar una función adicional en Apps Script para recibir base64 y guardar el archivo en Google Drive. Por ahora, la opción más estable es subir las imágenes manualmente al repositorio de GitHub.

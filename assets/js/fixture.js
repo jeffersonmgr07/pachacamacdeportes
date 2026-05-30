@@ -13,9 +13,9 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     const rows = res.fixture.filter(m=>(!c||matchVal(m,'category',8)===c)&&(!r||String(matchVal(m,'round',1))===String(r)));
     tbody.innerHTML = rows.map(m=>`
       <tr>
-        <td>${matchVal(m,'dateLabel',2)}</td><td>${matchVal(m,'field',4)}</td><td>${matchVal(m,'time',5)}</td>
+        <td>${matchVal(m,'dateLabel',2)}</td><td>${matchVal(m,'field',4)}</td><td>${formatTime12(matchVal(m,'time',5))}</td>
         <td>${matchVal(m,'home',6)}</td><td>VS</td><td>${matchVal(m,'away',7)}</td><td>${matchVal(m,'category',8)}</td>
-        <td>${matchVal(m,'status',9) || 'programado'}</td>
+        <td>${matchVal(m,'status',9) === 'jugado' ? `${matchVal(m,'homeScore',10)} - ${matchVal(m,'awayScore',11)}` : (matchVal(m,'status',9) || 'programado')}</td>
       </tr>`).join('');
   }
   cat?.addEventListener('change',render); round?.addEventListener('change',render); render();

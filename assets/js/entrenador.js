@@ -162,13 +162,17 @@ function renderMatchCard(m, showAction=true){
   const round = Number(m.round);
   const isOpen = round === current;
   const conv = coachState.convocatorias.find(c=>c.matchId===m.matchId);
-  return `<article class="card match-card ${conv?'convocado':''} ${!isOpen?'locked':''}">
-    <div class="match-meta"><span class="badge badge-green">Fecha ${m.round}</span><span class="badge badge-blue">${m.dateLabel}</span><span class="badge badge-gold">${m.field} · ${m.time}</span></div>
-    <div class="match-teams"><span>${m.home}</span><span>VS</span><span class="away">${m.away}</span></div>
-    <p>${m.category}</p>
+  return `<article class="card match-card match-card-visual ${conv?'convocado':''} ${!isOpen?'locked':''}">
+    <div class="match-meta"><span class="badge badge-green">Fecha ${m.round}</span><span class="badge badge-green">${m.dateLabel}</span><span class="badge badge-green">${m.field} · ${formatTime12(m.time)}</span></div>
+    <div class="match-vs-logos">
+      <div class="team-side"><img src="${teamLogoPath(m.home)}" onerror="this.src='assets/img/logo-pacha-deportes.svg'"><span>${m.home}</span></div>
+      <b>VS</b>
+      <div class="team-side right"><img src="${teamLogoPath(m.away)}" onerror="this.src='assets/img/logo-pacha-deportes.svg'"><span>${m.away}</span></div>
+    </div>
+    <p class="match-category">${m.category}</p>
     ${showAction ? `<div class="actions">
       ${isOpen ? `<button class="btn btn-primary" data-open-roster="${m.matchId}">${conv?'Editar convocatoria':'Abrir convocatoria'}</button>` : `<button class="btn btn-secondary btn-disabled">Convocatoria bloqueada</button>`}
-      ${conv ? `<span class="badge badge-green">Convocatoria lista</span>`:`<span class="badge badge-gold">Convocatoria pendiente</span>`}
+      ${conv ? `<span class="badge badge-green">Convocatoria lista</span>`:`<span class="badge badge-green">Convocatoria pendiente</span>`}
     </div>` : ''}
   </article>`;
 }
@@ -186,7 +190,7 @@ function openRoster(matchId){
   const modal = document.querySelector('#rosterModal');
   modal.classList.add('open');
   document.querySelector('#rosterTitle').textContent = `${match.home} vs ${match.away}`;
-  document.querySelector('#rosterSubtitle').textContent = `${match.dateLabel} · ${match.field} · ${match.time} · ${match.category}`;
+  document.querySelector('#rosterSubtitle').textContent = `${match.dateLabel} · ${match.field} · ${formatTime12(match.time)} · ${match.category}`;
   let starters = Array.isArray(existing.starters) ? [...existing.starters] : JSON.parse(existing.starters || '[]');
   let substitutes = Array.isArray(existing.substitutes) ? [...existing.substitutes] : JSON.parse(existing.substitutes || '[]');
   function draw(){

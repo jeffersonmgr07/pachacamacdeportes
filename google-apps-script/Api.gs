@@ -6,6 +6,8 @@ function getPublicData_() {
     categories: readTable_('Categorias'),
     fixture: readTable_('Fixture'),
     players: readTable_('Jugadores'),
+    teams: readTable_('Equipos'),
+    descansos: readTable_('Descansos'),
     convocatorias: readTable_('Convocatorias')
   };
 }
@@ -13,7 +15,10 @@ function getCoachDashboard_(user) {
   if (!user || !user.teamId) return {ok:false, message:'Usuario entrenador inválido'};
   var teamId = user.teamId;
   var trainers = readTable_('Entrenadores');
-  var team = trainers.find(function(t){ return String(t.teamId) === String(teamId); }) || user;
+  var teams = readTable_('Equipos');
+  var trainer = trainers.find(function(t){ return String(t.teamId) === String(teamId); }) || user;
+  var teamRecord = teams.find(function(t){ return String(t.teamId) === String(teamId); }) || {};
+  var team = Object.assign({}, trainer, teamRecord);
   var players = readTable_('Jugadores').filter(function(p){ return String(p.teamId) === String(teamId); });
   var fixture = readTable_('Fixture').filter(function(m){ return String(m.home) === String(team.teamName) || String(m.away) === String(team.teamName); });
   var convocatorias = readTable_('Convocatorias').filter(function(c){ return String(c.teamId) === String(teamId); });

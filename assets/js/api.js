@@ -12,6 +12,24 @@ function toast(msg){
   t.textContent = msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2600);
 }
 
+
+function teamSlug(name){
+  return String(name||'equipo')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+}
+function teamLogoPath(teamName){
+  const db = mockDB ? mockDB() : {teams:[]};
+  const team = (db.teams||[]).find(t=>String(t.teamName).toUpperCase()===String(teamName).toUpperCase());
+  return team?.crestUrl || `assets/img/equipos/${teamSlug(teamName)}.png`;
+}
+function formatTime12(time){
+  if(!time || String(time).toUpperCase().includes('POR')) return time || 'Por definir';
+  const parts = String(time).split(':'); let h = Number(parts[0]); const m = parts[1] || '00';
+  const ampm = h >= 12 ? 'PM' : 'AM'; let hh = h % 12; if(hh===0) hh=12;
+  return `${String(hh).padStart(2,'0')}:${m} ${ampm}`;
+}
+
 function normalizeMatch(m){
   if(!Array.isArray(m)) return m;
   return {
@@ -27,6 +45,8 @@ function mockDB(){
     categories: Store.get('mf_categories', m.categories || []),
     fixture: Store.get('mf_fixture', (m.fixture || []).map(normalizeMatch)).map(normalizeMatch),
     players: Store.get('mf_players', m.players || []),
+    teams: Store.get('mf_teams', m.teams || []),
+    descansos: Store.get('mf_descansos', m.descansos || []),
     convocatorias: Store.get('mf_convocatorias', [])
   }
 }
@@ -36,6 +56,8 @@ function saveMockDB(db){
   if(db.categories) Store.set('mf_categories', db.categories);
   if(db.fixture) Store.set('mf_fixture', db.fixture);
   if(db.players) Store.set('mf_players', db.players);
+  if(db.teams) Store.set('mf_teams', db.teams);
+  if(db.descansos) Store.set('mf_descansos', db.descansos);
   if(db.convocatorias) Store.set('mf_convocatorias', db.convocatorias);
 }
 
@@ -77,8 +99,11 @@ const API = {
         saveMockDB(db); return {ok:true, team: db.trainers[idx]};
       }
       case 'savePlayer': {
-        const teamPlayers = db.players.filter(p=>p.teamId===payload.teamId);
-        if(teamPlayers.length >= 15) return {ok:false, message:'Máximo 15 jugadores por equipo'};
+        const payloadCats = String(payload.categories||payload.category||'').split(',').map(x=>x.replace(/\s*\(.+?\)/g,'').trim().toUpperCase()).filter(Boolean);
+        for(const c of payloadCats){
+          const count = db.players.filter(p=>p.teamId===payload.teamId && String(p.categories||p.category||'').toUpperCase().includes(c)).length;
+          if(count >= 15) return {ok:false, message:`Máximo 15 jugadores por categoría (${c.replace('SUB','Sub')})`};
+        }
         const player = {...payload, playerId:'P'+Date.now()};
         db.players.push(player); saveMockDB(db); return {ok:true, player};
       }
