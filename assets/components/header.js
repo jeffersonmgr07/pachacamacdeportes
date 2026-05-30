@@ -1,6 +1,6 @@
 function headerHTML(active = 'deportes', championship = false){
-  const logo = 'assets/IMG/logo-pacha-deportes.png';
-  const fallback = 'assets/IMG/logo-pacha-deportes.svg';
+  const logo = 'assets/img/logo-pacha-deportes.png';
+  const fallback = 'assets/img/logo-pacha-deportes.svg';
   const navGeneral = `
     <a class="${active==='deportes'?'active':''}" href="index.html">Deportes</a>
     <a class="${active==='campeonatos'?'active':''}" href="campeonatos.html">Campeonatos</a>

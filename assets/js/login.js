@@ -13,6 +13,4 @@ document.addEventListener('DOMContentLoaded', ()=>{
       await handleLogin(fd.get('email'), fd.get('password'));
     });
   });
-  document.querySelectorAll('[data-demo-coach]').forEach(btn=>btn.addEventListener('click',()=>handleLogin('elvisdennisroblessoto@gmail.com','10499558E2026')));
-  document.querySelectorAll('[data-demo-admin]').forEach(btn=>btn.addEventListener('click',()=>handleLogin('admin@pachacamac.gob.pe','admin123')));
 });
