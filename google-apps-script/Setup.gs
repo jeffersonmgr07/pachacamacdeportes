@@ -1,5 +1,6 @@
 
 function setupPachaDeportes() {
+  // Seguro: no borra datos existentes. Para reiniciar todo usa resetPachaDeportesConDatosDemo_().
   createSheet_('Config', ['key','value','description'], [
     ['APP_NAME','Portal de deportes Pachacamac','Nombre visible del portal'],
     ['CURRENT_ROUND','3','Fecha habilitada para convocatorias'],
@@ -39,10 +40,33 @@ function setupPachaDeportes() {
 }
 function createSheet_(name, headers, rows) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sh = ss.getSheetByName(name) || ss.insertSheet(name);
-  sh.clear();
-  sh.getRange(1,1,1,headers.length).setValues([headers]).setFontWeight('bold').setBackground('#071225').setFontColor('#ffffff');
-  if(rows && rows.length) sh.getRange(2,1,rows.length,headers.length).setValues(rows);
+  var sh = ss.getSheetByName(name);
+  var isNew = false;
+  if(!sh){
+    sh = ss.insertSheet(name);
+    isNew = true;
+  }
+  // No borrar datos existentes al actualizar el Apps Script. Solo crea/ordena encabezados si la hoja está vacía.
+  if(sh.getLastRow() === 0 || sh.getLastColumn() === 0){
+    sh.getRange(1,1,1,headers.length).setValues([headers]);
+    if(rows && rows.length) sh.getRange(2,1,rows.length,headers.length).setValues(rows);
+  } else {
+    // Agrega encabezados faltantes al final sin tocar las columnas existentes.
+    var current = sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0].map(String);
+    headers.forEach(function(h){
+      if(current.indexOf(h) === -1){
+        sh.getRange(1, sh.getLastColumn()+1).setValue(h);
+      }
+    });
+  }
+  sh.getRange(1,1,1,sh.getLastColumn()).setFontWeight('bold').setBackground('#071225').setFontColor('#ffffff');
   sh.setFrozenRows(1);
-  sh.autoResizeColumns(1, headers.length);
+  sh.autoResizeColumns(1, sh.getLastColumn());
+}
+
+function resetPachaDeportesConDatosDemo_(){
+  // Usar solo si quieres borrar todo y volver a cargar datos demo.
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  ss.getSheets().forEach(function(sh){ sh.clear(); });
+  setupPachaDeportes();
 }

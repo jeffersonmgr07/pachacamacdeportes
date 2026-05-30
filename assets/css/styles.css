@@ -307,86 +307,60 @@ label{display:block;color:#c9d8ee;font-weight:850;font-size:13px;margin-bottom:6
 .hero-futbol h1,.hero-futbol p,.hero-futbol .kicker{color:#ffffff!important;}
 .hero-futbol .btn-secondary{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);color:#fff;}
 
+
 /* =========================================================
-   FONDOS HERO CON IMAGEN REAL + SVG DECORATIVO
-   Ruta de imágenes:
+   CORRECCIÓN: fondos reales detrás del SVG decorativo
+   Sube las imágenes aquí:
    assets/img/backgrounds/bg-index-deportivo.jpg
    assets/img/backgrounds/bg-futbol-menores-real.jpg
 ========================================================= */
-
-/* Hero principal del index */
-.hero-main,
-.main-hero,
-.portal-hero {
-  position: relative;
-  overflow: hidden;
+.hero{
+  position:relative;
+  overflow:hidden;
   background:
-    linear-gradient(135deg, rgba(3, 7, 18, 0.88), rgba(6, 78, 59, 0.82)),
-    url("../img/backgrounds/bg-index-deportivo.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+    radial-gradient(circle at 80% 5%,rgba(182,223,42,.28),transparent 28%),
+    radial-gradient(circle at 12% 20%,rgba(248,196,73,.18),transparent 20%),
+    linear-gradient(135deg,rgba(7,18,37,.88) 0%,rgba(11,27,54,.84) 45%,rgba(27,42,5,.82) 100%),
+    url('../img/backgrounds/bg-index-deportivo.jpg') center/cover no-repeat !important;
 }
-
-/* Capa SVG decorativa encima de la foto, pero con transparencia */
-.hero-main::after,
-.main-hero::after,
-.portal-hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: url("../img/bg-portal-deportivo.svg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.18;
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Contenido siempre encima de las capas */
-.hero-main > *,
-.main-hero > *,
-.portal-hero > * {
-  position: relative;
-  z-index: 2;
-}
-
-
-/* Hero del campeonato fútbol menores 2026 */
-.hero-campeonato-futbol,
-.championship-hero,
-.tournament-hero {
-  position: relative;
-  overflow: hidden;
+.hero.hero-futbol{
   background:
-    linear-gradient(135deg, rgba(3, 7, 18, 0.88), rgba(6, 95, 70, 0.82)),
-    url("../img/backgrounds/bg-futbol-menores-real.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+    radial-gradient(circle at 82% 8%,rgba(182,223,42,.24),transparent 28%),
+    radial-gradient(circle at 10% 18%,rgba(248,196,73,.16),transparent 22%),
+    linear-gradient(135deg,rgba(7,18,37,.88) 0%,rgba(11,27,54,.84) 45%,rgba(27,42,5,.82) 100%),
+    url('../img/backgrounds/bg-futbol-menores-real.jpg') center/cover no-repeat !important;
 }
+.hero:before{z-index:1;opacity:.18!important;pointer-events:none;}
+.hero.hero-futbol:before{z-index:1;opacity:.16!important;pointer-events:none;}
+.hero-content,.hero .container{position:relative;z-index:2;}
 
-/* Mantiene el SVG actual bg-futbol-menores.svg como adorno */
-.hero-campeonato-futbol::after,
-.championship-hero::after,
-.tournament-hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: url("../img/bg-futbol-menores.svg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.16;
-  pointer-events: none;
-  z-index: 1;
+/* Fondos de campeonatos con imagen opcional */
+.champ-hero{
+  background:
+    linear-gradient(135deg,rgba(7,18,37,.90),rgba(30,49,7,.86)),
+    url('../img/backgrounds/bg-index-deportivo.jpg') center/cover no-repeat !important;
 }
+.champ-hero:before{z-index:1;opacity:.18!important;}
+.champ-hero .container{position:relative;z-index:2;}
 
-/* Contenido del hero del campeonato encima */
-.hero-campeonato-futbol > *,
-.championship-hero > *,
-.tournament-hero > * {
-  position: relative;
-  z-index: 2;
+/* Bordes y hover para cards operativas */
+.match-card-visual,
+.player-card,
+.round-card .match-card-visual,
+#coachConvocatorias .match-card-visual,
+#coachCalendar .match-card-visual{
+  border:1.5px solid rgba(21,128,61,.45)!important;
+  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.match-card-visual:hover,
+.player-card:hover,
+.round-card .match-card-visual:hover,
+#coachConvocatorias .match-card-visual:hover,
+#coachCalendar .match-card-visual:hover{
+  transform:translateY(-2px);
+  border-color:rgba(21,128,61,.80)!important;
+  box-shadow:0 18px 44px rgba(15,23,42,.16)!important;
+}
+.team-side img,.team-public-logo,.team-crest-large,.side-brand img,.avatar{
+  border-radius:16px!important;
 }

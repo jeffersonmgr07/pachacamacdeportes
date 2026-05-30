@@ -38,7 +38,9 @@ function shortCoachName(user){
   return parts.length >= 2 ? `${parts[0]} ${parts[1]}` : parts[0] || 'Entrenador';
 }
 function crestSrc(){
-  return coachState.team?.crestUrl || coachState.team?.crest || `assets/img/equipos/${String(coachState.team?.teamId || 'equipo').toLowerCase()}.png`;
+  const url = coachState.team?.crestUrl || coachState.team?.crest || coachState.team?.logoUrl;
+  if(url) return String(url).replace(/^\/?/, '');
+  return `assets/img/equipos/${String(coachState.team?.teamId || 'equipo').trim()}.PNG`;
 }
 function renderShell(){
   const user = coachState.user;

@@ -19,8 +19,17 @@ function getCoachDashboard_(user) {
   var trainer = trainers.find(function(t){ return String(t.teamId) === String(teamId); }) || user;
   var teamRecord = teams.find(function(t){ return String(t.teamId) === String(teamId); }) || {};
   var team = Object.assign({}, trainer, teamRecord);
-  var players = readTable_('Jugadores').filter(function(p){ return String(p.teamId) === String(teamId); });
-  var fixture = readTable_('Fixture').filter(function(m){ return String(m.home) === String(team.teamName) || String(m.away) === String(team.teamName); });
+  var teamName = String(team.teamName || user.teamName || '').trim().toUpperCase();
+  var players = readTable_('Jugadores').filter(function(p){
+    return String(p.teamId).trim().toUpperCase() === String(teamId).trim().toUpperCase() ||
+           (teamName && String(p.teamName || '').trim().toUpperCase() === teamName);
+  });
+  players = players.map(function(p){
+    if(!p.photoUrl && p.dni) p.photoUrl = 'assets/img/jugadores/' + p.dni + '.png';
+    return p;
+  });
+  if(!team.crestUrl && team.teamId) team.crestUrl = 'assets/img/equipos/' + team.teamId + '.PNG';
+  var fixture = readTable_('Fixture').filter(function(m){ return String(m.home).trim().toUpperCase() === teamName || String(m.away).trim().toUpperCase() === teamName; });
   var convocatorias = readTable_('Convocatorias').filter(function(c){ return String(c.teamId) === String(teamId); });
   return {ok:true, user:user, team:team, categories:readTable_('Categorias'), players:players, fixture:fixture, convocatorias:convocatorias};
 }

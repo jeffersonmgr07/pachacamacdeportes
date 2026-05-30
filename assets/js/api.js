@@ -18,10 +18,26 @@ function teamSlug(name){
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
 }
-function teamLogoPath(teamName){
-  const db = mockDB ? mockDB() : {teams:[]};
-  const team = (db.teams||[]).find(t=>String(t.teamName).toUpperCase()===String(teamName).toUpperCase());
-  return team?.crestUrl || `assets/img/equipos/${teamSlug(teamName)}.png`;
+function normalizeImagePath(path){
+  if(!path) return '';
+  const p = String(path).trim();
+  if(/^https?:\/\//i.test(p)) return p;
+  return p.replace(/^\/?/, '');
+}
+function teamLogoPath(teamName, teamId){
+  const cachedTeams = Store.get('mf_teams', []);
+  const db = window.APP_CONFIG?.DEMO_MODE ? mockDB() : {teams: cachedTeams};
+  const name = String(teamName || '').trim().toUpperCase();
+  const id = String(teamId || '').trim();
+  const team = (db.teams||[]).find(t =>
+    String(t.teamName || '').trim().toUpperCase() === name ||
+    (id && String(t.teamId || '').trim().toUpperCase() === id.toUpperCase())
+  );
+  const direct = normalizeImagePath(team?.crestUrl || team?.crest || team?.logoUrl);
+  if(direct) return direct;
+  if(team?.teamId) return `assets/img/equipos/${String(team.teamId).trim()}.PNG`;
+  if(id) return `assets/img/equipos/${id}.PNG`;
+  return `assets/img/equipos/${teamSlug(teamName)}.png`;
 }
 function formatTime12(time){
   if(!time || String(time).toUpperCase().includes('POR')) return time || 'Por definir';
@@ -76,7 +92,14 @@ function jsonp(action, payload={}){
 
 const API = {
   async request(action, payload={}){
-    if(!window.APP_CONFIG.DEMO_MODE) return jsonp(action, payload);
+    if(!window.APP_CONFIG.DEMO_MODE){
+      const res = await jsonp(action, payload);
+      // Cache ligero para que helpers visuales, como teamLogoPath(), usen datos reales de Sheets.
+      if(res && res.teams) Store.set('mf_teams', res.teams);
+      if(res && res.categories) Store.set('mf_categories', res.categories);
+      if(res && res.players && action === 'getPublicData') Store.set('mf_players', res.players);
+      return res;
+    }
     const db = mockDB();
     switch(action){
       case 'login': {
