@@ -176,3 +176,45 @@ label{display:block;color:#c9d8ee;font-weight:850;font-size:13px;margin-bottom:6
   .brand-logo-only img{width:142px;height:56px}.brand-logo-only{min-width:142px}
   .profile-summary{grid-template-columns:1fr}.team-crest-large{width:92px;height:92px}
 }
+
+
+/* Correcciones UX solicitadas - equipos, sidebar y contraste */
+.topbar{font-weight:100!important;letter-spacing:.15em;color:#f1f5f9}
+.topbar span{font-weight:100!important}
+
+/* Panel entrenador: punto medio, no tan oscuro ni tan claro */
+.panel-layout{background:#eef3f8;color:#102033}
+.sidebar{background:linear-gradient(180deg,#10243f,#0b1b30)!important;border-right:1px solid rgba(255,255,255,.10);box-shadow:12px 0 34px rgba(15,23,42,.12)}
+.side-brand strong,.side-user strong{color:#ffffff!important}
+.side-brand span,.side-user span{color:#c7d5e8!important}
+.side-brand img{background:transparent!important;border:0!important;padding:0!important;border-radius:0!important;box-shadow:none!important;object-fit:contain}
+.side-user{background:rgba(255,255,255,.075)!important;border:1px solid rgba(255,255,255,.14)!important}
+.side-menu button,.side-menu a{color:#e8f1ff!important}
+.side-menu button.active,.side-menu a.active,.side-menu button:hover,.side-menu a:hover{background:rgba(182,223,42,.18)!important;color:#d7ff63!important}
+.panel-main{background:#eef3f8;color:#102033}
+.panel-main .welcome{background:linear-gradient(135deg,#ffffff,#eef8df);border:1px solid #dce6f1;box-shadow:0 16px 34px rgba(15,23,42,.08)}
+
+/* Insignias sin recuadros */
+.team-crest-large{background:transparent!important;border:0!important;padding:0!important;border-radius:0!important;object-fit:contain}
+
+/* Cards públicas de equipos */
+.team-public-card{display:grid;grid-template-columns:1fr 92px;gap:18px;align-items:center;min-height:150px}
+.team-public-info h3{margin-bottom:10px}.team-public-info p{margin-bottom:12px}
+.team-cat-badges{display:flex;flex-wrap:wrap;gap:8px}
+.team-public-logo{width:86px;height:86px;object-fit:contain;justify-self:end;background:transparent;border:0;padding:0;border-radius:0;filter:drop-shadow(0 10px 18px rgba(0,0,0,.22))}
+
+/* Filtros de jugadores alineados */
+.player-filter-block{margin:-8px 0 16px}.player-filter-block .field-help{margin-bottom:10px!important}.player-filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0!important}
+
+/* Más contraste para campeonatos, próximos partidos y convocatorias */
+#tab-campeonatos .card,#tab-partidos .card.round-card,#tab-convocatorias .match-card{border:1px solid #d4e0ec;box-shadow:0 18px 42px rgba(15,23,42,.10)}
+#tab-convocatorias .match-card,#tab-partidos .match-card{background:linear-gradient(135deg,#ffffff 0%,#f4f8fc 58%,#eef7df 100%)}
+#tab-convocatorias .badge,#tab-partidos .badge,#tab-campeonatos .badge{box-shadow:inset 0 0 0 1px rgba(0,0,0,.05)}
+.panel-main .badge-green{background:#dcfce7!important;color:#166534!important;border:1px solid #86efac!important}
+.panel-main .badge-blue{background:#dbeafe!important;color:#1e40af!important;border:1px solid #93c5fd!important}
+.panel-main .badge-gold{background:#fef3c7!important;color:#92400e!important;border:1px solid #fcd34d!important}
+.match-teams{color:#0f1f36}.match-card p{color:#4b5d75!important}
+.convocado{border-color:#22c55e!important;box-shadow:0 0 0 1px rgba(34,197,94,.20),0 18px 42px rgba(15,23,42,.10)!important}
+.locked{opacity:.72}
+
+@media(max-width:860px){.team-public-card{grid-template-columns:1fr}.team-public-logo{justify-self:start}}

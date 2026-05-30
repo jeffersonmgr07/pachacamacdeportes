@@ -7,7 +7,7 @@ function playerCategoriesArray(p){
   return String(p.categories || p.category || '').split(',').map(x=>categoryBaseName(x)).filter(Boolean);
 }
 function teamCategoriesArray(){
-  const raw = coachState.team?.categories || 'SUB 6,SUB 8,SUB 10,SUB 12';
+  const raw = coachState.team?.categories || 'SUB 6,SUB 8,SUB 10,SUB 12,SUB 13,SUB 15';
   return String(raw).split(',').map(x=>categoryBaseName(x)).filter(Boolean);
 }
 function categoryOptionsByBirthDate(birthDate){
@@ -31,7 +31,7 @@ function shortCoachName(user){
   return parts.length >= 2 ? `${parts[0]} ${parts[1]}` : parts[0] || 'Entrenador';
 }
 function crestSrc(){
-  return coachState.team?.crestUrl || coachState.team?.crest || 'assets/img/logo-pacha-deportes.png';
+  return coachState.team?.crestUrl || coachState.team?.crest || `assets/img/equipos/${String(coachState.team?.teamId || 'equipo').toLowerCase()}.png`;
 }
 function renderShell(){
   const user = coachState.user;
@@ -97,8 +97,10 @@ function renderPlayerFilters(){
   const wrap = document.querySelector('#playerCategoryFilters');
   if(!wrap) return;
   const cats = teamCategoriesArray();
-  wrap.innerHTML = cats.map(c=>`<button class="btn btn-secondary ${coachState.playerFilter===c?'active':''}" data-player-filter="${c}">${c.replace('SUB','Sub')}</button>`).join('');
-  document.querySelectorAll('[data-player-filter]').forEach(btn=>{
+  const allBtn = `<button class="btn btn-secondary ${coachState.playerFilter==='TODOS'?'active':''}" data-player-filter="TODOS">Todos los jugadores</button>`;
+  const catBtns = cats.map(c=>`<button class="btn btn-secondary ${coachState.playerFilter===c?'active':''}" data-player-filter="${c}">${c.replace('SUB','Sub')}</button>`).join('');
+  wrap.innerHTML = allBtn + catBtns;
+  wrap.querySelectorAll('[data-player-filter]').forEach(btn=>{
     btn.addEventListener('click',()=>{coachState.playerFilter = btn.dataset.playerFilter; renderPlayers();});
   });
 }

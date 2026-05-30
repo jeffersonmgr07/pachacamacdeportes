@@ -492,6 +492,26 @@ window.MINETTI_MOCK_DATA = {
       "maxYear": 2012,
       "playersOnField": 11,
       "minPlayers": 7
+    },
+    {
+      "categoryId": "CAT16",
+      "name": "SUB 16",
+      "label": "Sub 16",
+      "birthYears": "2010",
+      "minYear": 2010,
+      "maxYear": 2010,
+      "playersOnField": 11,
+      "minPlayers": 7
+    },
+    {
+      "categoryId": "CAT18",
+      "name": "SUB 18",
+      "label": "Sub 18",
+      "birthYears": "2008-2009",
+      "minYear": 2008,
+      "maxYear": 2009,
+      "playersOnField": 11,
+      "minPlayers": 7
     }
   ],
   "fixture": [
