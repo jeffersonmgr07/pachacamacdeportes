@@ -306,3 +306,87 @@ label{display:block;color:#c9d8ee;font-weight:850;font-size:13px;margin-bottom:6
 /* Hero campeonato: texto claro sobre fondo deportivo */
 .hero-futbol h1,.hero-futbol p,.hero-futbol .kicker{color:#ffffff!important;}
 .hero-futbol .btn-secondary{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);color:#fff;}
+
+/* =========================================================
+   FONDOS HERO CON IMAGEN REAL + SVG DECORATIVO
+   Ruta de imágenes:
+   assets/img/backgrounds/bg-index-deportivo.jpg
+   assets/img/backgrounds/bg-futbol-menores-real.jpg
+========================================================= */
+
+/* Hero principal del index */
+.hero-main,
+.main-hero,
+.portal-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(3, 7, 18, 0.88), rgba(6, 78, 59, 0.82)),
+    url("../img/backgrounds/bg-index-deportivo.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Capa SVG decorativa encima de la foto, pero con transparencia */
+.hero-main::after,
+.main-hero::after,
+.portal-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("../img/bg-portal-deportivo.svg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.18;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Contenido siempre encima de las capas */
+.hero-main > *,
+.main-hero > *,
+.portal-hero > * {
+  position: relative;
+  z-index: 2;
+}
+
+
+/* Hero del campeonato fútbol menores 2026 */
+.hero-campeonato-futbol,
+.championship-hero,
+.tournament-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(3, 7, 18, 0.88), rgba(6, 95, 70, 0.82)),
+    url("../img/backgrounds/bg-futbol-menores-real.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Mantiene el SVG actual bg-futbol-menores.svg como adorno */
+.hero-campeonato-futbol::after,
+.championship-hero::after,
+.tournament-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("../img/bg-futbol-menores.svg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.16;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Contenido del hero del campeonato encima */
+.hero-campeonato-futbol > *,
+.championship-hero > *,
+.tournament-hero > * {
+  position: relative;
+  z-index: 2;
+}
