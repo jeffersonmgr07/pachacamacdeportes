@@ -51,9 +51,50 @@ function savePlayer_(p) {
   appendRowByHeaders_('Jugadores', p);
   return {ok:true, player:p};
 }
+
+function updatePlayer_(p) {
+  if(!p.playerId) return {ok:false, message:'Falta playerId'};
+  p.fullName = p.fullName || [p.firstName || '', p.lastName || ''].join(' ').trim();
+  p.documentType = p.documentType || 'DNI';
+  var ok = updateRowByKey_('Jugadores', 'playerId', p.playerId, p);
+  return {ok:ok, player:p, message: ok ? 'Jugador actualizado' : 'Jugador no encontrado'};
+}
+function deletePlayer_(playerId) {
+  if(!playerId) return {ok:false, message:'Falta playerId'};
+  var ok = deleteRowByKey_('Jugadores', 'playerId', playerId);
+  return {ok:ok, message: ok ? 'Jugador eliminado' : 'Jugador no encontrado'};
+}
+function sendConvocatoriaEmail_(p, isEdit) {
+  try {
+    var email = p.coachEmail || '';
+    if(!email) {
+      var users = readTable_('Usuarios');
+      var u = users.find(function(x){ return String(x.teamId) === String(p.teamId); });
+      email = u && u.email;
+    }
+    if(!email) return;
+    var match = p.match || readTable_('Fixture').find(function(m){ return String(m.matchId) === String(p.matchId); }) || {};
+    var coachName = p.coachName || 'profesor';
+    var subject = (isEdit ? 'Convocatoria actualizada' : 'Convocatoria confirmada') + ' - ' + (match.home || '') + ' vs ' + (match.away || '');
+    var logo = configValue_('PUBLIC_LOGO_URL', 'https://via.placeholder.com/220x90?text=Pacha+Deportes');
+    var html = '<div style="font-family:Arial,sans-serif;background:#f3f7f2;padding:24px;color:#102033">' +
+      '<div style="max-width:680px;margin:auto;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 18px 42px rgba(15,23,42,.12)">' +
+      '<div style="background:#071225;padding:22px;text-align:center"><img src="'+logo+'" style="max-width:210px;height:auto" alt="Pacha Deportes"></div>' +
+      '<div style="padding:26px"><h2 style="margin:0 0 10px;color:#14532d">'+(isEdit?'Convocatoria actualizada':'Convocatoria confirmada')+'</h2>' +
+      '<p>Hola '+coachName+', esta es tu convocatoria para el partido <b>'+(match.home||'')+' vs '+(match.away||'')+'</b>.</p>' +
+      '<p><b>Fecha:</b> '+(match.dateLabel||'')+'<br><b>Campo:</b> '+(match.field||'')+'<br><b>Hora:</b> '+(match.time||'')+'<br><b>Categoría:</b> '+(match.category||'')+'</p>' +
+      '<p>Recuerda que puedes editar tu convocatoria hasta <b>5 minutos antes</b> del inicio del partido.</p>' +
+      '<div style="margin-top:22px;padding:14px 16px;background:#ecfdf5;border:1px solid #bbf7d0;border-radius:14px;color:#166534"><b>Pacha Deportes</b><br>Gestión Deportiva - App</div>' +
+      '</div></div></div>';
+    MailApp.sendEmail({to: email, subject: subject, htmlBody: html});
+  } catch(err) {
+    // No bloquea el guardado de convocatoria si el correo falla.
+  }
+}
 function saveConvocatoria_(p) {
   if(!p.matchId || !p.teamId) return {ok:false, message:'Falta matchId o teamId'};
   var id = p.matchId + '_' + p.teamId;
+  var previous = readTable_('Convocatorias').find(function(c){ return String(c.convocatoriaId) === String(id); });
   var row = {
     convocatoriaId: id,
     matchId: p.matchId,
@@ -62,10 +103,12 @@ function saveConvocatoria_(p) {
     starters: JSON.stringify(p.starters || []),
     substitutes: JSON.stringify(p.substitutes || []),
     status: 'convocado',
-    savedAt: new Date()
+    savedAt: new Date(),
+    notes: previous ? 'Convocatoria editada' : 'Convocatoria creada'
   };
   var updated = updateRowByKey_('Convocatorias','convocatoriaId',id,row);
   if(!updated) appendRowByHeaders_('Convocatorias', row);
+  sendConvocatoriaEmail_(p, !!previous);
   return {ok:true, convocatoria: row};
 }
 function saveResult_(p) {

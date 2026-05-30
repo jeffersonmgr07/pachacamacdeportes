@@ -3,12 +3,19 @@ let coachState = {user:null, team:null, categories:[], players:[], fixture:[], c
 function categoryBaseName(value){
   return String(value || '').replace(/\s*\(.+?\)/g,'').trim().toUpperCase();
 }
+function categoryNumber(value){
+  const m = String(value || '').match(/(\d+)/);
+  return m ? Number(m[1]) : 999;
+}
+function sortCategories(arr){
+  return [...arr].sort((a,b)=>categoryNumber(a)-categoryNumber(b) || String(a).localeCompare(String(b)));
+}
 function playerCategoriesArray(p){
   return String(p.categories || p.category || '').split(',').map(x=>categoryBaseName(x)).filter(Boolean);
 }
 function teamCategoriesArray(){
   const raw = coachState.team?.categories || 'SUB 6,SUB 8,SUB 10,SUB 12,SUB 13,SUB 15';
-  return String(raw).split(',').map(x=>categoryBaseName(x)).filter(Boolean);
+  return sortCategories(String(raw).split(',').map(x=>categoryBaseName(x)).filter(Boolean));
 }
 function categoryOptionsByBirthDate(birthDate){
   if(!birthDate) return coachState.categories;
@@ -40,6 +47,9 @@ function renderShell(){
   document.querySelector('#coachSubtitle').textContent = 'Gestiona tu perfil, jugadores, partidos y convocatorias del equipo.';
   const crest = document.querySelector('#teamCrestSidebar');
   if(crest){ crest.src = crestSrc(); }
+  const teamLabel = document.querySelector('#sidebarTeamName');
+  if(teamLabel){ teamLabel.textContent = coachState.team?.teamName || 'Equipo'; }
+
 }
 function setTab(tab){
   document.querySelectorAll('.side-menu button[data-tab]').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
@@ -114,9 +124,40 @@ function renderPlayers(){
   grid.innerHTML = filtered.map(p=>`
     <article class="card player-card">
       <img class="avatar" src="${p.photoUrl||`assets/img/jugadores/${p.dni}.png`}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'avatar-fallback',textContent:'${(p.fullName||p.firstName||'J').slice(0,2).toUpperCase()}'}))">
-      <div><h3>${p.fullName || `${p.firstName||''} ${p.lastName||''}`}</h3><p>Documento: ${p.documentType || 'DNI'} ${p.dni}</p><p>Fecha de nacimiento: ${p.birthDate}</p><p>Categoría: ${p.categories||simpleCategoryByDOB(p.birthDate)}</p></div>
+      <div><h3>${p.fullName || `${p.firstName||''} ${p.lastName||''}`}</h3><p>Documento: ${p.documentType || 'DNI'} ${p.dni}</p><p>Fecha de nacimiento: ${p.birthDate}</p><p>Categoría: ${p.categories||simpleCategoryByDOB(p.birthDate)}</p>
+      <div class="player-card-actions"><button class="btn btn-small btn-secondary" data-edit-player="${p.playerId}">Editar</button><button class="btn btn-small btn-danger" data-delete-player="${p.playerId}">Eliminar</button></div></div>
     </article>`).join('') || `<div class="card">No hay jugadores en este filtro.</div>`;
+  grid.querySelectorAll('[data-edit-player]').forEach(btn=>btn.addEventListener('click',()=>openEditPlayer(btn.dataset.editPlayer)));
+  grid.querySelectorAll('[data-delete-player]').forEach(btn=>btn.addEventListener('click',()=>deletePlayer(btn.dataset.deletePlayer)));
 }
+function openEditPlayer(playerId){
+  const player = coachState.players.find(p=>p.playerId===playerId);
+  if(!player) return;
+  const form = document.querySelector('#playerForm');
+  document.querySelector('#playerModal .modal-header h3').textContent = 'Editar jugador';
+  form.dataset.editingPlayerId = playerId;
+  form.firstName.value = player.firstName || (player.fullName||'').split(' ')[0] || '';
+  form.lastName.value = player.lastName || (player.fullName||'').split(' ').slice(1).join(' ') || '';
+  form.documentType.value = player.documentType || 'DNI';
+  form.dni.value = player.dni || '';
+  form.birthDate.value = String(player.birthDate || '').slice(0,10);
+  form.photoUrl.value = player.photoUrl || `assets/img/jugadores/${player.dni||''}.png`;
+  form.querySelector('[name=birthDate]').dispatchEvent(new Event('change'));
+  setTimeout(()=>{
+    const cats = playerCategoriesArray(player);
+    form.querySelectorAll('#playerCatChecks input').forEach(i=>{ i.checked = cats.includes(categoryBaseName(i.value)); });
+  },0);
+  document.querySelector('#playerModal').classList.add('open');
+}
+async function deletePlayer(playerId){
+  const player = coachState.players.find(p=>p.playerId===playerId);
+  if(!player) return;
+  if(!confirm(`¿Eliminar a ${player.fullName || player.firstName || 'este jugador'}? Esta acción no se puede deshacer.`)) return;
+  const res = await API.deletePlayer(playerId);
+  if(res.ok){ coachState.players = coachState.players.filter(p=>p.playerId!==playerId); toast('Jugador eliminado'); renderPlayers(); }
+  else toast(res.message || 'No se pudo eliminar');
+}
+
 function renderPlayerForm(){
   const form = document.querySelector('#playerForm');
   const birth = form.querySelector('[name=birthDate]');
@@ -126,7 +167,9 @@ function renderPlayerForm(){
     catBox.innerHTML = eligible.map(c=>`<label class="category-check"><input type="checkbox" value="${c.name}"> ${c.label}</label>`).join('') || '<p>No aplica a ninguna categoría habilitada para este equipo.</p>';
   }
   birth.addEventListener('change',refreshCats); refreshCats();
-  document.querySelector('#openPlayerModalBtn')?.addEventListener('click',()=>document.querySelector('#playerModal').classList.add('open'));
+  document.querySelector('#openPlayerModalBtn')?.addEventListener('click',()=>{
+    form.reset(); delete form.dataset.editingPlayerId; document.querySelector('#playerModal .modal-header h3').textContent='Registrar jugador'; refreshCats(); document.querySelector('#playerModal').classList.add('open');
+  });
   form.addEventListener('submit', async e=>{
     e.preventDefault();
     const fd = new FormData(form);
@@ -134,13 +177,19 @@ function renderPlayerForm(){
     if(!cats){ toast('Selecciona al menos una categoría válida'); return; }
     const selectedCats = cats.split(',').map(c=>categoryBaseName(c));
     for(const c of selectedCats){
-      const count = coachState.players.filter(p=>playerCategoriesArray(p).includes(c)).length;
+      const count = coachState.players.filter(p=>p.playerId!==form.dataset.editingPlayerId && playerCategoriesArray(p).includes(c)).length;
       if(count >= 15){ toast(`Máximo 15 jugadores en ${c.replace('SUB','Sub')}`); return; }
     }
     const firstName = fd.get('firstName'), lastName = fd.get('lastName');
-    const player = {teamId:coachState.team.teamId, teamName:coachState.team.teamName, firstName, lastName, fullName:`${firstName} ${lastName}`.trim(), documentType:fd.get('documentType'), dni:fd.get('dni'), birthDate:fd.get('birthDate'), categories:cats, photoUrl:fd.get('photoUrl') || `assets/img/jugadores/${fd.get('dni')}.png`};
-    const res = await API.savePlayer(player);
-    if(res.ok){ coachState.players.push(res.player); toast('Jugador registrado'); form.reset(); refreshCats(); document.querySelector('#playerModal').classList.remove('open'); renderPlayers(); }
+    const player = {playerId:form.dataset.editingPlayerId || '', teamId:coachState.team.teamId, teamName:coachState.team.teamName, firstName, lastName, fullName:`${firstName} ${lastName}`.trim(), documentType:fd.get('documentType'), dni:fd.get('dni'), birthDate:fd.get('birthDate'), categories:cats, photoUrl:fd.get('photoUrl') || `assets/img/jugadores/${fd.get('dni')}.png`};
+    const res = form.dataset.editingPlayerId ? await API.updatePlayer(player) : await API.savePlayer(player);
+    if(res.ok){
+      if(form.dataset.editingPlayerId){
+        const idx = coachState.players.findIndex(p=>p.playerId===form.dataset.editingPlayerId); if(idx>=0) coachState.players[idx]=res.player || player;
+        toast('Jugador actualizado');
+      } else { coachState.players.push(res.player); toast('Jugador registrado'); }
+      form.reset(); delete form.dataset.editingPlayerId; refreshCats(); document.querySelector('#playerModal').classList.remove('open'); renderPlayers();
+    }
     else toast(res.message||'No se pudo registrar');
   });
 }
@@ -157,10 +206,24 @@ function renderCalendar(){
       <div class="grid grid-2">${groups[round].map(m=>renderMatchCard(m,false)).join('')}</div>
     </div>`).join('') || '<div class="card">No hay partidos programados.</div>';
 }
-function renderMatchCard(m, showAction=true){
+function matchStartDate(m){
+  const rawDate = m.matchDate || m.date || '';
+  const rawTime = m.time || '00:00';
+  if(rawDate){
+    const d = new Date(`${String(rawDate).slice(0,10)}T${rawTime}`);
+    if(!isNaN(d.getTime())) return d;
+  }
+  return null;
+}
+function canEditRoster(m){
   const current = Number(window.APP_CONFIG.CURRENT_ROUND || 3);
-  const round = Number(m.round);
-  const isOpen = round === current;
+  if(Number(m.round) !== current) return false;
+  const start = matchStartDate(m);
+  if(!start) return true;
+  return new Date().getTime() < (start.getTime() - 5*60*1000);
+}
+function renderMatchCard(m, showAction=true){
+  const isOpen = canEditRoster(m);
   const conv = coachState.convocatorias.find(c=>c.matchId===m.matchId);
   return `<article class="card match-card match-card-visual ${conv?'convocado':''} ${!isOpen?'locked':''}">
     <div class="match-meta"><span class="badge badge-green">Fecha ${m.round}</span><span class="badge badge-green">${m.dateLabel}</span><span class="badge badge-green">${m.field} · ${formatTime12(m.time)}</span></div>
@@ -172,7 +235,7 @@ function renderMatchCard(m, showAction=true){
     <p class="match-category">${m.category}</p>
     ${showAction ? `<div class="actions">
       ${isOpen ? `<button class="btn btn-primary" data-open-roster="${m.matchId}">${conv?'Editar convocatoria':'Abrir convocatoria'}</button>` : `<button class="btn btn-secondary btn-disabled">Convocatoria bloqueada</button>`}
-      ${conv ? `<span class="badge badge-green">Convocatoria lista</span>`:`<span class="badge badge-green">Convocatoria pendiente</span>`}
+      ${conv ? `<span class="status-badge status-ready">Convocatoria lista</span>`:`<span class="status-badge status-pending">Convocatoria pendiente</span>`}
     </div>` : ''}
   </article>`;
 }
@@ -208,7 +271,7 @@ function openRoster(matchId){
   }
   draw();
   document.querySelector('#saveRosterBtn').onclick = async ()=>{
-    const res = await API.saveConvocatoria({matchId, teamId:coachState.team.teamId, teamName:coachState.team.teamName, starters, substitutes});
+    const res = await API.saveConvocatoria({matchId, teamId:coachState.team.teamId, teamName:coachState.team.teamName, coachEmail:coachState.user.email, coachName:shortCoachName(coachState.user), match, starters, substitutes});
     if(res.ok){
       const idx = coachState.convocatorias.findIndex(c=>c.matchId===matchId);
       if(idx>=0) coachState.convocatorias[idx]=res.convocatoria; else coachState.convocatorias.push(res.convocatoria);

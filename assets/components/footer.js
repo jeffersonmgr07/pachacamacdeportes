@@ -3,7 +3,7 @@ function footerHTML(){
   <footer class="footer">
     <div class="container footer-grid">
       <div>
-        <div class="footer-title">Portal de deportes Pachacamac</div>
+        <img class="footer-logo" src="assets/img/logo-pacha-deportes.png" onerror="this.src='assets/img/logo-pacha-deportes.svg'" alt="Logo Pacha Deportes"><div class="footer-title">Portal de deportes Pachacamac</div>
         <p style="margin:10px 0 0;line-height:1.6">Plataforma para consultar campeonatos, talleres, resultados, tablas y actividades deportivas del distrito.</p>
       </div>
       <div>
@@ -26,7 +26,7 @@ function footerHTML(){
       </div>
     </div>
     <div class="container footer-bottom">
-      <span>© 2026 Gestión Deportiva Municipal</span>
+      <span>© 2026 Gestión Deportiva - App</span>
       <span>Distrito Pachacamac</span>
     </div>
   </footer>`;

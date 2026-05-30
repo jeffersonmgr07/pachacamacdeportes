@@ -1,56 +1,67 @@
 # Imágenes de equipos y jugadores
 
-## Insignias de equipos
+## Insignias / escudos de equipos
 
-Guardar los logos/escudos de los equipos en:
+Guárdalas dentro del repositorio en:
 
 ```txt
 assets/img/equipos/
 ```
 
-Puedes usar dos formas de nombre:
+Recomendación principal:
 
 ```txt
 assets/img/equipos/EQ010.png
+```
+
+También se aceptan nombres amigables sin espacios, sin tildes y en minúsculas:
+
+```txt
 assets/img/equipos/guerreros-de-manchay.png
+assets/img/equipos/jm-sport.png
 ```
 
-La forma recomendada es usar el `teamId` que aparece en la hoja `Equipos`.
-
-Ejemplo para Guerreros de Manchay:
-
-```txt
-assets/img/equipos/EQ010.png
-```
+En la hoja `Equipos` o `Entrenadores`, columna `crestUrl`, coloca exactamente esa ruta.
 
 ## Fotos de jugadores
 
-Guardar las fotos de jugadores en:
+Guárdalas dentro del repositorio en:
 
 ```txt
 assets/img/jugadores/
 ```
 
-Nombre recomendado:
+Recomendación:
 
 ```txt
-DNI.png
+assets/img/jugadores/DNI.png
 ```
 
 Ejemplo:
 
 ```txt
+assets/img/jugadores/10499558.png
 assets/img/jugadores/94768639.png
-assets/img/jugadores/91972988.png
-assets/img/jugadores/92523349.png
 ```
 
-En la hoja `Jugadores`, el campo `photoUrl` puede quedar así:
+En la hoja `Jugadores`, columna `photoUrl`, coloca la ruta correspondiente. Si la dejas vacía, el sistema intentará cargar automáticamente:
 
 ```txt
-assets/img/jugadores/94768639.png
+assets/img/jugadores/<DNI>.png
 ```
 
-## Nota
+## Imágenes de fondo del campeonato
 
-Si quieres que los entrenadores suban imágenes directamente desde el panel web, se debe implementar una función adicional en Apps Script para recibir base64 y guardar el archivo en Google Drive. Por ahora, la opción más estable es subir las imágenes manualmente al repositorio de GitHub.
+El hero del campeonato usa:
+
+```txt
+assets/img/bg-futbol-menores.svg
+```
+
+Puedes reemplazarlo por una imagen real, por ejemplo:
+
+```txt
+assets/img/bg-futbol-menores.jpg
+```
+
+Si cambias el nombre del archivo, actualiza la ruta en `assets/css/styles.css`.

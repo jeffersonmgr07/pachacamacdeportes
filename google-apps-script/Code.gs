@@ -39,6 +39,8 @@ function routeAction_(action, payload) {
     case 'getCoachDashboard': return getCoachDashboard_(payload.user);
     case 'saveTeamProfile': return saveTeamProfile_(payload);
     case 'savePlayer': return savePlayer_(payload);
+    case 'updatePlayer': return updatePlayer_(payload);
+    case 'deletePlayer': return deletePlayer_(payload.playerId);
     case 'saveConvocatoria': return saveConvocatoria_(payload);
     case 'saveResult': return saveResult_(payload);
     default: return {ok:false, message:'Acción no reconocida: ' + action};

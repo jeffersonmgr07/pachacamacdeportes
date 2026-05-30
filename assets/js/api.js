@@ -107,6 +107,17 @@ const API = {
         const player = {...payload, playerId:'P'+Date.now()};
         db.players.push(player); saveMockDB(db); return {ok:true, player};
       }
+      case 'updatePlayer': {
+        const idx = db.players.findIndex(p=>p.playerId===payload.playerId);
+        if(idx < 0) return {ok:false, message:'Jugador no encontrado'};
+        db.players[idx] = {...db.players[idx], ...payload};
+        saveMockDB(db); return {ok:true, player:db.players[idx]};
+      }
+      case 'deletePlayer': {
+        const id = payload.playerId;
+        db.players = db.players.filter(p=>p.playerId!==id);
+        saveMockDB(db); return {ok:true};
+      }
       case 'saveConvocatoria': {
         const existing = db.convocatorias.findIndex(c=>c.matchId===payload.matchId && c.teamId===payload.teamId);
         const item = {...payload, status:'convocado', savedAt:new Date().toISOString()};
@@ -126,6 +137,8 @@ const API = {
   getCoachDashboard(user){ return this.request('getCoachDashboard',{user}); },
   saveTeamProfile(profile){ return this.request('saveTeamProfile', profile); },
   savePlayer(player){ return this.request('savePlayer', player); },
+  updatePlayer(player){ return this.request('updatePlayer', player); },
+  deletePlayer(playerId){ return this.request('deletePlayer', {playerId}); },
   saveConvocatoria(data){ return this.request('saveConvocatoria', data); }
 };
 

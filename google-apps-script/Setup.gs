@@ -6,7 +6,8 @@ function setupPachaDeportes() {
     ['CHAMPIONSHIP_ID','CHAMP_FUT_MEN_2026','Campeonato activo'],
     ['MAX_PLAYERS_PER_CATEGORY','15','Máximo de jugadores por categoría'],
     ['IMAGES_TEAMS_PATH','assets/img/equipos/','Ruta de insignias en GitHub Pages'],
-    ['IMAGES_PLAYERS_PATH','assets/img/jugadores/','Ruta de fotos de jugadores en GitHub Pages']
+    ['IMAGES_PLAYERS_PATH','assets/img/jugadores/','Ruta de fotos de jugadores en GitHub Pages'],
+    ['PUBLIC_LOGO_URL','','URL pública completa del logo para correos HTML']
   ]);
 
   createSheet_('Categorias', ['categoryId','name','label','birthYears','minYear','maxYear','playersOnField','minPlayers'], 

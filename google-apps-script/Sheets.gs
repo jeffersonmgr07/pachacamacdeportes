@@ -52,3 +52,29 @@ function nextId_(prefix, sheetName, idCol) {
   });
   return prefix + Utilities.formatString('%03d', max + 1);
 }
+
+
+function deleteRowByKey_(sheetName, keyName, keyValue) {
+  var sh = sheet_(sheetName);
+  var values = sh.getDataRange().getValues();
+  if (values.length < 1) return false;
+  var headers = values[0].map(String);
+  var keyIdx = headers.indexOf(keyName);
+  if (keyIdx === -1) throw new Error('No existe columna clave: ' + keyName);
+  for (var r=1; r<values.length; r++) {
+    if (String(values[r][keyIdx]) === String(keyValue)) {
+      sh.deleteRow(r+1);
+      return true;
+    }
+  }
+  return false;
+}
+
+
+function configValue_(key, fallback) {
+  try {
+    var rows = readTable_('Config');
+    var found = rows.find(function(r){ return String(r.key) === String(key); });
+    return found && found.value ? found.value : fallback;
+  } catch(err) { return fallback; }
+}

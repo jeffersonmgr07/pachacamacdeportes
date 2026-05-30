@@ -246,3 +246,63 @@ label{display:block;color:#c9d8ee;font-weight:850;font-size:13px;margin-bottom:6
 #tab-partidos .round-card{background:linear-gradient(180deg,#ffffff,#f3f8ef)!important}
 #tab-campeonatos .card{background:linear-gradient(135deg,#ffffff 0%,#f4faef 100%)!important}
 .fixture-hero .match-card-visual .team-side span,.hero-futbol .match-card-visual .team-side span{color:#fff!important}
+
+/* Ajustes finales solicitados: panel, cards, logos y footer */
+.side-brand img,
+.team-public-logo,
+.team-side img,
+.team-crest-large,
+.avatar{
+  border-radius:16px!important;
+}
+.side-brand img{width:54px!important;height:54px!important;object-fit:contain!important;filter:drop-shadow(0 8px 16px rgba(0,0,0,.24));}
+.side-brand span#sidebarTeamName{font-size:12px!important;line-height:1.25;max-width:155px;display:block;white-space:normal;color:#dce8f7!important;}
+.team-crest-large{border-radius:22px!important;filter:drop-shadow(0 10px 20px rgba(15,23,42,.15));}
+.team-public-logo{border-radius:18px!important;filter:drop-shadow(0 10px 18px rgba(0,0,0,.18));}
+.team-side img{border-radius:14px!important;background:rgba(255,255,255,.82);padding:4px;}
+
+/* Cards de partidos más claras; badges con verde oscuro */
+.match-card-visual{
+  background:linear-gradient(135deg,#ffffff 0%,#f7fbf4 55%,#edf8e5 100%)!important;
+  color:#122033!important;
+  border:1px solid #d7e6cc!important;
+  box-shadow:0 16px 36px rgba(15,23,42,.10)!important;
+}
+.match-card-visual .badge-green,
+.round-card > .section-head .badge,
+#tab-convocatorias .badge,
+#tab-partidos .badge{
+  background:#14532d!important;
+  color:#ffffff!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+}
+.match-card-visual .match-category,
+.match-card-visual p,
+.match-card p{color:#52657d!important;}
+.match-vs-logos b{background:#14532d!important;color:#fff!important;}
+.team-side,
+.team-side span{color:#122033!important;}
+.match-card-visual.convocado{border-color:#22c55e!important;box-shadow:0 0 0 2px rgba(34,197,94,.20),0 16px 36px rgba(15,23,42,.10)!important;}
+.match-card-visual.locked{opacity:.72;filter:saturate(.85);}
+.status-badge{display:inline-flex;align-items:center;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900;white-space:nowrap;}
+.status-pending{background:#ffedd5;color:#9a3412;border:1px solid #fed7aa;}
+.status-ready{background:#dcfce7;color:#166534;border:1px solid #86efac;}
+.btn-disabled{pointer-events:none;opacity:.62;}
+.player-card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.btn-small{padding:7px 10px;font-size:12px;border-radius:10px;}
+
+/* Footer con logo */
+.footer-logo{width:150px;max-height:74px;object-fit:contain;display:block;margin-bottom:12px;filter:drop-shadow(0 8px 18px rgba(0,0,0,.18));}
+
+/* Fixture como cards */
+.fixture-rounds{display:grid;gap:22px;}
+.fixture-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
+.fixture-match-card{background:linear-gradient(135deg,#ffffff,#f6fbf2);border:1px solid #dbe9d1;border-radius:22px;padding:18px;box-shadow:0 14px 32px rgba(15,23,42,.08);}
+.fixture-match-card.played{border-color:#9bd483;}
+.fixture-match-card .score-line{font-size:22px;font-weight:1000;color:#14532d;}
+.filter-label{font-weight:900;color:#203047;}
+@media(max-width:860px){.fixture-grid{grid-template-columns:1fr}.footer-logo{width:132px}}
+
+/* Hero campeonato: texto claro sobre fondo deportivo */
+.hero-futbol h1,.hero-futbol p,.hero-futbol .kicker{color:#ffffff!important;}
+.hero-futbol .btn-secondary{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);color:#fff;}
