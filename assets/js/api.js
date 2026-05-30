@@ -46,6 +46,22 @@ function formatTime12(time){
   return `${String(hh).padStart(2,'0')}:${m} ${ampm}`;
 }
 
+
+function matchDateForSort(m){ return String(m.matchDate || m.date || m[3] || '9999-99-99'); }
+function matchTimeForSort(m){
+  const t = String(m.time || m[5] || '99:99');
+  if(t.toUpperCase().includes('POR')) return '99:99';
+  const [h='99', mm='00'] = t.split(':');
+  return `${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+}
+function sortFixtureRows(rows){
+  return [...(rows || [])].sort((a,b)=>
+    matchDateForSort(a).localeCompare(matchDateForSort(b)) ||
+    matchTimeForSort(a).localeCompare(matchTimeForSort(b)) ||
+    String(a.matchId || a[0] || '').localeCompare(String(b.matchId || b[0] || ''))
+  );
+}
+
 function normalizeMatch(m){
   if(!Array.isArray(m)) return m;
   return {
@@ -59,7 +75,7 @@ function mockDB(){
     users: Store.get('mf_users', m.users || []),
     trainers: Store.get('mf_trainers', m.trainers || []),
     categories: Store.get('mf_categories', m.categories || []),
-    fixture: Store.get('mf_fixture', (m.fixture || []).map(normalizeMatch)).map(normalizeMatch),
+    fixture: sortFixtureRows(Store.get('mf_fixture', (m.fixture || []).map(normalizeMatch)).map(normalizeMatch)),
     players: Store.get('mf_players', m.players || []),
     teams: Store.get('mf_teams', m.teams || []),
     descansos: Store.get('mf_descansos', m.descansos || []),
@@ -109,12 +125,12 @@ const API = {
         if(!user) return {ok:false, message:'Correo o clave incorrecta'};
         return {ok:true, user};
       }
-      case 'getPublicData': return {ok:true, ...db};
+      case 'getPublicData': return {ok:true, ...db, fixture: sortFixtureRows(db.fixture)};
       case 'getCoachDashboard': {
         const user = payload.user || Store.getUser();
         const teamId = user?.teamId;
         const team = db.trainers.find(t=>t.teamId===teamId) || user;
-        return {ok:true, user, team, categories:db.categories, players:db.players.filter(p=>p.teamId===teamId), fixture: db.fixture.filter(m=>m.home===team.teamName || m.away===team.teamName), convocatorias: db.convocatorias.filter(c=>c.teamId===teamId)};
+        return {ok:true, user, team, categories:db.categories, players:db.players.filter(p=>p.teamId===teamId), fixture: sortFixtureRows(db.fixture.filter(m=>m.home===team.teamName || m.away===team.teamName)), convocatorias: db.convocatorias.filter(c=>c.teamId===teamId)};
       }
       case 'saveTeamProfile': {
         const idx = db.trainers.findIndex(t=>t.teamId===payload.teamId);

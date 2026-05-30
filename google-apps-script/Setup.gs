@@ -70,3 +70,30 @@ function resetPachaDeportesConDatosDemo_(){
   ss.getSheets().forEach(function(sh){ sh.clear(); });
   setupPachaDeportes();
 }
+
+/**
+ * Actualiza solamente la Fecha 3 de Sub 13 y Sub 15 según programación del 30 de mayo.
+ * Úsala si ya tienes la hoja creada y no quieres reemplazar todo el Google Sheet.
+ */
+function actualizarFecha3Sub13Sub15() {
+  var matches = [
+    {matchId:'M003-021', round:3, dateLabel:'30 DE MAYO FECHA 3', matchDate:'2026-05-30', field:'CAMPO PRINCIPAL', time:'09:00', home:'GUERREROS DE MANCHAY', away:'JM SPORT', category:'SUB 13', status:'programado', homeScore:'', awayScore:'', resultType:'', notes:'Programación oficial Sub 13/Sub 15'},
+    {matchId:'M003-022', round:3, dateLabel:'30 DE MAYO FECHA 3', matchDate:'2026-05-30', field:'CAMPO PRINCIPAL', time:'10:10', home:'REMANENTE FC', away:'TOLENTINO FC', category:'SUB 13', status:'programado', homeScore:'', awayScore:'', resultType:'', notes:'Programación oficial Sub 13/Sub 15'},
+    {matchId:'M003-023', round:3, dateLabel:'30 DE MAYO FECHA 3', matchDate:'2026-05-30', field:'CAMPO PRINCIPAL', time:'11:20', home:'JUVENTUD COSTA FC', away:'TALENTOS UNIDOS', category:'SUB 15', status:'programado', homeScore:'', awayScore:'', resultType:'', notes:'Programación oficial Sub 13/Sub 15'},
+    {matchId:'M003-024', round:3, dateLabel:'30 DE MAYO FECHA 3', matchDate:'2026-05-30', field:'CAMPO PRINCIPAL', time:'12:30', home:'GUERREROS DE MANCHAY', away:'MATHE SPORT', category:'SUB 15', status:'programado', homeScore:'', awayScore:'', resultType:'', notes:'Programación oficial Sub 13/Sub 15'},
+    {matchId:'M003-025', round:3, dateLabel:'30 DE MAYO FECHA 3', matchDate:'2026-05-30', field:'CAMPO PRINCIPAL', time:'13:40', home:'CACHORROS FC', away:'BENJAMIN FC', category:'SUB 13', status:'programado', homeScore:'', awayScore:'', resultType:'', notes:'Programación oficial Sub 13/Sub 15'}
+  ];
+  matches.forEach(function(m){
+    var updated = updateRowByKey_('Fixture', 'matchId', m.matchId, m);
+    if(!updated) appendRowByHeaders_('Fixture', m);
+  });
+
+  var equipos = readTable_('Equipos');
+  var exists = equipos.some(function(t){ return String(t.teamName).trim().toUpperCase() === 'JUVENTUD COSTA FC'; });
+  if(!exists){
+    appendRowByHeaders_('Equipos', {
+      teamId:'EQ102', teamName:'JUVENTUD COSTA FC', legalName:'', coachName:'', email:'', whatsapp:'', address:'', categories:'SUB 15', crestUrl:'assets/img/equipos/EQ102.png'
+    });
+  }
+  SpreadsheetApp.getActive().toast('Fecha 3 Sub 13/Sub 15 actualizada', 'Pacha Deportes', 5);
+}

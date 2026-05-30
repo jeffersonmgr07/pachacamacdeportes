@@ -1,10 +1,31 @@
+
+function normalizeTimeForSort_(t) {
+  t = String(t || '99:99');
+  if (t.indexOf('POR') !== -1) return '99:99';
+  var parts = t.split(':');
+  var h = Number(parts[0] || 99);
+  var m = Number(parts[1] || 0);
+  return Utilities.formatString('%02d:%02d', h, m);
+}
+function sortFixture_(rows) {
+  return (rows || []).sort(function(a,b){
+    var da = String(a.matchDate || a.date || '9999-99-99');
+    var db = String(b.matchDate || b.date || '9999-99-99');
+    if (da !== db) return da.localeCompare(db);
+    var ta = normalizeTimeForSort_(a.time);
+    var tb = normalizeTimeForSort_(b.time);
+    if (ta !== tb) return ta.localeCompare(tb);
+    return String(a.matchId || '').localeCompare(String(b.matchId || ''));
+  });
+}
+
 function getPublicData_() {
   return {
     ok:true,
     users: readTable_('Usuarios'),
     trainers: readTable_('Entrenadores'),
     categories: readTable_('Categorias'),
-    fixture: readTable_('Fixture'),
+    fixture: sortFixture_(readTable_('Fixture')),
     players: readTable_('Jugadores'),
     teams: readTable_('Equipos'),
     descansos: readTable_('Descansos'),
@@ -29,7 +50,7 @@ function getCoachDashboard_(user) {
     return p;
   });
   if(!team.crestUrl && team.teamId) team.crestUrl = 'assets/img/equipos/' + team.teamId + '.PNG';
-  var fixture = readTable_('Fixture').filter(function(m){ return String(m.home).trim().toUpperCase() === teamName || String(m.away).trim().toUpperCase() === teamName; });
+  var fixture = sortFixture_(readTable_('Fixture')).filter(function(m){ return String(m.home).trim().toUpperCase() === teamName || String(m.away).trim().toUpperCase() === teamName; });
   var convocatorias = readTable_('Convocatorias').filter(function(c){ return String(c.teamId) === String(teamId); });
   return {ok:true, user:user, team:team, categories:readTable_('Categorias'), players:players, fixture:fixture, convocatorias:convocatorias};
 }

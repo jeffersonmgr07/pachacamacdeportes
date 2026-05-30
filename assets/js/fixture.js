@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   if(round) round.innerHTML = '<option value="">Todas las fechas</option>' + rounds.map(r=>`<option value="${r}">Fecha ${r}</option>`).join('');
   function render(){
     const c = cat?.value || '', r = round?.value || '';
-    const rows = res.fixture.filter(m=>(!c||matchVal(m,'category',8)===c)&&(!r||String(matchVal(m,'round',1))===String(r)));
+    const rows = sortFixtureRows(res.fixture.filter(m=>(!c||matchVal(m,'category',8)===c)&&(!r||String(matchVal(m,'round',1))===String(r))));
     const grouped = rows.reduce((acc,m)=>{ const key = matchVal(m,'round',1); (acc[key] ||= []).push(m); return acc; },{});
     wrap.innerHTML = Object.keys(grouped).sort((a,b)=>Number(a)-Number(b)).map(key=>{
       const list = grouped[key];
