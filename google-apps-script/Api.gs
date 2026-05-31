@@ -19,6 +19,45 @@ function sortFixture_(rows) {
   });
 }
 
+
+function normalizeDni_(value) {
+  return String(value || '').replace(/\D/g, '').trim();
+}
+function categoryBase_(value) {
+  return String(value || '').replace(/\s*\(.+?\)/g, '').trim().toUpperCase();
+}
+function categoryList_(value) {
+  return String(value || '').split(',').map(function(c){ return categoryBase_(c); }).filter(Boolean);
+}
+function categoryNumber_(value) {
+  var m = String(value || '').match(/(\d+)/);
+  return m ? Number(m[1]) : 999;
+}
+function maxStartersForCategory_(categoryName) {
+  var base = categoryBase_(categoryName);
+  try {
+    var cats = readTable_('Categorias');
+    var row = cats.find(function(c){ return categoryBase_(c.name || c.label) === base; });
+    if(row && Number(row.playersOnField)) return Number(row.playersOnField);
+  } catch(err) {}
+  var n = categoryNumber_(categoryName);
+  if(n === 6 || n === 8) return 7;
+  if(n === 10 || n === 12 || n === 13) return 9;
+  return 11;
+}
+function validateDuplicatePlayer_(p, excludePlayerId) {
+  var dni = normalizeDni_(p.dni);
+  if(!dni) return {ok:true};
+  var duplicate = readTable_('Jugadores').find(function(x){
+    return normalizeDni_(x.dni) === dni && String(x.playerId || '') !== String(excludePlayerId || '');
+  });
+  if(!duplicate) return {ok:true};
+  if(String(duplicate.teamId) === String(p.teamId)) {
+    return {ok:false, message:'Este jugador ya está agregado en tu equipo. Para habilitar otra categoría, edita su ficha y marca la categoría correspondiente.'};
+  }
+  return {ok:false, message:'Este jugador ya está participando en otro equipo: ' + (duplicate.teamName || duplicate.teamId || 'equipo registrado') + '.'};
+}
+
 function getPublicData_() {
   return {
     ok:true,
@@ -61,17 +100,13 @@ function saveTeamProfile_(p) {
 }
 function savePlayer_(p) {
   if(!p.teamId) return {ok:false, message:'Falta teamId'};
+  var dup = validateDuplicatePlayer_(p);
+  if(!dup.ok) return dup;
   var players = readTable_('Jugadores').filter(function(x){ return String(x.teamId) === String(p.teamId); });
-  var selected = String(p.categories || '').split(',').map(function(c){
-    return String(c).replace(/\s*\(.+?\)/g,'').trim().toUpperCase();
-  }).filter(Boolean);
+  var selected = categoryList_(p.categories || p.category);
   for (var i=0; i<selected.length; i++) {
     var cat = selected[i];
-    var count = players.filter(function(x){
-      return String(x.categories || '').split(',').map(function(c){
-        return String(c).replace(/\s*\(.+?\)/g,'').trim().toUpperCase();
-      }).indexOf(cat) !== -1;
-    }).length;
+    var count = players.filter(function(x){ return categoryList_(x.categories || x.category).indexOf(cat) !== -1; }).length;
     if (count >= 15) return {ok:false, message:'Máximo 15 jugadores en ' + cat};
   }
   p.playerId = p.playerId || nextId_('P','Jugadores','playerId');
@@ -84,6 +119,8 @@ function savePlayer_(p) {
 
 function updatePlayer_(p) {
   if(!p.playerId) return {ok:false, message:'Falta playerId'};
+  var dup = validateDuplicatePlayer_(p, p.playerId);
+  if(!dup.ok) return dup;
   p.fullName = p.fullName || [p.firstName || '', p.lastName || ''].join(' ').trim();
   p.documentType = p.documentType || 'DNI';
   var ok = updateRowByKey_('Jugadores', 'playerId', p.playerId, p);
@@ -123,6 +160,13 @@ function sendConvocatoriaEmail_(p, isEdit) {
 }
 function saveConvocatoria_(p) {
   if(!p.matchId || !p.teamId) return {ok:false, message:'Falta matchId o teamId'};
+  var match = p.match || readTable_('Fixture').find(function(m){ return String(m.matchId) === String(p.matchId); }) || {};
+  var maxStarters = maxStartersForCategory_(match.category || p.category);
+  var starters = Array.from(new Set(p.starters || [])).filter(Boolean);
+  var substitutes = Array.from(new Set(p.substitutes || [])).filter(Boolean).filter(function(id){ return starters.indexOf(id) === -1; });
+  if(starters.length > maxStarters) {
+    return {ok:false, message:'No puedes registrar más de ' + maxStarters + ' titulares para ' + (match.category || 'esta categoría') + '.'};
+  }
   var id = p.matchId + '_' + p.teamId;
   var previous = readTable_('Convocatorias').find(function(c){ return String(c.convocatoriaId) === String(id); });
   var row = {
@@ -130,12 +174,15 @@ function saveConvocatoria_(p) {
     matchId: p.matchId,
     teamId: p.teamId,
     teamName: p.teamName,
-    starters: JSON.stringify(p.starters || []),
-    substitutes: JSON.stringify(p.substitutes || []),
+    starters: JSON.stringify(starters),
+    substitutes: JSON.stringify(substitutes),
     status: 'convocado',
     savedAt: new Date(),
     notes: previous ? 'Convocatoria editada' : 'Convocatoria creada'
   };
+  p.starters = starters;
+  p.substitutes = substitutes;
+  p.match = match;
   var updated = updateRowByKey_('Convocatorias','convocatoriaId',id,row);
   if(!updated) appendRowByHeaders_('Convocatorias', row);
   sendConvocatoriaEmail_(p, !!previous);

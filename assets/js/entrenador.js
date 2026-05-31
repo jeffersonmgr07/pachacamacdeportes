@@ -26,6 +26,27 @@ function categoryOptionsByBirthDate(birthDate){
     return (y >= min && y <= max) || (y > max && y <= 2021);
   });
 }
+
+function getCategoryRule(categoryName){
+  const base = categoryBaseName(categoryName);
+  return (coachState.categories || []).find(c => categoryBaseName(c.name || c.label) === base) || null;
+}
+function maxStartersForMatch(match){
+  const rule = getCategoryRule(match?.category);
+  if(rule && Number(rule.playersOnField)) return Number(rule.playersOnField);
+  const n = categoryNumber(match?.category);
+  if(n === 6 || n === 8) return 7;
+  if(n === 10 || n === 12 || n === 13) return 9;
+  return 11;
+}
+function minStartersForMatch(match){
+  const rule = getCategoryRule(match?.category);
+  if(rule && Number(rule.minPlayers)) return Number(rule.minPlayers);
+  const n = categoryNumber(match?.category);
+  if(n === 6 || n === 8) return 5;
+  return 7;
+}
+
 function simpleCategoryByDOB(birthDate){
   if(!birthDate) return '';
   const y = new Date(birthDate).getFullYear();
@@ -254,31 +275,42 @@ function openRoster(matchId){
   const existing = coachState.convocatorias.find(c=>c.matchId===matchId) || {starters:[], substitutes:[]};
   const modal = document.querySelector('#rosterModal');
   modal.classList.add('open');
+  const maxStarters = maxStartersForMatch(match);
+  const minStarters = minStartersForMatch(match);
   document.querySelector('#rosterTitle').textContent = `${match.home} vs ${match.away}`;
-  document.querySelector('#rosterSubtitle').textContent = `${match.dateLabel} · ${match.field} · ${formatTime12(match.time)} · ${match.category}`;
+  document.querySelector('#rosterSubtitle').textContent = `${match.dateLabel} · ${match.field} · ${formatTime12(match.time)} · ${match.category} · Máximo ${maxStarters} titulares`;
   let starters = Array.isArray(existing.starters) ? [...existing.starters] : JSON.parse(existing.starters || '[]');
   let substitutes = Array.isArray(existing.substitutes) ? [...existing.substitutes] : JSON.parse(existing.substitutes || '[]');
+  function uniqueClean(list){ return [...new Set((list || []).filter(Boolean))]; }
+  starters = uniqueClean(starters);
+  substitutes = uniqueClean(substitutes).filter(id=>!starters.includes(id));
   function draw(){
     const selected = new Set([...starters, ...substitutes]);
     const matchCat = categoryBaseName(match.category);
     const available = coachState.players.filter(p=>!selected.has(p.playerId) && playerCategoriesArray(p).includes(matchCat));
+    const starterLimitReached = starters.length >= maxStarters;
     document.querySelector('#availablePlayers').innerHTML = available.map(p=>`
-      <div class="roster-item"><span>${p.fullName}</span><div><button class="btn btn-small btn-primary" data-add-starter="${p.playerId}">Titular</button> <button class="btn btn-small btn-secondary" data-add-sub="${p.playerId}">Suplente</button></div></div>`).join('') || '<p>No quedan jugadores disponibles para esta categoría.</p>';
+      <div class="roster-item"><span>${p.fullName}</span><div><button class="btn btn-small btn-primary" data-add-starter="${p.playerId}" ${starterLimitReached?'disabled title="Límite de titulares alcanzado"':''}>Titular</button> <button class="btn btn-small btn-secondary" data-add-sub="${p.playerId}">Suplente</button></div></div>`).join('') || '<p>No quedan jugadores disponibles para esta categoría.</p>';
     const printList = ids => ids.map(id=>coachState.players.find(p=>p.playerId===id)).filter(Boolean).map(p=>`<div class="roster-item"><span>${p.fullName}</span><button class="btn btn-small btn-danger" data-remove="${p.playerId}">Quitar</button></div>`).join('') || '<p>Sin jugadores.</p>';
-    document.querySelector('#startersList').innerHTML = printList(starters);
-    document.querySelector('#subsList').innerHTML = printList(substitutes);
-    document.querySelectorAll('[data-add-starter]').forEach(b=>b.onclick=()=>{starters.push(b.dataset.addStarter);draw()});
-    document.querySelectorAll('[data-add-sub]').forEach(b=>b.onclick=()=>{substitutes.push(b.dataset.addSub);draw()});
+    document.querySelector('#startersList').innerHTML = `<div class="roster-counter ${starters.length>maxStarters?'danger':''}">Titulares: ${starters.length}/${maxStarters} · mínimo recomendado ${minStarters}</div>` + printList(starters);
+    document.querySelector('#subsList').innerHTML = `<div class="roster-counter">Suplentes: ${substitutes.length}</div>` + printList(substitutes);
+    document.querySelectorAll('[data-add-starter]').forEach(b=>b.onclick=()=>{
+      if(starters.length >= maxStarters){ toast(`Máximo ${maxStarters} titulares para ${match.category}`); return; }
+      starters.push(b.dataset.addStarter); starters = uniqueClean(starters); substitutes = substitutes.filter(id=>!starters.includes(id)); draw();
+    });
+    document.querySelectorAll('[data-add-sub]').forEach(b=>b.onclick=()=>{substitutes.push(b.dataset.addSub); substitutes = uniqueClean(substitutes).filter(id=>!starters.includes(id)); draw()});
     document.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{starters=starters.filter(x=>x!==b.dataset.remove);substitutes=substitutes.filter(x=>x!==b.dataset.remove);draw()});
   }
   draw();
   document.querySelector('#saveRosterBtn').onclick = async ()=>{
+    starters = uniqueClean(starters); substitutes = uniqueClean(substitutes).filter(id=>!starters.includes(id));
+    if(starters.length > maxStarters){ toast(`No puedes guardar más de ${maxStarters} titulares en ${match.category}`); return; }
     const res = await API.saveConvocatoria({matchId, teamId:coachState.team.teamId, teamName:coachState.team.teamName, coachEmail:coachState.user.email, coachName:shortCoachName(coachState.user), match, starters, substitutes});
     if(res.ok){
       const idx = coachState.convocatorias.findIndex(c=>c.matchId===matchId);
       if(idx>=0) coachState.convocatorias[idx]=res.convocatoria; else coachState.convocatorias.push(res.convocatoria);
       toast('Convocatoria guardada'); modal.classList.remove('open'); renderMatches();
-    }
+    } else toast(res.message || 'No se pudo guardar la convocatoria');
   };
 }
 document.addEventListener('DOMContentLoaded', async ()=>{

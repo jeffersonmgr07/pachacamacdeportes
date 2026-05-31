@@ -82,6 +82,30 @@ function mockDB(){
     convocatorias: Store.get('mf_convocatorias', [])
   }
 }
+
+function normDni(value){ return String(value || '').replace(/\D/g,'').trim(); }
+function playerCategoryList(value){
+  return String(value || '').split(',').map(c=>String(c).replace(/\s*\(.+?\)/g,'').trim().toUpperCase()).filter(Boolean);
+}
+
+function categoryBaseFromName(value){ return String(value || '').replace(/\s*\(.+?\)/g,'').trim().toUpperCase(); }
+function categoryNumFromName(value){ const m = String(value || '').match(/(\d+)/); return m ? Number(m[1]) : 999; }
+function maxStartersDemo(db, categoryName){
+  const base = categoryBaseFromName(categoryName);
+  const row = (db.categories || []).find(c => categoryBaseFromName(c.name || c.label) === base);
+  if(row && Number(row.playersOnField)) return Number(row.playersOnField);
+  const n = categoryNumFromName(categoryName);
+  if(n === 6 || n === 8) return 7;
+  if(n === 10 || n === 12 || n === 13) return 9;
+  return 11;
+}
+
+function findDuplicatePlayerByDni(players, dni, excludePlayerId){
+  const clean = normDni(dni);
+  if(!clean) return null;
+  return (players || []).find(p => normDni(p.dni) === clean && String(p.playerId || '') !== String(excludePlayerId || ''));
+}
+
 function saveMockDB(db){
   if(db.users) Store.set('mf_users', db.users);
   if(db.trainers) Store.set('mf_trainers', db.trainers);
@@ -138,9 +162,16 @@ const API = {
         saveMockDB(db); return {ok:true, team: db.trainers[idx]};
       }
       case 'savePlayer': {
-        const payloadCats = String(payload.categories||payload.category||'').split(',').map(x=>x.replace(/\s*\(.+?\)/g,'').trim().toUpperCase()).filter(Boolean);
+        const duplicated = findDuplicatePlayerByDni(db.players, payload.dni);
+        if(duplicated){
+          if(String(duplicated.teamId) === String(payload.teamId)){
+            return {ok:false, message:'Este jugador ya está agregado en tu equipo. Para habilitar otra categoría, edita su ficha y marca la categoría correspondiente.'};
+          }
+          return {ok:false, message:`Este jugador ya está participando en otro equipo: ${duplicated.teamName || duplicated.teamId}.`};
+        }
+        const payloadCats = playerCategoryList(payload.categories || payload.category);
         for(const c of payloadCats){
-          const count = db.players.filter(p=>p.teamId===payload.teamId && String(p.categories||p.category||'').toUpperCase().includes(c)).length;
+          const count = db.players.filter(p=>p.teamId===payload.teamId && playerCategoryList(p.categories||p.category).includes(c)).length;
           if(count >= 15) return {ok:false, message:`Máximo 15 jugadores por categoría (${c.replace('SUB','Sub')})`};
         }
         const player = {...payload, playerId:'P'+Date.now()};
@@ -149,6 +180,13 @@ const API = {
       case 'updatePlayer': {
         const idx = db.players.findIndex(p=>p.playerId===payload.playerId);
         if(idx < 0) return {ok:false, message:'Jugador no encontrado'};
+        const duplicated = findDuplicatePlayerByDni(db.players, payload.dni, payload.playerId);
+        if(duplicated){
+          if(String(duplicated.teamId) === String(payload.teamId)){
+            return {ok:false, message:'Ya existe otro registro de este jugador en tu equipo. Revisa la nómina antes de guardar.'};
+          }
+          return {ok:false, message:`Este DNI ya pertenece a otro equipo: ${duplicated.teamName || duplicated.teamId}.`};
+        }
         db.players[idx] = {...db.players[idx], ...payload};
         saveMockDB(db); return {ok:true, player:db.players[idx]};
       }
@@ -158,8 +196,13 @@ const API = {
         saveMockDB(db); return {ok:true};
       }
       case 'saveConvocatoria': {
+        const match = payload.match || db.fixture.find(m=>m.matchId===payload.matchId) || {};
+        const starters = [...new Set(payload.starters || [])].filter(Boolean);
+        const substitutes = [...new Set(payload.substitutes || [])].filter(id=>!starters.includes(id));
+        const max = maxStartersDemo(db, match.category || payload.category);
+        if(starters.length > max) return {ok:false, message:`No puedes registrar más de ${max} titulares para ${match.category || 'esta categoría'}.`};
         const existing = db.convocatorias.findIndex(c=>c.matchId===payload.matchId && c.teamId===payload.teamId);
-        const item = {...payload, status:'convocado', savedAt:new Date().toISOString()};
+        const item = {...payload, starters, substitutes, status:'convocado', savedAt:new Date().toISOString()};
         if(existing>=0) db.convocatorias[existing]=item; else db.convocatorias.push(item);
         saveMockDB(db); return {ok:true, convocatoria:item};
       }

@@ -1,8 +1,20 @@
 function matchVal(m, key, index){return m[key] ?? m[index];}
 function matchStatusLabel(m){
-  const status = matchVal(m,'status',9) || 'programado';
-  if(String(status).toLowerCase()==='jugado') return `${matchVal(m,'homeScore',10)} - ${matchVal(m,'awayScore',11)}`;
-  return status;
+  const status = String(matchVal(m,'status',9) || 'programado').toLowerCase();
+  const resultType = String(matchVal(m,'resultType',12) || 'normal').toLowerCase();
+  if(status === 'jugado'){
+    if(resultType === 'wo' || resultType === 'w.o.' || resultType === 'w.o') return 'Partido definido por W.O.';
+    if(resultType === 'reclamo') return 'Partido definido por reclamo';
+    return 'Partido jugado con normalidad';
+  }
+  if(status === 'suspendido') return 'Partido suspendido';
+  if(status === 'cancelado') return 'Partido cancelado';
+  return 'Partido programado';
+}
+function resultBadge(m){
+  const status = String(matchVal(m,'status',9) || 'programado').toLowerCase();
+  if(status === 'jugado') return `${matchVal(m,'homeScore',10)} - ${matchVal(m,'awayScore',11)}`;
+  return 'VS';
 }
 document.addEventListener('DOMContentLoaded', async ()=>{
   const res = await API.getPublicData(); if(!res.ok) return;
@@ -27,10 +39,10 @@ document.addEventListener('DOMContentLoaded', async ()=>{
           <div class="match-meta"><span class="badge badge-green">${matchVal(m,'category',8)}</span><span class="badge badge-green">${matchVal(m,'field',4)}</span><span class="badge badge-green">${formatTime12(matchVal(m,'time',5))}</span></div>
           <div class="match-vs-logos">
             <div class="team-side"><img src="${teamLogoPath(matchVal(m,'home',6))}" onerror="this.src='assets/img/logo-pacha-deportes.svg'"><span>${matchVal(m,'home',6)}</span></div>
-            <b>${String(matchVal(m,'status',9)).toLowerCase()==='jugado' ? matchStatusLabel(m) : 'VS'}</b>
+            <b class="result-pill">${resultBadge(m)}</b>
             <div class="team-side right"><img src="${teamLogoPath(matchVal(m,'away',7))}" onerror="this.src='assets/img/logo-pacha-deportes.svg'"><span>${matchVal(m,'away',7)}</span></div>
           </div>
-          <p class="section-subtitle">Estado: ${matchStatusLabel(m)}</p>
+          <p class="match-status-text"><b>Estado:</b> ${matchStatusLabel(m)}</p>
         </article>`).join('')}</div></section>`;
     }).join('') || '<div class="card">No hay partidos con estos filtros.</div>';
   }
