@@ -1,7 +1,77 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Panel administrador</title><link rel="stylesheet" href="assets/css/styles.css?v=20260531-mobile-login"></head><body>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Panel administrador</title>
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260531-admin-superpanel">
+</head>
+<body>
 <div data-header data-active="campeonatos"></div>
-<section class="page-title"><div class="container"><h1>Panel administrador</h1><p class="section-subtitle">Resumen de información conectada con Google Sheets.</p></div></section>
-<section class="section" style="padding-top:10px"><div class="container"><div class="grid grid-3" id="adminSummary"></div>
-<div class="section-head" style="margin-top:34px"><div><h2 class="section-title">Accesos</h2><p class="section-subtitle">Correos y claves temporales de entrenadores.</p></div></div>
-<div class="table-wrap"><table><thead><tr><th>Nombre</th><th>Rol</th><th>Correo</th><th>Clave</th><th>Equipo</th><th>Estado</th></tr></thead><tbody id="accessBody"></tbody></table></div></div></section><div data-footer></div>
-<script src="assets/components/header.js"></script><script src="assets/components/footer.js"></script><script src="assets/js/config.js"></script><script src="assets/js/mock-data.js"></script><script src="assets/js/api.js"></script><script src="assets/js/admin.js"></script></body></html>
+<section class="page-title admin-page-title">
+  <div class="container">
+    <span class="kicker">Super acceso</span>
+    <h1>Panel administrador</h1>
+    <p class="section-subtitle">Consulta general de usuarios, equipos, jugadores, fechas, fixture y partidos por equipo conectados con Google Sheets.</p>
+  </div>
+</section>
+
+<section class="section admin-super-panel" style="padding-top:10px">
+  <div class="container">
+    <div class="grid grid-3" id="adminSummary"></div>
+
+    <div class="admin-toolbar card">
+      <div>
+        <h2 class="section-title">Centro de control</h2>
+        <p class="section-subtitle">Filtra por equipo, categoría o búsqueda para revisar rápidamente toda la información del campeonato.</p>
+      </div>
+      <div class="admin-toolbar-actions">
+        <input class="input" id="adminSearch" type="search" placeholder="Buscar equipo, jugador, DNI, fecha...">
+        <select id="adminTeamFilter" class="input"><option value="">Todos los equipos</option></select>
+        <select id="adminCategoryFilter" class="input"><option value="">Todas las categorías</option></select>
+      </div>
+    </div>
+
+    <div class="admin-tabs" role="tablist" aria-label="Secciones del panel administrador">
+      <button class="active" data-admin-tab="equipos">Equipos</button>
+      <button data-admin-tab="jugadores">Jugadores</button>
+      <button data-admin-tab="fixture">Fixture / Fechas</button>
+      <button data-admin-tab="partidos-equipo">Partidos por equipo</button>
+      <button data-admin-tab="accesos">Accesos</button>
+    </div>
+
+    <div class="admin-tab-content active" id="admin-tab-equipos">
+      <div class="section-head"><div><h2 class="section-title">Equipos</h2><p class="section-subtitle">Resumen de equipos, categorías, responsables, jugadores y partidos registrados.</p></div></div>
+      <div class="grid grid-2" id="adminTeamsGrid"></div>
+    </div>
+
+    <div class="admin-tab-content" id="admin-tab-jugadores">
+      <div class="section-head"><div><h2 class="section-title">Jugadores</h2><p class="section-subtitle">Nómina general del campeonato filtrable por equipo, categoría o texto.</p></div></div>
+      <div class="table-wrap"><table><thead><tr><th>Jugador</th><th>DNI</th><th>Equipo</th><th>Categoría(s)</th><th>Fecha nac.</th><th>Estado</th></tr></thead><tbody id="adminPlayersBody"></tbody></table></div>
+    </div>
+
+    <div class="admin-tab-content" id="admin-tab-fixture">
+      <div class="section-head"><div><h2 class="section-title">Fixture / Fechas</h2><p class="section-subtitle">Todos los partidos ordenados por fecha, hora y categoría.</p></div></div>
+      <div id="adminFixtureList" class="grid"></div>
+    </div>
+
+    <div class="admin-tab-content" id="admin-tab-partidos-equipo">
+      <div class="section-head"><div><h2 class="section-title">Partidos por equipo</h2><p class="section-subtitle">Selecciona o filtra un equipo para ver sus partidos agrupados.</p></div></div>
+      <div id="adminTeamMatches" class="grid"></div>
+    </div>
+
+    <div class="admin-tab-content" id="admin-tab-accesos">
+      <div class="section-head"><div><h2 class="section-title">Accesos</h2><p class="section-subtitle">Correos, roles y claves temporales de administradores y entrenadores.</p></div></div>
+      <div class="table-wrap"><table><thead><tr><th>Nombre</th><th>Rol</th><th>Correo</th><th>Clave</th><th>Equipo</th><th>Estado</th></tr></thead><tbody id="accessBody"></tbody></table></div>
+    </div>
+  </div>
+</section>
+<div data-footer></div>
+<script src="assets/components/header.js"></script>
+<script src="assets/components/footer.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/mock-data.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/admin.js?v=20260531-admin-superpanel"></script>
+</body>
+</html>

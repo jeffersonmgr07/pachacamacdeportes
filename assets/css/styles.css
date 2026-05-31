@@ -534,3 +534,23 @@ body.show-nav .mobile-menu-bars:after{top:0;transform:rotate(-45deg);background:
 .fixture-round-head h3{margin:0!important;color:#000000!important;font-size:20px!important;font-weight:1000!important;line-height:1.25!important;}
 .round-card .section-head p{display:none!important;}
 @media(max-width:640px){.fixture-round-head{align-items:flex-start!important}.fixture-round-head h3{font-size:18px!important}.fixture-round-head .badge{font-size:12px!important}}
+
+/* Super panel administrador */
+.admin-page-title .kicker{margin-bottom:10px}
+.admin-super-panel .card{background:#ffffff;color:#102033;border:1px solid #dbe5ef;box-shadow:0 18px 42px rgba(15,23,42,.08)}
+.admin-super-panel .section-title,.admin-super-panel h2,.admin-super-panel h3{color:#102033}
+.admin-super-panel .section-subtitle,.admin-super-panel p,.admin-muted{color:#637083!important}
+.admin-stat .stat-number{color:#14532d}.admin-stat .stat-label{color:#394b61}
+.admin-toolbar{display:flex;justify-content:space-between;gap:20px;align-items:end;margin:28px 0 18px}
+.admin-toolbar-actions{display:grid;grid-template-columns:minmax(220px,1.5fr) minmax(180px,1fr) minmax(180px,1fr);gap:12px;width:min(760px,100%)}
+.admin-super-panel .input,.admin-super-panel select{background:#f8fafc;border:1px solid #d5dfeb;color:#102033}
+.admin-tabs{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 24px;position:sticky;top:86px;z-index:20;background:rgba(248,250,252,.92);backdrop-filter:blur(12px);border:1px solid #dbe5ef;border-radius:22px;padding:10px;box-shadow:0 14px 30px rgba(15,23,42,.08)}
+.admin-tabs button{border:0;border-radius:15px;padding:12px 14px;background:#eef3f8;color:#203047;font-weight:950;cursor:pointer}
+.admin-tabs button.active,.admin-tabs button:hover{background:linear-gradient(135deg,var(--green2),var(--green));color:#071225}
+.admin-tab-content{display:none}.admin-tab-content.active{display:block}
+.admin-team-card{display:grid;gap:14px}
+.admin-team-head{display:flex;align-items:center;gap:14px}.admin-team-head img{width:70px;height:70px;object-fit:contain;border-radius:18px;background:#f8fafc;padding:6px;border:1px solid #e2e8f0}.admin-team-head h3{margin:0;text-transform:uppercase}.admin-team-head p{margin:4px 0 0!important;font-weight:900}
+.admin-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.admin-metrics span{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:16px;padding:12px;text-align:center;color:#334155;font-weight:850}.admin-metrics strong{display:block;font-size:22px;color:#14532d}
+.admin-super-panel .table-wrap{border:1px solid #dbe5ef;background:#fff}.admin-super-panel table{background:#fff}.admin-super-panel th{background:#14532d;color:#fff}.admin-super-panel td{color:#102033;border-top:1px solid #e5edf5}.admin-super-panel .badge-green{background:#dcfce7!important;color:#166534!important;border:1px solid #86efac!important}.admin-super-panel .badge-blue{background:#dbeafe!important;color:#1e40af!important;border:1px solid #93c5fd!important}.admin-super-panel .badge-gold{background:#fef3c7!important;color:#92400e!important;border:1px solid #fcd34d!important}
+.admin-match-card{box-shadow:none!important}.admin-team-matches-card{display:grid;gap:14px}.admin-team-matches-card .compact{margin-bottom:0}.admin-empty{padding:24px;text-align:center}
+@media(max-width:860px){.admin-toolbar{display:grid}.admin-toolbar-actions{grid-template-columns:1fr}.admin-tabs{top:0;overflow:auto;flex-wrap:nowrap;border-radius:18px}.admin-tabs button{white-space:nowrap}.admin-metrics{grid-template-columns:1fr}.admin-super-panel .table-wrap table{min-width:820px}.admin-team-head img{width:58px;height:58px}.admin-page-title h1{font-size:40px}}
