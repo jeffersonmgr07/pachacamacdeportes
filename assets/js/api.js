@@ -117,15 +117,44 @@ function saveMockDB(db){
   if(db.convocatorias) Store.set('mf_convocatorias', db.convocatorias);
 }
 
+function normalizeUserForApp(user){
+  if(!user) return user;
+  const fullName = user.fullName || user.nombre || [user.firstName, user.lastName].filter(Boolean).join(' ').trim();
+  const shortName = user.shortName || user.nombreCorto || fullName;
+  return {
+    ...user,
+    email: user.email || user.correo || user.username || '',
+    password: user.password || user.clave || '',
+    role: String(user.role || user.rol || 'entrenador').toLowerCase(),
+    status: String(user.status || user.estado || 'activo').toLowerCase(),
+    fullName,
+    shortName,
+    teamId: user.teamId || user.equipoId || '',
+    teamName: user.teamName || user.equipo || ''
+  };
+}
+
 function jsonp(action, payload={}){
   return new Promise((resolve,reject)=>{
     if(!window.APP_CONFIG.API_URL){ reject(new Error('Falta configurar API_URL')); return; }
     const cb = 'cb_' + Math.random().toString(36).slice(2);
-    window[cb] = (res)=>{ resolve(res); delete window[cb]; script.remove(); };
+    const timeoutMs = Number(window.APP_CONFIG.API_TIMEOUT_MS || 15000);
+    let script;
+    const cleanup = () => {
+      if(window[cb]) delete window[cb];
+      if(script && script.parentNode) script.parentNode.removeChild(script);
+      clearTimeout(timer);
+    };
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error('Apps Script no respondió. Revisa que el despliegue esté publicado como aplicación web y con acceso para cualquier usuario.'));
+    }, timeoutMs);
+    window[cb] = (res)=>{ cleanup(); resolve(res); };
     const params = new URLSearchParams({action, callback:cb, payload:JSON.stringify(payload)});
-    const script = document.createElement('script');
+    script = document.createElement('script');
     script.src = `${window.APP_CONFIG.API_URL}?${params.toString()}`;
-    script.onerror = () => { reject(new Error('No se pudo conectar con Apps Script')); delete window[cb]; script.remove(); };
+    script.async = true;
+    script.onerror = () => { cleanup(); reject(new Error('No se pudo conectar con Apps Script. Verifica la URL en assets/js/config.js.')); };
     document.body.appendChild(script);
   });
 }
@@ -134,6 +163,7 @@ const API = {
   async request(action, payload={}){
     if(!window.APP_CONFIG.DEMO_MODE){
       const res = await jsonp(action, payload);
+      if(res && res.user) res.user = normalizeUserForApp(res.user);
       // Cache ligero para que helpers visuales, como teamLogoPath(), usen datos reales de Sheets.
       if(res && res.teams) Store.set('mf_teams', res.teams);
       if(res && res.categories) Store.set('mf_categories', res.categories);
@@ -143,9 +173,12 @@ const API = {
     const db = mockDB();
     switch(action){
       case 'login': {
-        const email = String(payload.email||'').toLowerCase().trim();
+        const identifier = String(payload.email || payload.username || '').toLowerCase().trim();
         const password = String(payload.password||'').trim();
-        const user = db.users.find(u => String(u.email).toLowerCase() === email && String(u.password) === password && u.status !== 'inactivo');
+        const user = db.users.map(normalizeUserForApp).find(u => {
+          const candidates = [u.email, u.username, u.dni, u.userId].map(x=>String(x||'').toLowerCase().trim()).filter(Boolean);
+          return candidates.includes(identifier) && String(u.password || '').trim() === password && String(u.status || 'activo').toLowerCase() !== 'inactivo';
+        });
         if(!user) return {ok:false, message:'Correo o clave incorrecta'};
         return {ok:true, user};
       }

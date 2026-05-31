@@ -7,8 +7,8 @@ function firstName(name){
 }
 function headerHTML(active = 'deportes', championship = false){
   const user = getStoredUserForHeader();
-  const welcome = user ? `<span>Bienvenido ${firstName(user.shortName || user.fullName || user.nombre)} - Distrito Pachacamac</span>` : `<span>Distrito Pachacamac</span>`;
-  const loginLabel = user ? (user.role === 'admin' ? 'Panel admin' : 'Panel entrenador') : 'Login';
+  const welcome = user ? `<span>Bienvenido ${firstName(user.shortName || user.fullName || user.nombre || user.email)} - Distrito Pachacamac</span>` : `<span>Distrito Pachacamac</span>`;
+  const loginLabel = user ? (String(user.role).toLowerCase() === 'admin' ? 'Panel admin' : 'Panel entrenador') : 'Login';
   const logo = 'assets/img/logo-pacha-deportes.png';
   const fallback = 'assets/img/logo-pacha-deportes.svg';
   const navGeneral = `
@@ -37,12 +37,54 @@ function headerHTML(active = 'deportes', championship = false){
       <a href="index.html" class="brand brand-logo-only" aria-label="Ir al inicio">
         <img src="${logo}" onerror="this.src='${fallback}'" alt="Logo Pacha Deportes">
       </a>
-      <nav class="nav">${championship ? navChamp : navGeneral}</nav>
-      <button class="mobile-menu" onclick="document.body.classList.toggle('show-nav')">Menú</button>
+      <nav class="nav" id="mainNav" aria-label="Navegación principal">${championship ? navChamp : navGeneral}</nav>
+      <button class="mobile-menu" type="button" data-mobile-menu aria-controls="mainNav" aria-expanded="false" aria-label="Abrir menú">
+        <span class="mobile-menu-bars" aria-hidden="true"></span>
+        <span class="mobile-menu-text">Menú</span>
+      </button>
     </div>
   </header>`;
 }
+
+function closeMobileNav(){
+  document.body.classList.remove('show-nav');
+  const btn = document.querySelector('[data-mobile-menu]');
+  if(btn){
+    btn.setAttribute('aria-expanded','false');
+    btn.setAttribute('aria-label','Abrir menú');
+  }
+}
+function toggleMobileNav(){
+  const btn = document.querySelector('[data-mobile-menu]');
+  const open = !document.body.classList.contains('show-nav');
+  document.body.classList.toggle('show-nav', open);
+  if(btn){
+    btn.setAttribute('aria-expanded', String(open));
+    btn.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+  }
+}
+function initHeaderInteractions(){
+  const btn = document.querySelector('[data-mobile-menu]');
+  const nav = document.querySelector('#mainNav');
+  btn?.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    toggleMobileNav();
+  });
+  nav?.addEventListener('click', (e)=>{
+    if(e.target.closest('a') || e.target.closest('button')) closeMobileNav();
+  });
+  document.addEventListener('click', (e)=>{
+    if(!document.body.classList.contains('show-nav')) return;
+    if(e.target.closest('.header')) return;
+    closeMobileNav();
+  });
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape') closeMobileNav();
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const target = document.querySelector('[data-header]');
   if(target) target.innerHTML = headerHTML(target.dataset.active || 'deportes', target.dataset.championship === 'true');
+  initHeaderInteractions();
 });
