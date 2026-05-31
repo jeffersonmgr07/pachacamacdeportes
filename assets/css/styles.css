@@ -527,3 +527,10 @@ body.show-nav .mobile-menu-bars:after{top:0;transform:rotate(-45deg);background:
   .mobile-menu{padding:11px;}
   .side-menu{grid-template-columns:1fr;}
 }
+
+
+/* Corrección fixture: título de fecha más legible en una sola línea */
+.fixture-round-head{align-items:center!important;gap:12px!important;flex-wrap:wrap!important;}
+.fixture-round-head h3{margin:0!important;color:#000000!important;font-size:20px!important;font-weight:1000!important;line-height:1.25!important;}
+.round-card .section-head p{display:none!important;}
+@media(max-width:640px){.fixture-round-head{align-items:flex-start!important}.fixture-round-head h3{font-size:18px!important}.fixture-round-head .badge{font-size:12px!important}}

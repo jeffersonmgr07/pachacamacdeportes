@@ -119,8 +119,11 @@ function loginUser(payload) {
   const password = String((payload && payload.password) || '');
   if (!username || !password) throw new Error('Ingresa usuario y contraseña.');
 
-  const user = rows_(SHEETS.USERS).find(u => norm_(u.username) === username && String(u.password) === password && norm_(u.status) === 'activo');
-  if (!user) throw new Error('Usuario o contraseña incorrectos.');
+  const user = rows_(SHEETS.USERS).find(u => {
+    const candidates = [u.username, u.email, u.dni, u.userId].map(norm_).filter(Boolean);
+    return candidates.includes(username) && String(u.password) === password && norm_(u.status) === 'activo';
+  });
+  if (!user) throw new Error('Usuario/correo o contraseña incorrectos.');
   return {
     ok: true,
     user: publicUser_(user),
