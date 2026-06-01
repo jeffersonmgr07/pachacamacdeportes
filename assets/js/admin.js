@@ -1,5 +1,5 @@
 (function(){
-  let adminData = { users:[], trainers:[], teams:[], players:[], fixture:[], categories:[] };
+  let adminData = { users:[], trainers:[], teams:[], players:[], fixture:[], categories:[], referees:[], matchReferees:[], matchEvents:[] };
 
   const $ = (sel) => document.querySelector(sel);
   const safe = (value) => String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
@@ -111,7 +111,8 @@
     $('#adminSummary').innerHTML = `
       <div class="card admin-stat"><div class="stat-number">${data.teams.length}</div><div class="stat-label">Equipos</div></div>
       <div class="card admin-stat"><div class="stat-number">${data.players.length}</div><div class="stat-label">Jugadores</div></div>
-      <div class="card admin-stat"><div class="stat-number">${data.fixture.length}</div><div class="stat-label">Partidos</div></div>`;
+      <div class="card admin-stat"><div class="stat-number">${data.fixture.length}</div><div class="stat-label">Partidos</div></div>
+      <div class="card admin-stat"><div class="stat-number">${data.fixture.filter(m => normalize(getMatchStatus(m)) === 'en_juego').length}</div><div class="stat-label">En juego</div></div>`;
   }
 
   function renderTeams(){
@@ -159,8 +160,9 @@
   function matchCard(match){
     const [home, away] = getMatchTeams(match);
     const status = normalize(getMatchStatus(match));
-    const played = status === 'jugado';
-    const score = played ? `${safe(match.homeScore ?? '')} - ${safe(match.awayScore ?? '')}` : 'vs';
+    const played = status === 'jugado' || status === 'finalizado';
+    const live = status === 'en_juego';
+    const score = (played || live) ? `${safe(match.homeScore ?? 0)} - ${safe(match.awayScore ?? 0)}` : 'vs';
     return `<article class="fixture-match-card admin-match-card ${played ? 'played' : ''}">
       <div class="match-meta">
         <span class="badge badge-green">${safe(roundText(match))}</span>
@@ -173,6 +175,7 @@
         <span class="away">${safe(away || 'Visitante')}</span>
       </div>
       <p><strong>Campo:</strong> ${safe(match.field || match.cancha || 'Por definir')} · <strong>Estado:</strong> ${safe(getMatchStatus(match))}</p>
+      <div class="actions"><a class="btn btn-primary btn-small" href="arbitro.html?matchId=${encodeURIComponent(match.matchId || match.id || '')}">Iniciar arbitraje</a></div>
     </article>`;
   }
 
@@ -246,7 +249,10 @@
         teams: res.teams || res.trainers || [],
         players: res.players || [],
         fixture: sortFixtureRows(res.fixture || []),
-        categories: res.categories || []
+        categories: res.categories || [],
+        referees: res.referees || [],
+        matchReferees: res.matchReferees || [],
+        matchEvents: res.matchEvents || []
       };
       populateFilters(); renderAll();
     }catch(err){

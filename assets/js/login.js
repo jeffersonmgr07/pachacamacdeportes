@@ -19,7 +19,7 @@ async function handleLogin(email, password, form){
     }
     Store.setUser(res.user);
     const role = String(res.user.role || '').toLowerCase();
-    location.href = role === 'admin' ? 'admin.html' : 'entrenador.html';
+    location.href = role === 'admin' ? 'admin.html' : (role === 'arbitro' || role === 'árbitro' || role === 'referee' ? 'arbitro.html' : 'entrenador.html');
   }catch(err){
     console.error('Error de login:', err);
     toast(err?.message || 'No se pudo conectar con el servidor. Revisa el despliegue de Apps Script.');

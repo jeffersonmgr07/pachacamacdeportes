@@ -79,7 +79,10 @@ function mockDB(){
     players: Store.get('mf_players', m.players || []),
     teams: Store.get('mf_teams', m.teams || []),
     descansos: Store.get('mf_descansos', m.descansos || []),
-    convocatorias: Store.get('mf_convocatorias', [])
+    convocatorias: Store.get('mf_convocatorias', []),
+    referees: Store.get('mf_referees', m.referees || []),
+    matchReferees: Store.get('mf_match_referees', m.matchReferees || []),
+    matchEvents: Store.get('mf_match_events', m.matchEvents || [])
   }
 }
 
@@ -115,6 +118,9 @@ function saveMockDB(db){
   if(db.teams) Store.set('mf_teams', db.teams);
   if(db.descansos) Store.set('mf_descansos', db.descansos);
   if(db.convocatorias) Store.set('mf_convocatorias', db.convocatorias);
+  if(db.referees) Store.set('mf_referees', db.referees);
+  if(db.matchReferees) Store.set('mf_match_referees', db.matchReferees);
+  if(db.matchEvents) Store.set('mf_match_events', db.matchEvents);
 }
 
 function normalizeUserForApp(user){
@@ -239,6 +245,43 @@ const API = {
         if(existing>=0) db.convocatorias[existing]=item; else db.convocatorias.push(item);
         saveMockDB(db); return {ok:true, convocatoria:item};
       }
+
+      case 'startMatch': {
+        const idx = db.fixture.findIndex(m => String(m.matchId || m[0]) === String(payload.matchId));
+        if(idx < 0) return {ok:false, message:'Partido no encontrado'};
+        db.fixture[idx] = {...normalizeMatch(db.fixture[idx]), status:'en_juego', startedAt: new Date().toISOString(), startedBy: payload.user?.userId || payload.user?.email || ''};
+        saveMockDB(db); return {ok:true, match:db.fixture[idx]};
+      }
+      case 'saveMatchEvent': {
+        const idx = db.fixture.findIndex(m => String(m.matchId || m[0]) === String(payload.matchId));
+        if(idx < 0) return {ok:false, message:'Partido no encontrado'};
+        const match = {...normalizeMatch(db.fixture[idx])};
+        const eventType = String(payload.eventType || '').toLowerCase();
+        const side = String(payload.teamSide || '').toLowerCase();
+        const currentHome = Number(match.homeScore || 0) || 0;
+        const currentAway = Number(match.awayScore || 0) || 0;
+        if(eventType === 'gol'){
+          if(side === 'home') match.homeScore = currentHome + 1;
+          if(side === 'away') match.awayScore = currentAway + 1;
+        }
+        match.status = 'en_juego';
+        match.updatedAt = new Date().toISOString();
+        const event = {
+          eventId: 'EVT' + Date.now(), matchId: payload.matchId, minute: payload.minute || '',
+          teamSide: payload.teamSide || '', teamName: payload.teamName || '', playerId: payload.playerId || '',
+          playerName: payload.playerName || '', eventType: payload.eventType || 'observacion', notes: payload.notes || '',
+          createdBy: payload.user?.userId || payload.user?.email || '', createdAt: new Date().toISOString()
+        };
+        db.matchEvents = db.matchEvents || [];
+        db.matchEvents.push(event);
+        db.fixture[idx] = match; saveMockDB(db); return {ok:true, match, event, events: db.matchEvents.filter(e=>String(e.matchId)===String(payload.matchId))};
+      }
+      case 'finishMatch': {
+        const idx = db.fixture.findIndex(m => String(m.matchId || m[0]) === String(payload.matchId));
+        if(idx < 0) return {ok:false, message:'Partido no encontrado'};
+        db.fixture[idx] = {...normalizeMatch(db.fixture[idx]), homeScore: payload.homeScore, awayScore: payload.awayScore, status:'jugado', resultType: payload.resultType || 'normal', finishedAt: new Date().toISOString(), finishedBy: payload.user?.userId || payload.user?.email || ''};
+        saveMockDB(db); return {ok:true, match:db.fixture[idx]};
+      }
       case 'saveResult': {
         const idx = db.fixture.findIndex(m=>m[0]===payload.matchId || m.matchId===payload.matchId);
         if(idx>=0) db.fixture[idx] = {...db.fixture[idx], ...payload, status:'jugado'};
@@ -254,13 +297,16 @@ const API = {
   savePlayer(player){ return this.request('savePlayer', player); },
   updatePlayer(player){ return this.request('updatePlayer', player); },
   deletePlayer(playerId){ return this.request('deletePlayer', {playerId}); },
-  saveConvocatoria(data){ return this.request('saveConvocatoria', data); }
+  saveConvocatoria(data){ return this.request('saveConvocatoria', data); },
+  startMatch(data){ return this.request('startMatch', data); },
+  saveMatchEvent(data){ return this.request('saveMatchEvent', data); },
+  finishMatch(data){ return this.request('finishMatch', data); }
 };
 
 function openLoginModal(){
   const user = Store.getUser();
   if(user){
-    location.href = user.role === 'admin' ? 'admin.html' : 'entrenador.html';
+    location.href = user.role === 'admin' ? 'admin.html' : (String(user.role || '').toLowerCase() === 'arbitro' || String(user.role || '').toLowerCase() === 'árbitro' || String(user.role || '').toLowerCase() === 'referee' ? 'arbitro.html' : 'entrenador.html');
     return;
   }
   const modal = document.querySelector('#loginModal');
