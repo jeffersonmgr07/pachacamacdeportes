@@ -338,6 +338,11 @@ const API = {
   registerCoachRequest(data){ return this.request('registerCoachRequest', data); }
 };
 
+// Exponer API en window para que login.js y otros scripts puedan verificar la conexión correctamente.
+window.Store = Store;
+window.API = API;
+window.toast = toast;
+
 function openLoginModal(){
   const user = Store.getUser();
   if(user){
@@ -349,6 +354,8 @@ function openLoginModal(){
   else location.href='login.html';
 }
 function closeModal(id){ document.getElementById(id)?.classList.remove('open'); }
+window.openLoginModal = openLoginModal;
+window.closeModal = closeModal;
 
 document.addEventListener('click', (e)=>{
   const btn = e.target.closest('[data-open-login]');

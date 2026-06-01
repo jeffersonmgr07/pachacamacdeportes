@@ -575,7 +575,7 @@ body.show-nav .mobile-menu-bars:after{top:0;transform:rotate(-45deg);background:
 @media (max-width:640px){.grid-4{grid-template-columns:1fr}.referee-panel .container{width:min(100% - 20px,1180px)}.scoreboard-card{padding:14px;border-radius:20px}.scoreboard-score span{font-size:64px}.btn-score{width:100%}.referee-top .section-title{font-size:26px}.admin-tab-link{width:100%}.admin-tabs{overflow:auto;justify-content:flex-start}}
 
 /* Ajustes puntuales solicitados 2026-06-01: sin rediseñar estilos existentes */
-.nav-login-btn{border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:10px 14px;background:linear-gradient(135deg,var(--green2),var(--green));color:#071225!important;font-weight:1000;cursor:pointer}
+.nav-login-btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:999px;padding:10px 16px;background:linear-gradient(135deg,#f59e0b,#facc15);color:#071225!important;font-weight:1000;cursor:pointer;box-shadow:0 10px 24px rgba(245,158,11,.24);text-decoration:none}
 .admin-logout-tab{border:0;border-radius:999px;padding:12px 16px;background:#ef4444!important;color:#ffffff!important;font-weight:950;cursor:pointer;white-space:nowrap}
 .admin-tab-content>.section-head .section-title{color:#ffffff!important;text-shadow:0 2px 8px rgba(0,0,0,.25)}
 .admin-tab-content>.section-head .section-subtitle{color:#dbeafe!important}
@@ -602,3 +602,6 @@ body.show-nav .mobile-menu-bars:after{top:0;transform:rotate(-45deg);background:
 .referee-actions{grid-template-columns:auto minmax(200px,1fr) 180px auto!important;align-items:stretch}.referee-actions .btn,.referee-actions .input{min-height:46px}.referee-actions #backAdminBtn{padding-inline:14px;white-space:nowrap}.referee-actions #logoutBtn{background:#ef4444!important;color:#fff!important;border-color:#ef4444!important;white-space:nowrap}.referee-top{align-items:center}.field-help{display:block;color:#64748b;font-weight:700;margin-top:2px;font-size:11px}.event-delete-btn{background:#fee2e2!important;border:1px solid #fecaca!important;color:#991b1b!important}.event-delete-btn:disabled{opacity:.45;cursor:not-allowed}.event-row-main strong{padding-right:8px}.match-control-dialog .modal-header{align-items:center}
 @media(max-width:980px){.referee-actions{grid-template-columns:1fr 1fr!important}.referee-actions #backAdminBtn,.referee-actions #logoutBtn{width:100%}.admin-inline-filters{grid-template-columns:1fr}.admin-super-panel #adminFixtureList.grid-2,.admin-team-matches-card .grid-2{grid-template-columns:1fr}}
 @media(max-width:640px){.referee-actions{grid-template-columns:1fr!important}.view-pass-btn{display:block;margin:6px 0 0}.admin-inline-filters{padding:12px}.btn-login-hero{width:100%}}
+
+.nav-login-btn:hover{filter:brightness(1.03);transform:translateY(-1px)}
+.nav-login-btn:focus-visible{outline:3px solid rgba(250,204,21,.45);outline-offset:2px}
