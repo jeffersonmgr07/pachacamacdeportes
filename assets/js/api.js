@@ -14,6 +14,28 @@ function toast(msg){
 }
 
 
+let __globalLoadingCount = 0;
+function ensureGlobalLoader(){
+  let loader = document.querySelector('#globalLoadingOverlay');
+  if(loader) return loader;
+  loader = document.createElement('div');
+  loader.id = 'globalLoadingOverlay';
+  loader.className = 'global-loading-overlay';
+  loader.innerHTML = `<div class="global-loading-card"><span class="global-loading-spinner" aria-hidden="true"></span><strong>Cargando información</strong><small>Estamos consultando la base de datos...</small></div>`;
+  document.body.appendChild(loader);
+  return loader;
+}
+function showGlobalLoading(){
+  __globalLoadingCount += 1;
+  const loader = ensureGlobalLoader();
+  loader.classList.add('show');
+}
+function hideGlobalLoading(){
+  __globalLoadingCount = Math.max(0, __globalLoadingCount - 1);
+  if(__globalLoadingCount === 0) document.querySelector('#globalLoadingOverlay')?.classList.remove('show');
+}
+
+
 function teamSlug(name){
   return String(name||'equipo')
     .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
@@ -169,13 +191,18 @@ function jsonp(action, payload={}){
 const API = {
   async request(action, payload={}){
     if(!window.APP_CONFIG.DEMO_MODE){
-      const res = await jsonp(action, payload);
-      if(res && res.user) res.user = normalizeUserForApp(res.user);
-      // Cache ligero para que helpers visuales, como teamLogoPath(), usen datos reales de Sheets.
-      if(res && res.teams) Store.set('mf_teams', res.teams);
-      if(res && res.categories) Store.set('mf_categories', res.categories);
-      if(res && res.players && action === 'getPublicData') Store.set('mf_players', res.players);
-      return res;
+      showGlobalLoading();
+      try{
+        const res = await jsonp(action, payload);
+        if(res && res.user) res.user = normalizeUserForApp(res.user);
+        // Cache ligero para que helpers visuales, como teamLogoPath(), usen datos reales de Sheets.
+        if(res && res.teams) Store.set('mf_teams', res.teams);
+        if(res && res.categories) Store.set('mf_categories', res.categories);
+        if(res && res.players && action === 'getPublicData') Store.set('mf_players', res.players);
+        return res;
+      }finally{
+        hideGlobalLoading();
+      }
     }
     const db = mockDB();
     switch(action){

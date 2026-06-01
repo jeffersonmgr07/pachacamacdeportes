@@ -16,17 +16,21 @@ function resultBadge(m){
   if(status === 'jugado') return `${matchVal(m,'homeScore',10)} - ${matchVal(m,'awayScore',11)}`;
   return 'VS';
 }
-function formatRoundTitle(round, dateLabel){
+function formatRoundTitle(round, dateLabel, isoDate){
   const raw = String(dateLabel || '').trim();
   const months = {
     'ENERO':'enero','FEBRERO':'febrero','MARZO':'marzo','ABRIL':'abril','MAYO':'mayo','JUNIO':'junio',
-    'JULIO':'julio','AGOSTO':'agosto','SETIEMBRE':'setiembre','SEPTIEMBRE':'septiembre','OCTUBRE':'octubre','NOVIEMBRE':'noviembre','DICIEMBRE':'diciembre'
+    'JULIO':'julio','AGOSTO':'agosto','SETIEMBRE':'septiembre','SEPTIEMBRE':'septiembre','OCTUBRE':'octubre','NOVIEMBRE':'noviembre','DICIEMBRE':'diciembre'
   };
+  const fromIso = String(isoDate || '').trim().match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+  let cleanDate = '';
   const upper = raw.toUpperCase();
   const dateMatch = upper.match(/(\d{1,2})\s+DE\s+(ENERO|FEBRERO|MARZO|ABRIL|MAYO|JUNIO|JULIO|AGOSTO|SETIEMBRE|SEPTIEMBRE|OCTUBRE|NOVIEMBRE|DICIEMBRE)(?:\s+DE)?\s*(\d{4})?/);
-  let cleanDate = raw;
   if(dateMatch){
-    cleanDate = `${Number(dateMatch[1])} de ${months[dateMatch[2]]} ${dateMatch[3] || '2026'}`;
+    cleanDate = `${Number(dateMatch[1])} de ${months[dateMatch[2]]} de ${dateMatch[3] || '2026'}`;
+  }else if(fromIso){
+    const monthNames = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    cleanDate = `${Number(fromIso[3])} de ${monthNames[Number(fromIso[2])-1]} de ${fromIso[1]}`;
   }else{
     cleanDate = raw.replace(/fecha\s*\d+/ig,'').replace(/\s+/g,' ').trim();
     if(cleanDate && !/\b\d{4}\b/.test(cleanDate)) cleanDate += ' 2026';
@@ -51,7 +55,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     const grouped = rows.reduce((acc,m)=>{ const key = matchVal(m,'round',1); (acc[key] ||= []).push(m); return acc; },{});
     wrap.innerHTML = Object.keys(grouped).sort((a,b)=>Number(a)-Number(b)).map(key=>{
       const list = grouped[key];
-      return `<section class="card round-card"><div class="section-head fixture-round-head"><h3>${formatRoundTitle(key, matchVal(list[0],'dateLabel',2))}</h3><span class="badge badge-green">${list.length} partido(s)</span></div><div class="fixture-grid">${list.map(m=>`
+      return `<section class="card round-card"><div class="section-head fixture-round-head"><h3>${formatRoundTitle(key, matchVal(list[0],'dateLabel',2), matchVal(list[0],'date',3))}</h3><span class="badge badge-green">${list.length} partido(s)</span></div><div class="fixture-grid">${list.map(m=>`
         <article class="fixture-match-card ${String(matchVal(m,'status',9)).toLowerCase()==='jugado'?'played':''}">
           <div class="match-meta"><span class="badge badge-green">${matchVal(m,'category',8)}</span><span class="badge badge-green">${matchVal(m,'field',4)}</span><span class="badge badge-green">${formatTime12(matchVal(m,'time',5))}</span></div>
           <div class="match-vs-logos">

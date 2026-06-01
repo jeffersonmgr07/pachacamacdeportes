@@ -27,14 +27,18 @@
   }
 
   function formatDate(value, label){
+    const months = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    const fromParts = (y,m,d) => `${Number(d)} de ${months[Number(m)-1] || ''} de ${y}`.trim();
     const raw = String(value || '').trim();
-    if(label && !/^\d{4}-\d{2}-\d{2}/.test(raw)) return label;
-    if(!raw) return label || 'Fecha por definir';
-    const parts = raw.slice(0,10).split('-');
-    if(parts.length !== 3) return label || raw;
-    const [y,m,d] = parts.map(Number);
-    if(!y || !m || !d) return label || raw;
-    return `${String(d).padStart(2,'0')}.${String(m).padStart(2,'0')}.${y}`;
+    const lbl = String(label || '').trim();
+    const iso = raw.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+    if(iso) return fromParts(iso[1], iso[2], iso[3]);
+    const dot = raw.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/);
+    if(dot) return fromParts(dot[3], dot[2], dot[1]);
+    const labelDate = lbl.match(/(\d{1,2})\s*(?:de)?\s*(enero|febrero|marzo|abril|mayo|junio|julio|agosto|setiembre|septiembre|octubre|noviembre|diciembre)\s*(?:de)?\s*(\d{4})?/i);
+    if(labelDate) return `${Number(labelDate[1])} de ${labelDate[2].toLowerCase().replace('setiembre','septiembre')} de ${labelDate[3] || '2026'}`;
+    if(lbl) return lbl.replace(/fecha\s*\d+/ig,'').replace(/\s+/g,' ').trim() || 'Fecha por definir';
+    return raw || 'Fecha por definir';
   }
 
   function roundText(match){
