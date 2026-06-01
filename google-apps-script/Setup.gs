@@ -38,6 +38,7 @@ function setupPachaDeportes() {
   createSheet_('Eventos_Partido', ['eventId','matchId','minute','teamSide','teamName','playerId','playerName','eventType','notes','createdBy','createdAt'], []);
   createSheet_('Resultados', ['matchId','homeScore','awayScore','status','resultType','updatedBy','updatedAt'], []);
   createSheet_('Sanciones', ['sanctionId','matchId','playerId','teamId','playerName','type','matches','notes','status'], []);
+  createSheet_('Solicitudes_Registro', ['requestId','firstName','lastName','dni','email','whatsapp','teamName','status','createdAt'], []);
   createSheet_('Resultados_Log', ['logId','matchId','date','home','away','homeScore','awayScore','updatedBy','updatedAt','notes'], []);
   createSheet_('Tabla_Posiciones', ['category','team','PJ','PG','PE','PP','GF','GC','DG','PTS','notes'], [['Se calcula en el HTML leyendo Fixture','','','','','','','','','','']]);
   SpreadsheetApp.getActive().toast('Estructura creada correctamente', 'Pacha Deportes', 5);

@@ -193,9 +193,56 @@ function saveConvocatoria_(p) {
   return {ok:true, convocatoria: row};
 }
 
+
+function roleIsAdmin_(user) {
+  var role = String((user && (user.role || user.rol)) || '').toLowerCase();
+  return role === 'admin';
+}
+
+function matchDateIso_(value) {
+  if(Object.prototype.toString.call(value) === '[object Date]' && !isNaN(value.getTime())) {
+    return Utilities.formatDate(value, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  }
+  var raw = String(value || '').trim();
+  if(/^\d{4}-\d{2}-\d{2}/.test(raw)) return raw.slice(0,10);
+  var m = raw.match(/^(\d{1,2})[\/. -](\d{1,2})[\/. -](\d{4})$/);
+  if(m) return m[3] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2);
+  return raw.slice(0,10);
+}
+
+function canStartMatchByTime_(match, user) {
+  if(roleIsAdmin_(user)) return {ok:true};
+  var status = String(match.status || match.estado || 'programado').toLowerCase();
+  if(status === 'en_juego' || status === 'jugado' || status === 'finalizado') return {ok:true};
+  var date = matchDateIso_(match.matchDate || match.date || match.fecha || '');
+  var time = String(match.time || match.hora || '');
+  var m = time.match(/^(\d{1,2}):(\d{2})/);
+  if(!date || !m) return {ok:false, message:'Este partido aún no tiene fecha y hora válida para iniciar.'};
+  var start = new Date(date + 'T' + ('0' + m[1]).slice(-2) + ':' + m[2] + ':00');
+  if(isNaN(start.getTime())) return {ok:false, message:'No se pudo validar la hora del partido.'};
+  var allow = new Date(start.getTime() - 5 * 60 * 1000);
+  if(new Date().getTime() < allow.getTime()) return {ok:false, message:'El arbitraje se habilita 5 minutos antes de la hora programada.'};
+  return {ok:true};
+}
+function adjustScoreForEvent_(match, event, reverse) {
+  var homeScore = Number(match.homeScore || match.golesLocal || 0) || 0;
+  var awayScore = Number(match.awayScore || match.golesVisitante || 0) || 0;
+  var type = String(event.eventType || event.tipo || '').toLowerCase();
+  var side = String(event.teamSide || '').toLowerCase();
+  var delta = 0;
+  if(type === 'gol') delta = reverse ? -1 : 1;
+  if(type === 'anulacion_gol') delta = reverse ? 1 : -1;
+  if(side === 'home') homeScore = Math.max(0, homeScore + delta);
+  if(side === 'away') awayScore = Math.max(0, awayScore + delta);
+  return {homeScore:homeScore, awayScore:awayScore};
+}
+
 function startMatch_(p) {
   if(!p.matchId) return {ok:false, message:'Falta matchId'};
   var user = p.user || {};
+  var current = readTable_('Fixture').find(function(m){ return String(m.matchId) === String(p.matchId); }) || {};
+  var allowed = canStartMatchByTime_(current, user);
+  if(!allowed.ok) return allowed;
   var ok = updateRowByKey_('Fixture','matchId',p.matchId,{
     status:'en_juego', estado:'en_juego', startedAt:new Date(), startedBy:user.userId || user.email || ''
   });
@@ -224,13 +271,8 @@ function saveMatchEvent_(p) {
   appendRowByHeaders_('Eventos_Partido', event);
   var fixture = readTable_('Fixture');
   var match = fixture.find(function(m){ return String(m.matchId) === String(p.matchId); }) || {};
-  var homeScore = Number(match.homeScore || match.golesLocal || 0) || 0;
-  var awayScore = Number(match.awayScore || match.golesVisitante || 0) || 0;
-  if(String(p.eventType || '').toLowerCase() === 'gol') {
-    if(String(p.teamSide || '').toLowerCase() === 'home') homeScore++;
-    if(String(p.teamSide || '').toLowerCase() === 'away') awayScore++;
-  }
-  updateRowByKey_('Fixture','matchId',p.matchId,{homeScore:homeScore, awayScore:awayScore, status:'en_juego', estado:'en_juego', updatedAt:new Date()});
+  var score = adjustScoreForEvent_(match, p, false);
+  updateRowByKey_('Fixture','matchId',p.matchId,{homeScore:score.homeScore, awayScore:score.awayScore, golesLocal:score.homeScore, golesVisitante:score.awayScore, status:'en_juego', estado:'en_juego', updatedAt:new Date()});
   match = readTable_('Fixture').find(function(m){ return String(m.matchId) === String(p.matchId); }) || {};
   var events = readTable_('Eventos_Partido').filter(function(e){ return String(e.matchId) === String(p.matchId); });
   return {ok:true, match:match, event:event, events:events};
@@ -263,4 +305,62 @@ function saveResult_(p) {
     homeScore:p.homeScore, awayScore:p.awayScore, status:'jugado', resultType:p.resultType || 'normal', notes:p.notes || ''
   });
   return {ok:ok};
+}
+
+
+function deleteMatchEvent_(p) {
+  if(!p.matchId || !p.eventId) return {ok:false, message:'Falta matchId o eventId'};
+  ensureSheetWithHeaders_('Eventos_Partido', ['eventId','matchId','minute','teamSide','teamName','playerId','playerName','eventType','notes','createdBy','createdAt']);
+  var events = readTable_('Eventos_Partido');
+  var event = events.find(function(e){ return String(e.eventId) === String(p.eventId) && String(e.matchId) === String(p.matchId); });
+  if(!event) return {ok:false, message:'Evento no encontrado'};
+  var fixture = readTable_('Fixture');
+  var match = fixture.find(function(m){ return String(m.matchId) === String(p.matchId); }) || {};
+  var score = adjustScoreForEvent_(match, event, true);
+  var okDelete = deleteRowByKey_('Eventos_Partido', 'eventId', p.eventId);
+  updateRowByKey_('Fixture','matchId',p.matchId,{homeScore:score.homeScore, awayScore:score.awayScore, golesLocal:score.homeScore, golesVisitante:score.awayScore, updatedAt:new Date()});
+  match = readTable_('Fixture').find(function(m){ return String(m.matchId) === String(p.matchId); }) || {};
+  events = readTable_('Eventos_Partido').filter(function(e){ return String(e.matchId) === String(p.matchId); });
+  return {ok:okDelete, match:match, events:events};
+}
+
+function registerCoachRequest_(p) {
+  ensureSheetWithHeaders_('Solicitudes_Registro', ['requestId','firstName','lastName','dni','email','whatsapp','teamName','status','createdAt']);
+  var requestId = nextId_('SOL','Solicitudes_Registro','requestId');
+  var row = {
+    requestId: requestId,
+    firstName: p.firstName || '',
+    lastName: p.lastName || '',
+    dni: p.dni || '',
+    email: p.email || '',
+    whatsapp: p.whatsapp || '',
+    teamName: p.teamName || '',
+    status: 'pendiente',
+    createdAt: new Date()
+  };
+  appendRowByHeaders_('Solicitudes_Registro', row);
+  var adminEmail = 'pacharamacdeportes@gmail.com';
+  var fullName = [row.firstName, row.lastName].join(' ').trim();
+  try {
+    MailApp.sendEmail({
+      to: adminEmail,
+      subject: 'Nueva solicitud de registro - Pacha Deportes',
+      htmlBody: '<h2>Nueva solicitud de registro</h2>' +
+        '<p><b>Nombre:</b> ' + fullName + '</p>' +
+        '<p><b>DNI:</b> ' + row.dni + '</p>' +
+        '<p><b>Correo:</b> ' + row.email + '</p>' +
+        '<p><b>WhatsApp:</b> ' + row.whatsapp + '</p>' +
+        '<p><b>Equipo:</b> ' + row.teamName + '</p>'
+    });
+    if(row.email) {
+      MailApp.sendEmail({
+        to: row.email,
+        subject: 'Solicitud recibida - Pacha Deportes',
+        htmlBody: '<p>Hola ' + (row.firstName || '') + ',</p><p>Hemos recibido tu solicitud de acceso para Pacha Deportes. Tu solicitud está en evaluación y pronto nos contactaremos contigo.</p><p>Gracias por registrarte.</p>'
+      });
+    }
+  } catch(err) {
+    return {ok:true, message:'Solicitud guardada. No se pudo enviar el correo: ' + err.message};
+  }
+  return {ok:true, request:row, message:'Solicitud enviada correctamente.'};
 }

@@ -46,6 +46,8 @@ function routeAction_(action, payload) {
     case 'startMatch': return startMatch_(payload);
     case 'saveMatchEvent': return saveMatchEvent_(payload);
     case 'finishMatch': return finishMatch_(payload);
+    case 'deleteMatchEvent': return deleteMatchEvent_(payload);
+    case 'registerCoachRequest': return registerCoachRequest_(payload);
     default: return {ok:false, message:'Acción no reconocida: ' + action};
   }
 }

@@ -1,4 +1,4 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Portal de deportes Pachacamac</title><link rel="stylesheet" href="assets/css/styles.css?v=20260531-mobile-login"></head>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Portal de deportes Pachacamac</title><link rel="stylesheet" href="assets/css/styles.css?v=20260601-referee-tools"></head>
 <body>
 <div data-header data-active="deportes"></div>
 <section class="hero"><div class="container hero-content">
@@ -8,6 +8,24 @@
 </div></section>
 <section class="section"><div class="container"><div class="section-head"><div><h2 class="section-title">Deportes</h2><p class="section-subtitle">Revisa nuestros campeonatos, talleres y actividades deportivas municipales.</p></div></div>
 <div class="grid grid-3"><article class="card"><span class="badge badge-green">Campeonatos</span><h3>Calendarios y resultados</h3><p>Consulta fixture, resultados, tablas y equipos participantes.</p></article><article class="card"><span class="badge badge-gold">Talleres</span><h3>Escuelas deportivas</h3><p>Espacio para publicar talleres y actividades deportivas.</p></article><article class="card"><span class="badge badge-blue">Eventos</span><h3>Próximos eventos deportivos</h3><p>Mantente informado sobre actividades, comunicados y nuevas convocatorias.</p></article></div></div></section>
+
+<div class="modal" id="loginModal">
+  <div class="modal-dialog" style="width:min(520px,100%)">
+    <div class="modal-header">
+      <h3>Iniciar sesión</h3>
+      <button class="modal-close" data-close-modal="loginModal">×</button>
+    </div>
+    <div class="modal-body">
+      <form data-login-form>
+        <div style="margin-bottom:14px"><label>Correo, usuario o DNI</label><input class="input" name="email" type="text" autocomplete="username" required placeholder="correo@ejemplo.com"></div>
+        <div style="margin-bottom:14px"><label>Contraseña</label><input class="input" name="password" type="password" autocomplete="current-password" required placeholder="Ingresa tu contraseña"></div>
+        <button class="btn btn-primary" style="width:100%">Iniciar sesión</button>
+      </form>
+      <p style="color:#9fb1ca;margin-top:16px">Regístrate como delegado o entrenador si tienes algún equipo a tu cargo.</p>
+      <a class="btn btn-secondary" style="width:100%" href="registro.html">Registrarte</a>
+    </div>
+  </div>
+</div>
 <div data-footer></div>
-<script src="assets/components/header.js"></script><script src="assets/components/footer.js"></script>
+<script src="assets/components/header.js"></script><script src="assets/components/footer.js"></script><script src="assets/js/config.js"></script><script src="assets/js/api.js?v=20260601-referee-tools"></script><script src="assets/js/login.js"></script>
 </body></html>
