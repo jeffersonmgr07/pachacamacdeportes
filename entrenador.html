@@ -1,4 +1,4 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Panel entrenador</title><link rel="stylesheet" href="assets/css/styles.css?v=20260601-loginfix"></head><body>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Panel entrenador</title><link rel="stylesheet" href="assets/css/styles.css?v=20260601-uiroles"></head><body>
 <div class="panel-layout">
   <aside class="sidebar">
     <div class="side-brand"><img id="teamCrestSidebar" src="assets/img/logo-pacha-deportes.png" onerror="this.src='assets/img/logo-pacha-deportes.svg'" alt="Escudo del equipo"><div><strong>Panel entrenador</strong><span id="sidebarTeamName">Equipo</span></div></div>
@@ -9,12 +9,23 @@
       <button data-tab="campeonatos">Campeonatos</button>
       <button data-tab="partidos">Próximos partidos</button>
       <button data-tab="convocatorias">Convocatorias</button>
-      <a href="campeonato-futbol-menores-2026.html">Ver campeonato</a>
+      <button data-tab="fixture">Ver fixture</button>
+      <button data-tab="tabla">Ver tabla de posiciones</button>
       <button id="logoutBtn">Cerrar sesión</button>
     </nav>
   </aside>
   <main class="panel-main">
     <section class="welcome"><div><h1 id="coachWelcome">Bienvenido</h1><p id="coachSubtitle"></p></div></section>
+    <section class="card admin-coach-mode-bar" id="adminCoachModeBar" style="display:none">
+      <div>
+        <h3>Modo entrenador desde administración</h3>
+        <p class="section-subtitle">Elige un equipo para revisar el panel tal como lo vería su entrenador.</p>
+      </div>
+      <div class="admin-coach-mode-actions">
+        <select class="input" id="adminTeamAsCoach"><option value="">Selecciona equipo</option></select>
+        <a class="btn btn-secondary" href="admin.html">← Volver al admin</a>
+      </div>
+    </section>
     <section id="tab-perfil" class="tabs-content active"><div class="section-head"><div><h2 class="section-title">Perfil del equipo</h2><p class="section-subtitle">Datos generales del club o academia.</p></div></div><div class="card" id="profileBox"></div></section>
     <section id="tab-jugadores" class="tabs-content">
       <div class="section-head">
@@ -31,6 +42,16 @@
     <section id="tab-campeonatos" class="tabs-content"><div class="card"><span class="badge badge-green">Activo</span><h3>Campeonato Municipal de Fútbol de Menores 2026</h3><p>Accesos rápidos del campeonato.</p><div class="actions"><a class="btn btn-secondary" href="fixture.html">Ver fixture</a><a class="btn btn-secondary" href="tabla-posiciones.html">Ver tabla de posiciones</a><button class="btn btn-primary" onclick="setTab('partidos')">Próximos partidos</button></div></div></section>
     <section id="tab-partidos" class="tabs-content"><div class="section-head"><div><h2 class="section-title">Calendario de partidos</h2><p class="section-subtitle">Tus partidos organizados por fecha deportiva.</p></div><a class="btn btn-secondary" href="fixture.html">Ver todos los partidos</a></div><div id="coachCalendar"></div></section>
     <section id="tab-convocatorias" class="tabs-content"><div class="section-head"><div><h2 class="section-title">Convocatorias</h2><p class="section-subtitle">Elige titulares y suplentes para los partidos habilitados de tu equipo.</p></div></div><div class="grid grid-2" id="coachConvocatorias"></div></section>
+    <section id="tab-fixture" class="tabs-content">
+      <div class="section-head"><div><h2 class="section-title">Fixture del equipo</h2><p class="section-subtitle">Partidos del equipo con filtro por categoría.</p></div></div>
+      <div class="coach-inline-filters card"><select id="coachFixtureCategory" class="input"><option value="">Todas las categorías</option></select></div>
+      <div id="coachFixtureList" class="grid grid-2"></div>
+    </section>
+    <section id="tab-tabla" class="tabs-content">
+      <div class="section-head"><div><h2 class="section-title">Tabla de posiciones</h2><p class="section-subtitle">Vista referencial calculada con los resultados disponibles.</p></div></div>
+      <div class="coach-inline-filters card"><select id="coachStandingsCategory" class="input"><option value="">Todas las categorías</option></select></div>
+      <div id="coachStandingsBox" class="table-wrap"></div>
+    </section>
   </main>
 </div>
 
@@ -51,5 +72,5 @@
   <div class="roster-columns"><div class="card"><h3>Titulares</h3><div id="startersList" class="roster-list"></div></div><div class="card"><h3>Suplentes</h3><div id="subsList" class="roster-list"></div></div></div>
   <div class="actions"><button class="btn btn-primary" id="saveRosterBtn">Guardar convocatoria</button></div>
 </div></div></div>
-<script src="assets/js/config.js"></script><script src="assets/js/mock-data.js"></script><script src="assets/js/api.js?v=20260601-loginfix"></script><script src="assets/js/entrenador.js"></script>
+<script src="assets/js/config.js"></script><script src="assets/js/mock-data.js"></script><script src="assets/js/api.js?v=20260601-uiroles"></script><script src="assets/js/entrenador.js?v=20260601-uiroles"></script>
 </body></html>
