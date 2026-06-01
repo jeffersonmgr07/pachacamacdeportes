@@ -43,6 +43,9 @@ function routeAction_(action, payload) {
     case 'deletePlayer': return deletePlayer_(payload.playerId);
     case 'saveConvocatoria': return saveConvocatoria_(payload);
     case 'saveResult': return saveResult_(payload);
+    case 'startMatch': return startMatch_(payload);
+    case 'saveMatchEvent': return saveMatchEvent_(payload);
+    case 'finishMatch': return finishMatch_(payload);
     default: return {ok:false, message:'Acción no reconocida: ' + action};
   }
 }

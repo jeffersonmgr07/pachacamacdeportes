@@ -33,6 +33,10 @@ function setupPachaDeportes() {
     (SEED_DATA.descansos||[]).map(function(d){ return [d.round,d.dateLabel,d.category,d.team,'Descansa según fixture']; }));
 
   createSheet_('Convocatorias', ['convocatoriaId','matchId','teamId','teamName','starters','substitutes','status','savedAt','notes'], []);
+  createSheet_('Arbitros', ['refereeId','userId','fullName','shortName','dni','email','phone','status'], []);
+  createSheet_('Partido_Arbitros', ['matchId','refereeId','userId','email','role','status'], []);
+  createSheet_('Eventos_Partido', ['eventId','matchId','minute','teamSide','teamName','playerId','playerName','eventType','notes','createdBy','createdAt'], []);
+  createSheet_('Resultados', ['matchId','homeScore','awayScore','status','resultType','updatedBy','updatedAt'], []);
   createSheet_('Sanciones', ['sanctionId','matchId','playerId','teamId','playerName','type','matches','notes','status'], []);
   createSheet_('Resultados_Log', ['logId','matchId','date','home','away','homeScore','awayScore','updatedBy','updatedAt','notes'], []);
   createSheet_('Tabla_Posiciones', ['category','team','PJ','PG','PE','PP','GF','GC','DG','PTS','notes'], [['Se calcula en el HTML leyendo Fixture','','','','','','','','','','']]);

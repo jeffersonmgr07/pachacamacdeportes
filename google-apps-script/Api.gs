@@ -68,7 +68,11 @@ function getPublicData_() {
     players: readTable_('Jugadores'),
     teams: readTable_('Equipos'),
     descansos: readTable_('Descansos'),
-    convocatorias: readTable_('Convocatorias')
+    convocatorias: safeReadTable_('Convocatorias'),
+    referees: safeReadTable_('Arbitros'),
+    matchReferees: safeReadTable_('Partido_Arbitros'),
+    matchEvents: safeReadTable_('Eventos_Partido'),
+    results: safeReadTable_('Resultados')
   };
 }
 function getCoachDashboard_(user) {
@@ -188,6 +192,71 @@ function saveConvocatoria_(p) {
   sendConvocatoriaEmail_(p, !!previous);
   return {ok:true, convocatoria: row};
 }
+
+function startMatch_(p) {
+  if(!p.matchId) return {ok:false, message:'Falta matchId'};
+  var user = p.user || {};
+  var ok = updateRowByKey_('Fixture','matchId',p.matchId,{
+    status:'en_juego', estado:'en_juego', startedAt:new Date(), startedBy:user.userId || user.email || ''
+  });
+  var match = readTable_('Fixture').find(function(m){ return String(m.matchId) === String(p.matchId); }) || {};
+  return {ok:ok, match:match, message: ok ? 'Partido iniciado' : 'Partido no encontrado'};
+}
+function saveMatchEvent_(p) {
+  if(!p.matchId) return {ok:false, message:'Falta matchId'};
+  ensureSheetWithHeaders_('Eventos_Partido', ['eventId','matchId','minute','teamSide','teamName','playerId','playerName','eventType','notes','createdBy','createdAt']);
+  var user = p.user || {};
+  var rows = readTable_('Eventos_Partido');
+  var eventId = p.eventId || nextId_('EVT','Eventos_Partido','eventId');
+  var event = {
+    eventId:eventId,
+    matchId:p.matchId,
+    minute:p.minute || '',
+    teamSide:p.teamSide || '',
+    teamName:p.teamName || '',
+    playerId:p.playerId || '',
+    playerName:p.playerName || '',
+    eventType:p.eventType || 'observacion',
+    notes:p.notes || '',
+    createdBy:user.userId || user.email || '',
+    createdAt:new Date()
+  };
+  appendRowByHeaders_('Eventos_Partido', event);
+  var fixture = readTable_('Fixture');
+  var match = fixture.find(function(m){ return String(m.matchId) === String(p.matchId); }) || {};
+  var homeScore = Number(match.homeScore || match.golesLocal || 0) || 0;
+  var awayScore = Number(match.awayScore || match.golesVisitante || 0) || 0;
+  if(String(p.eventType || '').toLowerCase() === 'gol') {
+    if(String(p.teamSide || '').toLowerCase() === 'home') homeScore++;
+    if(String(p.teamSide || '').toLowerCase() === 'away') awayScore++;
+  }
+  updateRowByKey_('Fixture','matchId',p.matchId,{homeScore:homeScore, awayScore:awayScore, status:'en_juego', estado:'en_juego', updatedAt:new Date()});
+  match = readTable_('Fixture').find(function(m){ return String(m.matchId) === String(p.matchId); }) || {};
+  var events = readTable_('Eventos_Partido').filter(function(e){ return String(e.matchId) === String(p.matchId); });
+  return {ok:true, match:match, event:event, events:events};
+}
+function finishMatch_(p) {
+  if(!p.matchId) return {ok:false, message:'Falta matchId'};
+  ensureSheetWithHeaders_('Resultados', ['matchId','homeScore','awayScore','status','resultType','updatedBy','updatedAt']);
+  var user = p.user || {};
+  var row = {
+    matchId:p.matchId,
+    homeScore:p.homeScore,
+    awayScore:p.awayScore,
+    status:'jugado',
+    resultType:p.resultType || 'normal',
+    updatedBy:user.userId || user.email || '',
+    updatedAt:new Date()
+  };
+  var okFixture = updateRowByKey_('Fixture','matchId',p.matchId,{
+    homeScore:p.homeScore, awayScore:p.awayScore, status:'jugado', estado:'jugado', resultType:p.resultType || 'normal', finishedAt:new Date(), finishedBy:user.userId || user.email || ''
+  });
+  var okResult = updateRowByKey_('Resultados','matchId',p.matchId,row);
+  if(!okResult) appendRowByHeaders_('Resultados', row);
+  var match = readTable_('Fixture').find(function(m){ return String(m.matchId) === String(p.matchId); }) || {};
+  return {ok:okFixture, match:match, message: okFixture ? 'Partido finalizado' : 'Partido no encontrado'};
+}
+
 function saveResult_(p) {
   if(!p.matchId) return {ok:false, message:'Falta matchId'};
   var ok = updateRowByKey_('Fixture','matchId',p.matchId,{

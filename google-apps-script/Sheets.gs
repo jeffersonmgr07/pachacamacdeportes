@@ -78,3 +78,27 @@ function configValue_(key, fallback) {
     return found && found.value ? found.value : fallback;
   } catch(err) { return fallback; }
 }
+
+
+function safeReadTable_(sheetName) {
+  try { return readTable_(sheetName); }
+  catch(err) { return []; }
+}
+function ensureSheetWithHeaders_(sheetName, headers) {
+  var ss = ss_();
+  var sh = ss.getSheetByName(sheetName);
+  if(!sh) {
+    sh = ss.insertSheet(sheetName);
+    sh.getRange(1,1,1,headers.length).setValues([headers]);
+    return sh;
+  }
+  if(sh.getLastRow() === 0 || sh.getLastColumn() === 0) {
+    sh.getRange(1,1,1,headers.length).setValues([headers]);
+    return sh;
+  }
+  var current = sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0].map(String);
+  var changed = false;
+  headers.forEach(function(h){ if(current.indexOf(h) === -1){ current.push(h); changed = true; } });
+  if(changed) sh.getRange(1,1,1,current.length).setValues([current]);
+  return sh;
+}
