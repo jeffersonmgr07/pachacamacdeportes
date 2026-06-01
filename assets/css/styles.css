@@ -605,3 +605,38 @@ body.show-nav .mobile-menu-bars:after{top:0;transform:rotate(-45deg);background:
 
 .nav-login-btn:hover{filter:brightness(1.03);transform:translateY(-1px)}
 .nav-login-btn:focus-visible{outline:3px solid rgba(250,204,21,.45);outline-offset:2px}
+
+/* Ajustes puntuales 2026-06-01: header, admin, árbitro y modo entrenador */
+.nav .nav-login-btn,
+.nav button.nav-login-btn,
+.nav a.nav-login-btn{
+  background:linear-gradient(135deg,#b6df2a,#7fb515)!important;
+  color:#071225!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  box-shadow:0 10px 22px rgba(127,181,21,.30)!important;
+  padding:10px 17px!important;
+}
+.nav .nav-login-btn:hover{background:linear-gradient(135deg,#f8c449,#d89a08)!important;color:#071225!important;}
+.brand-logo-only img{width:198px!important;height:66px!important;object-fit:contain!important;}
+.brand-logo-only{min-width:198px!important;}
+.admin-toolbar .section-title{color:#102033!important;text-shadow:none!important;}
+.admin-toolbar .section-subtitle{color:#64748b!important;}
+.admin-tab-link.admin-trainer-mode-link{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.30);color:#dcfce7;}
+.admin-team-card .admin-category-widget{background:#e9fbd2!important;color:#28520e!important;border:1px solid #bde681!important;}
+#matchControlModal .field-help{display:none!important;}
+.referee-actions{gap:10px!important;}
+.referee-actions #backAdminBtn{padding-inline:12px!important;min-width:auto!important;}
+.referee-actions .btn,.referee-actions .input{border-radius:14px!important;}
+.coach-inline-filters{display:grid;grid-template-columns:minmax(220px,360px);gap:12px;margin-bottom:16px;background:#ffffff!important;border:1px solid #dce6f1!important;box-shadow:0 12px 28px rgba(15,23,42,.06)!important;}
+.admin-coach-mode-bar{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;margin-bottom:18px!important;background:linear-gradient(135deg,#ffffff,#eef7df)!important;border:1px solid #dce6f1!important;color:#102033!important;}
+.admin-coach-mode-bar h3{color:#102033!important;margin:0 0 4px!important;}
+.admin-coach-mode-actions{display:flex;gap:10px;align-items:center;min-width:min(100%,520px);}
+.admin-coach-mode-actions select{min-width:260px;}
+#tab-fixture .match-card,#tab-tabla .table-wrap{background:#ffffff!important;color:#102033;border-color:#dce6f1!important;}
+@media(max-width:860px){
+  .brand-logo-only img{width:152px!important;height:58px!important;}
+  .brand-logo-only{min-width:152px!important;}
+  .admin-coach-mode-bar{grid-template-columns:1fr;}
+  .admin-coach-mode-actions{display:grid;width:100%;}
+}
+@media(max-width:640px){.brand-logo-only img{width:132px!important;height:50px!important}.brand-logo-only{min-width:132px!important}}

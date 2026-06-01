@@ -313,13 +313,127 @@ function openRoster(matchId){
     } else toast(res.message || 'No se pudo guardar la convocatoria');
   };
 }
+
+function normalizeText(value){ return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
+function matchTeamNames(m){ return [m.home || m.local || '', m.away || m.visitante || '']; }
+function matchStatus(m){ return String(m.status || m.estado || 'programado').toLowerCase(); }
+function matchPlayed(m){ const s = normalizeText(matchStatus(m)); return ['jugado','finalizado','en juego','en_juego'].includes(s) && (Number(m.homeScore || m.golesLocal || 0) || Number(m.awayScore || m.golesVisitante || 0) || ['jugado','finalizado'].includes(s)); }
+function matchDateText(m){
+  const raw = String(m.date || m.matchDate || m.fecha || '').trim();
+  const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(iso) return `${iso[3]}.${iso[2]}.${iso[1]}`;
+  return m.dateLabel || raw || 'Fecha por definir';
+}
+function statusPretty(s){
+  const v = normalizeText(s || 'programado');
+  if(v === 'en_juego') return 'En juego';
+  if(v === 'jugado') return 'Jugado';
+  if(v === 'finalizado') return 'Finalizado';
+  if(['wo','bwo','walkover'].includes(v)) return 'Walkover';
+  return String(s || 'Programado').replace(/_/g,' ').replace(/^./, c=>c.toUpperCase());
+}
+function statusBadgeClass(s){
+  const v = normalizeText(s || 'programado');
+  if(['jugado','finalizado'].includes(v)) return 'badge-green';
+  if(v === 'en_juego') return 'badge-gold';
+  if(['wo','bwo','walkover'].includes(v)) return 'badge-red';
+  return 'badge-blue';
+}
+function uniqueTeamCategoriesFromFixture(){
+  const values = new Set();
+  (coachState.fixture || []).forEach(m=>{ if(m.category) values.add(categoryBaseName(m.category)); });
+  if(!values.size) teamCategoriesArray().forEach(c=>values.add(c));
+  return sortCategories([...values]);
+}
+function fillCoachCategoryFilters(){
+  const cats = uniqueTeamCategoriesFromFixture();
+  ['coachFixtureCategory','coachStandingsCategory'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    const old = el.value;
+    el.innerHTML = '<option value="">Todas las categorías</option>' + cats.map(c=>`<option value="${c}">${c.replace('SUB','Sub')}</option>`).join('');
+    if(cats.includes(old)) el.value = old;
+  });
+}
+function fixtureFilterCategory(){ return document.getElementById('coachFixtureCategory')?.value || ''; }
+function standingsFilterCategory(){ return document.getElementById('coachStandingsCategory')?.value || ''; }
+function renderCoachFixture(){
+  const box = document.getElementById('coachFixtureList');
+  if(!box) return;
+  fillCoachCategoryFilters();
+  const cat = fixtureFilterCategory();
+  const rows = (coachState.fixture || []).filter(m=>!cat || categoryBaseName(m.category) === cat);
+  box.innerHTML = rows.map(m=>renderMatchCard(m,false)).join('') || '<div class="card">No hay partidos para este filtro.</div>';
+}
+function computeStandings(category){
+  const table = new Map();
+  function ensure(name){
+    if(!table.has(name)) table.set(name,{team:name,pj:0,pg:0,pe:0,pp:0,gf:0,gc:0,dg:0,pts:0});
+    return table.get(name);
+  }
+  (coachState.fixture || []).filter(m=>!category || categoryBaseName(m.category)===category).forEach(m=>{
+    const [home,away] = matchTeamNames(m); if(!home || !away || !matchPlayed(m)) return;
+    const h=ensure(home), a=ensure(away);
+    const hs=Number(m.homeScore || m.golesLocal || 0), as=Number(m.awayScore || m.golesVisitante || 0);
+    h.pj++; a.pj++; h.gf+=hs; h.gc+=as; a.gf+=as; a.gc+=hs;
+    if(hs>as){h.pg++;a.pp++;h.pts+=3;} else if(as>hs){a.pg++;h.pp++;a.pts+=3;} else {h.pe++;a.pe++;h.pts++;a.pts++;}
+  });
+  return [...table.values()].map(r=>({...r,dg:r.gf-r.gc})).sort((a,b)=>b.pts-a.pts || b.dg-a.dg || b.gf-a.gf || a.team.localeCompare(b.team));
+}
+function renderCoachStandings(){
+  const box = document.getElementById('coachStandingsBox');
+  if(!box) return;
+  fillCoachCategoryFilters();
+  const rows = computeStandings(standingsFilterCategory());
+  box.innerHTML = `<table><thead><tr><th>#</th><th>Equipo</th><th>PJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>DG</th><th>PTS</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td><td><strong>${r.team}</strong></td><td>${r.pj}</td><td>${r.pg}</td><td>${r.pe}</td><td>${r.pp}</td><td>${r.gf}</td><td>${r.gc}</td><td>${r.dg}</td><td><strong>${r.pts}</strong></td></tr>`).join('') || '<tr><td colspan="10">Aún no hay resultados para calcular la tabla.</td></tr>'}</tbody></table>`;
+}
+function renderCoachExtras(){ renderCoachFixture(); renderCoachStandings(); }
+function teamNameFromAny(t){ return t.teamName || t.name || t.equipo || t.club || ''; }
+function teamIdFromAny(t){ return t.teamId || t.id || t.equipoId || ''; }
+function selectTeamFromPublicData(res, selectedTeamId){
+  const teams = res.teams || res.trainers || [];
+  const team = teams.find(t=>String(teamIdFromAny(t))===String(selectedTeamId)) || teams[0] || {};
+  const teamId = teamIdFromAny(team);
+  const teamName = teamNameFromAny(team);
+  const trainer = (res.trainers || []).find(t=>String(t.teamId || '')===String(teamId) || normalizeText(t.teamName)===normalizeText(teamName)) || team;
+  const players = (res.players || []).filter(p=>String(p.teamId || '')===String(teamId) || normalizeText(p.teamName || p.equipo)===normalizeText(teamName));
+  const fixture = sortFixtureRows((res.fixture || []).filter(m=>{const [h,a]=matchTeamNames(m); return normalizeText(h)===normalizeText(teamName) || normalizeText(a)===normalizeText(teamName);}));
+  const convocatorias = (res.convocatorias || []).filter(c=>String(c.teamId || '')===String(teamId) || normalizeText(c.teamName)===normalizeText(teamName));
+  return {team:{...team,...trainer,teamId,teamName},players,fixture,convocatorias};
+}
+async function loadAdminCoachMode(user){
+  const bar = document.getElementById('adminCoachModeBar');
+  if(bar) bar.style.display = 'grid';
+  const res = await API.getPublicData();
+  if(!res?.ok){ toast(res?.message || 'No se pudo cargar modo entrenador.'); return; }
+  const teams = (res.teams || res.trainers || []).filter(t=>teamIdFromAny(t) || teamNameFromAny(t));
+  const params = new URLSearchParams(location.search);
+  const selected = params.get('teamId') || teamIdFromAny(teams[0] || {});
+  const select = document.getElementById('adminTeamAsCoach');
+  if(select){
+    select.innerHTML = teams.map(t=>`<option value="${teamIdFromAny(t)}" ${String(teamIdFromAny(t))===String(selected)?'selected':''}>${teamNameFromAny(t)}</option>`).join('');
+    select.onchange = ()=>{ location.href = `entrenador.html?adminMode=1&teamId=${encodeURIComponent(select.value)}`; };
+  }
+  const selectedData = selectTeamFromPublicData(res, selected);
+  coachState.user = {...user, role:'admin', teamId:selectedData.team.teamId, teamName:selectedData.team.teamName};
+  Object.assign(coachState, {ok:true, categories:res.categories || [], ...selectedData});
+  renderShell();
+  document.querySelector('#coachSubtitle').textContent = 'Vista administrativa del panel de entrenador para el equipo seleccionado.';
+  renderProfile(false); renderPlayers(); renderPlayerForm(); renderMatches(); renderCoachExtras();
+}
+
 document.addEventListener('DOMContentLoaded', async ()=>{
   const user = Store.getUser();
-  if(!user || user.role!=='entrenador'){ location.href='login.html'; return; }
+  const params = new URLSearchParams(location.search);
+  const adminMode = params.get('adminMode') === '1' || params.get('modo') === 'admin';
+  if(!user || (user.role!=='entrenador' && !(user.role==='admin' && adminMode))){ location.href='login.html'; return; }
+  document.querySelectorAll('.side-menu button[data-tab]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+  document.querySelector('#logoutBtn').addEventListener('click',()=>Store.logout());
+  document.getElementById('coachFixtureCategory')?.addEventListener('change', renderCoachFixture);
+  document.getElementById('coachStandingsCategory')?.addEventListener('change', renderCoachStandings);
+  if(user.role === 'admin' && adminMode){ await loadAdminCoachMode(user); return; }
   coachState.user = user;
   const res = await API.getCoachDashboard(user);
   Object.assign(coachState, res);
-  renderShell(); renderProfile(false); renderPlayers(); renderPlayerForm(); renderMatches();
-  document.querySelectorAll('.side-menu button[data-tab]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
-  document.querySelector('#logoutBtn').addEventListener('click',()=>Store.logout());
+  renderShell(); renderProfile(false); renderPlayers(); renderPlayerForm(); renderMatches(); renderCoachExtras();
 });

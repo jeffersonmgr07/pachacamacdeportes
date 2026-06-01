@@ -132,6 +132,12 @@
   function renderPlayerOptions(side){
     const [home, away] = getTeams(state.currentMatch || {});
     const teamName = side === 'away' ? away : home;
+    const teamSelect = $('#eventTeamSide');
+    if(teamSelect){
+      const current = teamSelect.value || side || 'home';
+      teamSelect.innerHTML = `<option value="home">${safe(home || 'Equipo local')}</option><option value="away">${safe(away || 'Equipo visitante')}</option>`;
+      teamSelect.value = current;
+    }
     const players = playersByTeamName(teamName);
     $('#eventPlayer').innerHTML = '<option value="">Sin jugador / no aplica</option>' + players.map(p => `<option value="${safe(p.playerId || p.dni || '')}">${safe(fullName(p))}${p.dni ? ' · DNI ' + safe(p.dni) : ''}</option>`).join('');
   }

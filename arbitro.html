@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Panel árbitro</title>
-  <link rel="stylesheet" href="assets/css/styles.css?v=20260601-loginfix">
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260601-uiroles">
 </head>
 <body>
 <div data-header data-active="campeonatos"></div>
@@ -61,8 +61,8 @@
       <form id="eventForm" class="card referee-event-form">
         <h3>Registrar evento</h3>
         <div class="form-grid-3">
-          <div><label>Minuto <small class="field-help">Automático si lo dejas vacío</small></label><input class="input" name="minute" id="eventMinute" type="number" min="0" max="120" placeholder="Automático"></div>
-          <div><label>Equipo</label><select class="input" name="teamSide" id="eventTeamSide"><option value="home">Local</option><option value="away">Visitante</option></select></div>
+          <div><label>Minuto</label><input class="input" name="minute" id="eventMinute" type="number" min="0" max="120" placeholder="Automático"></div>
+          <div><label>Equipo</label><select class="input" name="teamSide" id="eventTeamSide"><option value="home">Equipo local</option><option value="away">Equipo visitante</option></select></div>
           <div><label>Evento</label><select class="input" name="eventType" id="eventType"><option value="gol">Gol</option><option value="amarilla">Tarjeta amarilla</option><option value="roja">Tarjeta roja</option><option value="penal">Penal</option><option value="autogol">Autogol</option><option value="anulacion_gol">Anular gol</option><option value="observacion">Observación</option></select></div>
           <div style="grid-column:1/-1"><label>Jugador</label><select class="input" name="playerId" id="eventPlayer"><option value="">Sin jugador / no aplica</option></select></div>
           <div style="grid-column:1/-1"><label>Detalle u observación</label><textarea class="input" name="notes" rows="2" placeholder="Ej. Gol de tiro libre, conducta, reclamo, lesión..."></textarea></div>
@@ -85,11 +85,11 @@
 </div>
 
 <div data-footer></div>
-<script src="assets/components/header.js?v=20260601-loginfix"></script>
+<script src="assets/components/header.js?v=20260601-uiroles"></script>
 <script src="assets/components/footer.js"></script>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/mock-data.js"></script>
-<script src="assets/js/api.js?v=20260601-loginfix"></script>
-<script src="assets/js/arbitro.js?v=20260601-polish"></script>
-<script src="assets/js/login.js?v=20260601-loginfix"></script></body>
+<script src="assets/js/api.js?v=20260601-uiroles"></script>
+<script src="assets/js/arbitro.js?v=20260601-uiroles"></script>
+<script src="assets/js/login.js?v=20260601-uiroles"></script></body>
 </html>
