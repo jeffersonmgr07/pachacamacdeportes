@@ -589,3 +589,16 @@ body.show-nav .mobile-menu-bars:after{top:0;transform:rotate(-45deg);background:
 .event-row-main{display:flex;align-items:center;justify-content:space-between;gap:10px}.btn-small{padding:8px 11px!important;font-size:12px!important;border-radius:12px!important}.demo-match-card{border:2px dashed rgba(245,158,11,.55)!important;background:linear-gradient(135deg,#fffaf0,#f6fbf2)!important}
 .badge-red{background:#fee2e2!important;color:#991b1b!important;border:1px solid #fecaca!important}
 @media(max-width:640px){.admin-logout-tab,.nav-login-btn{width:100%}.event-row-main{align-items:flex-start}.referee-final-actions .btn{width:100%}.match-clock{font-size:13px}}
+
+/* Ajustes puntuales solicitados - no cambian la identidad visual existente */
+.btn-login-hero{background:linear-gradient(135deg,#f59e0b,#facc15);color:#071225!important;border:0;font-weight:1000;box-shadow:0 12px 28px rgba(245,158,11,.22)}
+.admin-inline-filters{display:grid;grid-template-columns:repeat(2,minmax(180px,1fr));gap:12px;margin:0 0 16px;padding:14px;background:rgba(248,250,252,.96)!important;border:1px solid #dbe5ef!important}
+.admin-category-widgets{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;color:#102033;font-weight:800}
+.admin-category-widget{display:inline-flex;margin:2px 3px 2px 0;color:#071225!important;font-weight:950}
+.admin-super-panel .section-title,.admin-super-panel h2.section-title{color:#ffffff!important;text-shadow:0 2px 14px rgba(0,0,0,.20)}
+#admin-tab-equipos .section-title,#admin-tab-jugadores .section-title,#admin-tab-fixture .section-title,#admin-tab-partidos-equipo .section-title,#admin-tab-accesos .section-title{color:#ffffff!important}
+.admin-match-card{height:100%}.admin-team-matches-card .grid-2{align-items:stretch}
+.password-mask{font-weight:950;letter-spacing:.08em;color:#102033}.link-button{background:none;border:0;color:#0f766e;font-weight:950;cursor:pointer;padding:4px 0;text-decoration:underline}.view-pass-btn{display:inline-block;margin-left:8px;white-space:nowrap}
+.referee-actions{grid-template-columns:auto minmax(200px,1fr) 180px auto!important;align-items:stretch}.referee-actions .btn,.referee-actions .input{min-height:46px}.referee-actions #backAdminBtn{padding-inline:14px;white-space:nowrap}.referee-actions #logoutBtn{background:#ef4444!important;color:#fff!important;border-color:#ef4444!important;white-space:nowrap}.referee-top{align-items:center}.field-help{display:block;color:#64748b;font-weight:700;margin-top:2px;font-size:11px}.event-delete-btn{background:#fee2e2!important;border:1px solid #fecaca!important;color:#991b1b!important}.event-delete-btn:disabled{opacity:.45;cursor:not-allowed}.event-row-main strong{padding-right:8px}.match-control-dialog .modal-header{align-items:center}
+@media(max-width:980px){.referee-actions{grid-template-columns:1fr 1fr!important}.referee-actions #backAdminBtn,.referee-actions #logoutBtn{width:100%}.admin-inline-filters{grid-template-columns:1fr}.admin-super-panel #adminFixtureList.grid-2,.admin-team-matches-card .grid-2{grid-template-columns:1fr}}
+@media(max-width:640px){.referee-actions{grid-template-columns:1fr!important}.view-pass-btn{display:block;margin:6px 0 0}.admin-inline-filters{padding:12px}.btn-login-hero{width:100%}}

@@ -11,6 +11,8 @@
   function getPlayerName(player){ return player?.fullName || [player?.firstName, player?.lastName].filter(Boolean).join(' ') || player?.nombre || ''; }
   function getPlayerTeamName(player){ return player?.teamName || player?.equipo || teamNameById(player?.teamId) || ''; }
   function getPlayerCategories(player){ return player?.categories || player?.category || player?.categoria || ''; }
+  function splitCategories(value){ return String(value || '').split(',').map(x=>x.trim()).filter(Boolean); }
+  function categoryWidgets(value){ const cats = splitCategories(value); return cats.length ? cats.map(c=>`<span class="badge badge-blue admin-category-widget">${safe(c)}</span>`).join(' ') : '<span class="admin-muted">No registrado</span>'; }
   function getMatchDate(match){ return match?.matchDate || match?.date || match?.fecha || ''; }
   function getMatchDateLabel(match){ return match?.dateLabel || match?.fechaTexto || ''; }
   function getMatchRound(match){ return match?.round || match?.fecha || ''; }
@@ -122,6 +124,23 @@
     if(catSelect){
       catSelect.innerHTML = '<option value="">Todas las categorías</option>' + uniqueCategories().map(c=>`<option value="${safe(c)}">${safe(c)}</option>`).join('');
     }
+    ['playerTeamFilter','matchTeamFilter'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.innerHTML = teamSelect ? teamSelect.innerHTML : '<option value="">Todos los equipos</option>';
+    });
+    ['playerCategoryFilter','matchCategoryFilter'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.innerHTML = catSelect ? catSelect.innerHTML : '<option value="">Todas las categorías</option>';
+    });
+  }
+
+  function syncInlineFilters(){
+    const pairs = [['playerTeamFilter','adminTeamFilter'],['matchTeamFilter','adminTeamFilter'],['playerCategoryFilter','adminCategoryFilter'],['matchCategoryFilter','adminCategoryFilter']];
+    pairs.forEach(([copy,mainId]) => {
+      const el = document.getElementById(copy);
+      const main = document.getElementById(mainId);
+      if(el && main && el.value !== main.value) el.value = main.value;
+    });
   }
 
   function renderSummary(){
@@ -156,7 +175,7 @@
         </div>
         <p><strong>Responsable:</strong> ${safe(trainer.fullName || team.coachName || 'No registrado')}</p>
         <p><strong>Correo:</strong> ${safe(trainer.email || team.email || 'No registrado')}</p>
-        <p><strong>Categorías:</strong> ${safe(team.categories || trainer.categories || 'No registrado')}</p>
+        <div class="admin-category-widgets"><strong>Categorías:</strong> ${categoryWidgets(team.categories || trainer.categories)}</div>
       </article>`;
     }).join('');
   }
@@ -169,7 +188,7 @@
       <td><strong>${safe(getPlayerName(p))}</strong><br><span class="admin-muted">${safe(p.playerId || '')}</span></td>
       <td>${safe(p.dni || p.document || '')}</td>
       <td>${safe(getPlayerTeamName(p))}</td>
-      <td>${safe(getPlayerCategories(p))}</td>
+      <td>${categoryWidgets(getPlayerCategories(p))}</td>
       <td>${safe(p.birthDate || p.fechaNacimiento || '')}</td>
       <td><span class="badge badge-green">${safe(p.status || 'activo')}</span></td>
     </tr>`).join('');
@@ -217,7 +236,7 @@
       });
       return `<div class="card admin-team-matches-card">
         <div class="section-head compact"><div><h3>${safe(teamName)}</h3><p class="section-subtitle">${matches.length} partido(s) encontrados</p></div></div>
-        <div class="grid">${matches.length ? matches.map(matchCard).join('') : '<p>No tiene partidos con los filtros actuales.</p>'}</div>
+        <div class="grid grid-2">${matches.length ? matches.map(matchCard).join('') : '<p>No tiene partidos con los filtros actuales.</p>'}</div>
       </div>`;
     }).join('');
   }
@@ -226,13 +245,16 @@
     const data = filteredData();
     const body = $('#accessBody');
     if(!data.users.length){ body.innerHTML = `<tr><td colspan="6">No se encontraron accesos con esos filtros.</td></tr>`; return; }
-    body.innerHTML = data.users.map(u=>`
-      <tr><td>${safe(u.fullName || u.nombre || '')}</td><td>${safe(u.role || u.rol || '')}</td><td>${safe(u.email || u.correo || '')}</td><td>${safe(u.password || u.clave || '')}</td><td>${safe(u.teamName || u.equipo || '')}</td><td>${safe(u.status || u.estado || '')}</td></tr>`).join('');
+    body.innerHTML = data.users.map((u,index)=>{
+      const pass = String(u.password || u.clave || '');
+      return `<tr><td>${safe(u.fullName || u.nombre || '')}</td><td>${safe(u.role || u.rol || '')}</td><td>${safe(u.email || u.correo || '')}</td><td><span class="password-mask" data-pass-index="${index}" data-pass="${safe(pass)}">••••••••</span> <button type="button" class="link-button view-pass-btn" data-toggle-pass="${index}">Ver contraseña</button></td><td>${safe(u.teamName || u.equipo || '')}</td><td><span class="badge ${statusClass(u.status || u.estado)}">${safe(formatStatus(u.status || u.estado || 'activo'))}</span></td></tr>`;
+    }).join('');
   }
 
   function emptyState(text){ return `<div class="card admin-empty"><p>${safe(text)}</p></div>`; }
 
   function renderAll(){
+    syncInlineFilters();
     renderSummary(); renderTeams(); renderPlayers(); renderFixture(); renderTeamMatches(); renderAccess();
   }
 
@@ -252,12 +274,26 @@
       const el = document.getElementById(id);
       if(el) el.addEventListener(id === 'adminSearch' ? 'input' : 'change', renderAll);
     });
+    [['playerTeamFilter','adminTeamFilter'],['matchTeamFilter','adminTeamFilter'],['playerCategoryFilter','adminCategoryFilter'],['matchCategoryFilter','adminCategoryFilter']].forEach(([source,target]) => {
+      const el = document.getElementById(source);
+      if(el) el.addEventListener('change', () => { const main = document.getElementById(target); if(main){ main.value = el.value; renderAll(); } });
+    });
   }
 
   document.addEventListener('DOMContentLoaded', async ()=>{
     const user = Store.getUser();
     if(!user || lower(user.role) !== 'admin'){ location.href='login.html'; return; }
     bindTabs(); bindFilters();
+    document.addEventListener('click', (e)=>{
+      const btn = e.target.closest('[data-toggle-pass]');
+      if(!btn) return;
+      const span = document.querySelector(`[data-pass-index="${btn.dataset.togglePass}"]`);
+      if(!span) return;
+      const visible = span.dataset.visible === 'true';
+      span.textContent = visible ? '••••••••' : (span.dataset.pass || 'Sin clave');
+      span.dataset.visible = visible ? 'false' : 'true';
+      btn.textContent = visible ? 'Ver contraseña' : 'Ocultar';
+    });
     $('#adminLogoutBtn')?.addEventListener('click', () => { Store.clearUser ? Store.clearUser() : localStorage.removeItem('mf_user'); location.href='index.html'; });
     try{
       const res = await API.getPublicData();

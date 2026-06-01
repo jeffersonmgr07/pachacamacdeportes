@@ -59,6 +59,7 @@
   }
   function fullName(p){ return p?.fullName || [p?.firstName, p?.lastName].filter(Boolean).join(' ') || p?.nombre || ''; }
   function matchEvents(matchId){ return (state.data?.matchEvents || []).filter(e => String(e.matchId) === String(matchId)); }
+  function eventKey(e, index){ return e?.eventId || e?.id || e?.codigo || `row-${index}`; }
   function assignedToReferee(match){
     if(isAdmin()) return true;
     const uid = String(state.user?.userId || '').trim();
@@ -138,10 +139,17 @@
     const list = $('#matchEventsList');
     const events = [...state.currentEvents].sort((a,b)=>(Number(a.minute)||0)-(Number(b.minute)||0));
     if(!events.length){ list.innerHTML = '<div class="empty-state small">Aún no hay eventos registrados.</div>'; return; }
-    list.innerHTML = events.map(e => `<div class="event-row">
-      <div class="event-row-main"><strong>${safe(e.minute || '—')}’ · ${safe(formatStatus(e.eventType || 'evento'))}</strong><button class="btn btn-secondary btn-small" data-delete-event="${safe(e.eventId || '')}">Eliminar</button></div>
-      <span>${safe(e.teamName || e.teamSide || '')}${e.playerName ? ' · ' + safe(e.playerName) : ''}</span>${e.notes ? `<small>${safe(e.notes)}</small>` : ''}
-    </div>`).join('');
+    list.innerHTML = events.map((e,index) => {
+      const key = eventKey(e, index);
+      const canDelete = !!(e.eventId || e.id || e.codigo || isDemo(state.currentMatch));
+      return `<div class="event-row">
+        <div class="event-row-main">
+          <strong>${safe(e.minute || '—')}’ · ${safe(formatStatus(e.eventType || 'evento'))}</strong>
+          <button class="btn btn-danger btn-small event-delete-btn" type="button" data-delete-event="${safe(key)}" ${canDelete ? '' : 'disabled'}>Eliminar evento</button>
+        </div>
+        <span>${safe(e.teamName || e.teamSide || '')}${e.playerName ? ' · ' + safe(e.playerName) : ''}</span>${e.notes ? `<small>${safe(e.notes)}</small>` : ''}
+      </div>`;
+    }).join('');
   }
   function categoryMinutes(match){
     const n = Number((String(getCategory(match) || '').match(/\d+/) || [0])[0]);
@@ -160,6 +168,11 @@
     return timer.status === 'running' ? base + Math.floor((Date.now() - Number(timer.startedAt || Date.now()))/1000) : base;
   }
   function formatClock(sec){ const m = Math.floor(sec/60), s = Math.max(0, sec%60); return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
+  function currentMatchMinute(){
+    const elapsed = currentElapsedSeconds(state.timer || {});
+    if(!elapsed || elapsed < 0) return 0;
+    return Math.max(1, Math.ceil(elapsed / 60));
+  }
   function updateClock(){
     if(!state.currentMatch || !state.timer) return;
     const clock = $('#matchClock'); if(!clock) return;
@@ -167,6 +180,8 @@
     const elapsed = currentElapsedSeconds(state.timer);
     clock.textContent = `T${state.timer.phase} · ${formatClock(elapsed)}`;
     clock.classList.toggle('over-time', elapsed > limit);
+    const minuteInput = $('#eventMinute');
+    if(minuteInput && !minuteInput.value) minuteInput.placeholder = `Automático: ${currentMatchMinute()}’`;
     const phaseBtn = $('#phaseBtn');
     if(phaseBtn){
       if(state.timer.phase === 1 && state.timer.status === 'running') phaseBtn.textContent = 'Finalizar primer tiempo';
@@ -238,7 +253,7 @@
     const [home, away] = getTeams(state.currentMatch);
     const playerId = fd.get('playerId') || '';
     const player = (state.data?.players || []).find(p => String(p.playerId || p.dni || '') === String(playerId));
-    const payload = { matchId:getMatchId(state.currentMatch), minute:fd.get('minute') || Math.floor(currentElapsedSeconds(state.timer || {})/60) || '', teamSide:side, teamName:side === 'away' ? away : home, eventType:forcedType || fd.get('eventType') || 'observacion', playerId, playerName: player ? fullName(player) : '', notes:fd.get('notes') || '', user:state.user };
+    const payload = { matchId:getMatchId(state.currentMatch), minute:fd.get('minute') || currentMatchMinute() || '', teamSide:side, teamName:side === 'away' ? away : home, eventType:forcedType || fd.get('eventType') || 'observacion', playerId, playerName: player ? fullName(player) : '', notes:fd.get('notes') || '', user:state.user };
     let res;
     if(isDemo(state.currentMatch)) res = addEventLocal(payload); else res = await API.saveMatchEvent(payload);
     if(!res?.ok){ toast(res?.message || 'No se pudo guardar el evento.'); return; }
@@ -257,16 +272,17 @@
     if(!state.currentMatch || !eventId) return;
     const ok = confirm('¿Eliminar este evento? Si es gol o anulación, el marcador se ajustará automáticamente.');
     if(!ok) return;
-    const event = state.currentEvents.find(e=>String(e.eventId)===String(eventId));
+    const event = state.currentEvents.find((e,index)=>String(eventKey(e,index))===String(eventId));
     if(isDemo(state.currentMatch)){
       const match = {...state.currentMatch};
       if(event?.eventType === 'gol') setScore(match, event.teamSide, getScore(match,event.teamSide)-1);
       if(event?.eventType === 'anulacion_gol') setScore(match, event.teamSide, getScore(match,event.teamSide)+1);
-      state.currentEvents = state.currentEvents.filter(e=>String(e.eventId)!==String(eventId));
-      state.data.matchEvents = (state.data.matchEvents || []).filter(e=>String(e.eventId)!==String(eventId));
+      state.currentEvents = state.currentEvents.filter((e,index)=>String(eventKey(e,index))!==String(eventId));
+      state.data.matchEvents = (state.data.matchEvents || []).filter((e,index)=>String(eventKey(e,index))!==String(eventId));
       updateLocalMatch(match); renderEvents(); saveDemo(); toast('Evento eliminado'); return;
     }
-    const res = await API.deleteMatchEvent({matchId:getMatchId(state.currentMatch), eventId, user:state.user});
+    const realEventId = event?.eventId || event?.id || event?.codigo || eventId;
+    const res = await API.deleteMatchEvent({matchId:getMatchId(state.currentMatch), eventId: realEventId, user:state.user});
     if(!res?.ok){ toast(res?.message || 'No se pudo eliminar el evento.'); return; }
     state.currentEvents = res.events || state.currentEvents.filter(e=>String(e.eventId)!==String(eventId));
     if(state.data){ state.data.matchEvents = (state.data.matchEvents || []).filter(e=>String(e.matchId)!==String(getMatchId(state.currentMatch))).concat(state.currentEvents); }

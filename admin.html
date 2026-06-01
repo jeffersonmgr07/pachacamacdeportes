@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Panel administrador</title>
-  <link rel="stylesheet" href="assets/css/styles.css?v=20260601-referee-tools">
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260601-polish">
 </head>
 <body>
 <div data-header data-active="campeonatos"></div>
@@ -49,16 +49,18 @@
 
     <div class="admin-tab-content" id="admin-tab-jugadores">
       <div class="section-head"><div><h2 class="section-title">Jugadores</h2><p class="section-subtitle">Nómina general del campeonato filtrable por equipo, categoría o texto.</p></div></div>
+      <div class="admin-inline-filters card"><select id="playerTeamFilter" class="input"><option value="">Todos los equipos</option></select><select id="playerCategoryFilter" class="input"><option value="">Todas las categorías</option></select></div>
       <div class="table-wrap"><table><thead><tr><th>Jugador</th><th>DNI</th><th>Equipo</th><th>Categoría(s)</th><th>Fecha nac.</th><th>Estado</th></tr></thead><tbody id="adminPlayersBody"></tbody></table></div>
     </div>
 
     <div class="admin-tab-content" id="admin-tab-fixture">
       <div class="section-head"><div><h2 class="section-title">Fixture / Fechas</h2><p class="section-subtitle">Todos los partidos ordenados por fecha, hora y categoría.</p></div></div>
-      <div id="adminFixtureList" class="grid"></div>
+      <div id="adminFixtureList" class="grid grid-2"></div>
     </div>
 
     <div class="admin-tab-content" id="admin-tab-partidos-equipo">
       <div class="section-head"><div><h2 class="section-title">Partidos por equipo</h2><p class="section-subtitle">Selecciona o filtra un equipo para ver sus partidos agrupados.</p></div></div>
+      <div class="admin-inline-filters card"><select id="matchTeamFilter" class="input"><option value="">Todos los equipos</option></select><select id="matchCategoryFilter" class="input"><option value="">Todas las categorías</option></select></div>
       <div id="adminTeamMatches" class="grid"></div>
     </div>
 
@@ -69,11 +71,11 @@
   </div>
 </section>
 <div data-footer></div>
-<script src="assets/components/header.js"></script>
+<script src="assets/components/header.js?v=20260601-polish"></script>
 <script src="assets/components/footer.js"></script>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/mock-data.js"></script>
 <script src="assets/js/api.js"></script>
-<script src="assets/js/admin.js?v=20260601-referee-tools"></script>
+<script src="assets/js/admin.js?v=20260601-polish"></script>
 </body>
 </html>

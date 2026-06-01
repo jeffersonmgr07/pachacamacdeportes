@@ -20,7 +20,7 @@
 ## Registro
 - El formulario de registro ahora envía solicitud a Apps Script.
 - Se guarda en la hoja `Solicitudes_Registro`.
-- Envía correo al administrador `pacharamacdeportes@gmail.com`.
+- Envía correo al administrador `pachacamacdeportes@gmail.com`.
 - Envía correo automático al usuario registrado indicando que su solicitud está en evaluación.
 
 ## Login desde inicio
