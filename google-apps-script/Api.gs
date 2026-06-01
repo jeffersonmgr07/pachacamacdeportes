@@ -339,7 +339,7 @@ function registerCoachRequest_(p) {
     createdAt: new Date()
   };
   appendRowByHeaders_('Solicitudes_Registro', row);
-  var adminEmail = 'pacharamacdeportes@gmail.com';
+  var adminEmail = 'pachacamacdeportes@gmail.com';
   var fullName = [row.firstName, row.lastName].join(' ').trim();
   try {
     MailApp.sendEmail({
