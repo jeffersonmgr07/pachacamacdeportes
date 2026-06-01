@@ -8,7 +8,7 @@ function firstName(name){
 function headerHTML(active = 'deportes', championship = false){
   const user = getStoredUserForHeader();
   const welcome = user ? `<span>Bienvenido ${firstName(user.shortName || user.fullName || user.nombre || user.email)} - Distrito Pachacamac</span>` : `<span>Distrito Pachacamac</span>`;
-  const loginLabel = user ? (String(user.role).toLowerCase() === 'admin' ? 'Panel admin' : 'Panel entrenador') : 'Login';
+  const loginLabel = user ? (String(user.role).toLowerCase() === 'admin' ? 'Panel admin' : (['arbitro','árbitro','referee'].includes(String(user.role).toLowerCase()) ? 'Panel árbitro' : 'Panel entrenador')) : 'Iniciar sesión';
   const logo = 'assets/img/logo-pacha-deportes.png';
   const fallback = 'assets/img/logo-pacha-deportes.svg';
   const navGeneral = `
@@ -16,6 +16,7 @@ function headerHTML(active = 'deportes', championship = false){
     <a class="${active==='campeonatos'?'active':''}" href="campeonatos.html">Campeonatos</a>
     <a class="${active==='talleres'?'active':''}" href="talleres.html">Talleres</a>
     <a class="${active==='comunicados'?'active':''}" href="comunicados.html">Comunicados</a>
+    <button type="button" class="nav-login-btn" data-open-login>${loginLabel}</button>
   `;
   const navChamp = `
     <a class="${active==='campeonato'?'active':''}" href="campeonato-futbol-menores-2026.html">Campeonato</a>

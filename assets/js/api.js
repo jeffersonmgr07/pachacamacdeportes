@@ -2,6 +2,7 @@ const Store = {
   getUser(){ try{return JSON.parse(localStorage.getItem('mf_user')||'null')}catch(e){return null} },
   setUser(u){ localStorage.setItem('mf_user', JSON.stringify(u)); },
   logout(){ localStorage.removeItem('mf_user'); location.href='index.html'; },
+  clearUser(){ localStorage.removeItem('mf_user'); },
   get(k, fallback){ try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(fallback))}catch(e){return fallback} },
   set(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
 };
@@ -264,6 +265,10 @@ const API = {
           if(side === 'home') match.homeScore = currentHome + 1;
           if(side === 'away') match.awayScore = currentAway + 1;
         }
+        if(eventType === 'anulacion_gol'){
+          if(side === 'home') match.homeScore = Math.max(0, currentHome - 1);
+          if(side === 'away') match.awayScore = Math.max(0, currentAway - 1);
+        }
         match.status = 'en_juego';
         match.updatedAt = new Date().toISOString();
         const event = {
@@ -276,6 +281,34 @@ const API = {
         db.matchEvents.push(event);
         db.fixture[idx] = match; saveMockDB(db); return {ok:true, match, event, events: db.matchEvents.filter(e=>String(e.matchId)===String(payload.matchId))};
       }
+      case 'deleteMatchEvent': {
+        const idx = db.fixture.findIndex(m => String(m.matchId || m[0]) === String(payload.matchId));
+        if(idx < 0) return {ok:false, message:'Partido no encontrado'};
+        const event = (db.matchEvents || []).find(e => String(e.eventId) === String(payload.eventId));
+        if(!event) return {ok:false, message:'Evento no encontrado'};
+        const match = {...normalizeMatch(db.fixture[idx])};
+        const side = String(event.teamSide || '').toLowerCase();
+        if(String(event.eventType || '').toLowerCase() === 'gol'){
+          if(side === 'home') match.homeScore = Math.max(0, (Number(match.homeScore || 0)||0) - 1);
+          if(side === 'away') match.awayScore = Math.max(0, (Number(match.awayScore || 0)||0) - 1);
+        }
+        if(String(event.eventType || '').toLowerCase() === 'anulacion_gol'){
+          if(side === 'home') match.homeScore = (Number(match.homeScore || 0)||0) + 1;
+          if(side === 'away') match.awayScore = (Number(match.awayScore || 0)||0) + 1;
+        }
+        match.updatedAt = new Date().toISOString();
+        db.matchEvents = (db.matchEvents || []).filter(e => String(e.eventId) !== String(payload.eventId));
+        db.fixture[idx] = match; saveMockDB(db);
+        return {ok:true, match, events: db.matchEvents.filter(e=>String(e.matchId)===String(payload.matchId))};
+      }
+      case 'registerCoachRequest': {
+        db.registrationRequests = db.registrationRequests || [];
+        const row = {...payload, requestId:'SOL' + Date.now(), status:'pendiente', createdAt:new Date().toISOString()};
+        db.registrationRequests.push(row);
+        Store.set('mf_registration_requests', db.registrationRequests);
+        return {ok:true, message:'Solicitud enviada correctamente.'};
+      }
+
       case 'finishMatch': {
         const idx = db.fixture.findIndex(m => String(m.matchId || m[0]) === String(payload.matchId));
         if(idx < 0) return {ok:false, message:'Partido no encontrado'};
@@ -300,7 +333,9 @@ const API = {
   saveConvocatoria(data){ return this.request('saveConvocatoria', data); },
   startMatch(data){ return this.request('startMatch', data); },
   saveMatchEvent(data){ return this.request('saveMatchEvent', data); },
-  finishMatch(data){ return this.request('finishMatch', data); }
+  finishMatch(data){ return this.request('finishMatch', data); },
+  deleteMatchEvent(data){ return this.request('deleteMatchEvent', data); },
+  registerCoachRequest(data){ return this.request('registerCoachRequest', data); }
 };
 
 function openLoginModal(){

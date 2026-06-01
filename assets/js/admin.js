@@ -32,14 +32,32 @@
     if(parts.length !== 3) return label || raw;
     const [y,m,d] = parts.map(Number);
     if(!y || !m || !d) return label || raw;
-    return new Date(y, m - 1, d).toLocaleDateString('es-PE', { day:'2-digit', month:'long', year:'numeric' });
+    return `${String(d).padStart(2,'0')}.${String(m).padStart(2,'0')}.${y}`;
   }
 
   function roundText(match){
-    const round = String(getMatchRound(match) || '').trim();
+    let round = String(getMatchRound(match) || '').trim();
+    if(/^\d+$/.test(round)) round = 'Fecha ' + round;
     const date = formatDate(getMatchDate(match), getMatchDateLabel(match));
     if(round && date && !normalize(date).includes(normalize(round))) return `${round} - ${date}`;
     return round || date || 'Fecha por definir';
+  }
+
+  function formatStatus(status){
+    const s = normalize(status || 'programado');
+    if(s === 'en_juego') return 'En juego';
+    if(s === 'jugado') return 'Jugado';
+    if(s === 'finalizado') return 'Finalizado';
+    if(['wo','w.o','walkover','bwo'].includes(s)) return 'Walkover';
+    return String(status || 'Programado').replace(/_/g,' ').replace(/^./, c => c.toUpperCase());
+  }
+
+  function statusClass(status){
+    const s = normalize(status || 'programado');
+    if(s === 'jugado' || s === 'finalizado') return 'badge-green';
+    if(s === 'en_juego') return 'badge-gold';
+    if(['wo','walkover','bwo'].includes(s)) return 'badge-red';
+    return 'badge-blue';
   }
 
   function filteredData(){
@@ -174,7 +192,7 @@
         <span class="score-line">${score}</span>
         <span class="away">${safe(away || 'Visitante')}</span>
       </div>
-      <p><strong>Campo:</strong> ${safe(match.field || match.cancha || 'Por definir')} · <strong>Estado:</strong> ${safe(getMatchStatus(match))}</p>
+      <p>${safe(match.field || match.cancha || 'Campo por definir')} · <span class="badge ${statusClass(getMatchStatus(match))}">${safe(formatStatus(getMatchStatus(match)))}</span></p>
       <div class="actions"><a class="btn btn-primary btn-small" href="arbitro.html?matchId=${encodeURIComponent(match.matchId || match.id || '')}">Iniciar arbitraje</a></div>
     </article>`;
   }
@@ -240,6 +258,7 @@
     const user = Store.getUser();
     if(!user || lower(user.role) !== 'admin'){ location.href='login.html'; return; }
     bindTabs(); bindFilters();
+    $('#adminLogoutBtn')?.addEventListener('click', () => { Store.clearUser ? Store.clearUser() : localStorage.removeItem('mf_user'); location.href='index.html'; });
     try{
       const res = await API.getPublicData();
       if(!res || !res.ok){ toast(res?.message || 'No se pudo cargar la información del administrador.'); return; }

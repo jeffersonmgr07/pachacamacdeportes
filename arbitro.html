@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Panel árbitro</title>
-  <link rel="stylesheet" href="assets/css/styles.css?v=20260531-referee-panel">
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260601-referee-tools">
 </head>
 <body>
 <div data-header data-active="campeonatos"></div>
@@ -24,6 +24,7 @@
         <p class="section-subtitle" id="refereeSubtitle">Selecciona un partido para iniciar el arbitraje.</p>
       </div>
       <div class="referee-actions">
+        <a class="btn btn-secondary" id="backAdminBtn" href="admin.html" style="display:none">Volver al modo administrador</a>
         <input class="input" id="refereeSearch" type="search" placeholder="Buscar equipo, categoría, fecha...">
         <select class="input" id="refereeStatusFilter">
           <option value="">Todos los estados</option>
@@ -46,6 +47,7 @@
       <div>
         <h3 id="controlTitle">Control del partido</h3>
         <p id="controlSubtitle" style="margin:4px 0 0;color:#9fb1ca"></p>
+        <div class="match-clock" id="matchClock">00:00</div>
       </div>
       <button class="modal-close" data-close-modal="matchControlModal">×</button>
     </div>
@@ -61,7 +63,7 @@
         <div class="form-grid-3">
           <div><label>Minuto</label><input class="input" name="minute" type="number" min="0" max="120" placeholder="Ej. 12"></div>
           <div><label>Equipo</label><select class="input" name="teamSide" id="eventTeamSide"><option value="home">Local</option><option value="away">Visitante</option></select></div>
-          <div><label>Evento</label><select class="input" name="eventType" id="eventType"><option value="gol">Gol</option><option value="amarilla">Tarjeta amarilla</option><option value="roja">Tarjeta roja</option><option value="penal">Penal</option><option value="autogol">Autogol</option><option value="observacion">Observación</option></select></div>
+          <div><label>Evento</label><select class="input" name="eventType" id="eventType"><option value="gol">Gol</option><option value="amarilla">Tarjeta amarilla</option><option value="roja">Tarjeta roja</option><option value="penal">Penal</option><option value="autogol">Autogol</option><option value="anulacion_gol">Anular gol</option><option value="observacion">Observación</option></select></div>
           <div style="grid-column:1/-1"><label>Jugador</label><select class="input" name="playerId" id="eventPlayer"><option value="">Sin jugador / no aplica</option></select></div>
           <div style="grid-column:1/-1"><label>Detalle u observación</label><textarea class="input" name="notes" rows="2" placeholder="Ej. Gol de tiro libre, conducta, reclamo, lesión..."></textarea></div>
         </div>
@@ -74,6 +76,8 @@
       </div>
 
       <div class="referee-final-actions">
+        <button class="btn btn-secondary" id="addExtraMinuteBtn" type="button">+1 min. adicional</button>
+        <button class="btn btn-secondary" id="phaseBtn" type="button">Finalizar primer tiempo</button>
         <button class="btn btn-danger" id="finishMatchBtn">Finalizar partido y guardar resultado</button>
       </div>
     </div>
@@ -85,7 +89,7 @@
 <script src="assets/components/footer.js"></script>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/mock-data.js"></script>
-<script src="assets/js/api.js?v=20260531-referee-panel"></script>
-<script src="assets/js/arbitro.js?v=20260531-referee-panel"></script>
+<script src="assets/js/api.js?v=20260601-referee-tools"></script>
+<script src="assets/js/arbitro.js?v=20260601-referee-tools"></script>
 </body>
 </html>
