@@ -711,3 +711,6 @@ body.show-nav .mobile-menu-bars:after{top:0;transform:rotate(-45deg);background:
   border-radius:12px!important;
   font-size:14px!important;
 }
+
+/* Ajuste puntual: ocultar filtro global duplicado del panel administrador */
+.admin-toolbar-hidden{display:none!important;}

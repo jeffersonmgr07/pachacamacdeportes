@@ -66,10 +66,10 @@
     return 'badge-blue';
   }
 
-  function filteredData(){
-    const q = normalize($('#adminSearch')?.value || '');
-    const teamFilter = $('#adminTeamFilter')?.value || '';
-    const categoryFilter = $('#adminCategoryFilter')?.value || '';
+  function filteredData(options={}){
+    const q = normalize(options.q || '');
+    const teamFilter = options.teamFilter || '';
+    const categoryFilter = options.categoryFilter || '';
     const teamMatchesFilter = (teamName, teamId) => !teamFilter || String(teamId || '') === teamFilter || getTeamIdByName(teamName) === teamFilter;
     const categoryMatchesFilter = (value) => !categoryFilter || normalize(value).includes(normalize(categoryFilter));
     const matchesSearch = (obj) => !q || normalize(Object.values(obj || {}).join(' ')).includes(q);
@@ -85,7 +85,7 @@
       const teamOk = !teamFilter || getTeamIdByName(home) === teamFilter || getTeamIdByName(away) === teamFilter;
       return teamOk && categoryMatchesFilter(getMatchCategory(m)) && matchesSearch(m);
     });
-    const users = (adminData.users || []).filter(u => teamMatchesFilter(u.teamName, u.teamId) && matchesSearch(u));
+    const users = (adminData.users || []).filter(u => matchesSearch(u));
     return {teams, players, fixture, users};
   }
 
@@ -119,32 +119,25 @@
   }
 
   function populateFilters(){
-    const teamSelect = $('#adminTeamFilter');
-    const catSelect = $('#adminCategoryFilter');
-    if(teamSelect){
-      const teams = [...(adminData.teams || [])].sort((a,b)=>getTeamName(a).localeCompare(getTeamName(b)));
-      teamSelect.innerHTML = '<option value="">Todos los equipos</option>' + teams.map(t=>`<option value="${safe(getTeamId(t))}">${safe(getTeamName(t))}</option>`).join('');
-    }
-    if(catSelect){
-      catSelect.innerHTML = '<option value="">Todas las categorías</option>' + uniqueCategories().map(c=>`<option value="${safe(c)}">${safe(c)}</option>`).join('');
-    }
+    const teams = [...(adminData.teams || [])].sort((a,b)=>getTeamName(a).localeCompare(getTeamName(b)));
+    const teamOptions = '<option value="">Todos los equipos</option>' + teams.map(t=>`<option value="${safe(getTeamId(t))}">${safe(getTeamName(t))}</option>`).join('');
+    const categoryOptions = '<option value="">Todas las categorías</option>' + uniqueCategories().map(c=>`<option value="${safe(c)}">${safe(c)}</option>`).join('');
     ['playerTeamFilter','matchTeamFilter'].forEach(id => {
       const el = document.getElementById(id);
-      if(el) el.innerHTML = teamSelect ? teamSelect.innerHTML : '<option value="">Todos los equipos</option>';
+      if(el) el.innerHTML = teamOptions;
     });
     ['playerCategoryFilter','matchCategoryFilter'].forEach(id => {
       const el = document.getElementById(id);
-      if(el) el.innerHTML = catSelect ? catSelect.innerHTML : '<option value="">Todas las categorías</option>';
+      if(el) el.innerHTML = categoryOptions;
     });
   }
 
-  function syncInlineFilters(){
-    const pairs = [['playerTeamFilter','adminTeamFilter'],['matchTeamFilter','adminTeamFilter'],['playerCategoryFilter','adminCategoryFilter'],['matchCategoryFilter','adminCategoryFilter']];
-    pairs.forEach(([copy,mainId]) => {
-      const el = document.getElementById(copy);
-      const main = document.getElementById(mainId);
-      if(el && main && el.value !== main.value) el.value = main.value;
-    });
+  function playerFilters(){
+    return {teamFilter: $('#playerTeamFilter')?.value || '', categoryFilter: $('#playerCategoryFilter')?.value || ''};
+  }
+
+  function matchFilters(){
+    return {teamFilter: $('#matchTeamFilter')?.value || '', categoryFilter: $('#matchCategoryFilter')?.value || ''};
   }
 
   function renderSummary(){
@@ -185,7 +178,7 @@
   }
 
   function renderPlayers(){
-    const data = filteredData();
+    const data = filteredData(playerFilters());
     const body = $('#adminPlayersBody');
     if(!data.players.length){ body.innerHTML = `<tr><td colspan="6">No se encontraron jugadores con esos filtros.</td></tr>`; return; }
     body.innerHTML = data.players.map(p => `<tr>
@@ -228,8 +221,8 @@
   }
 
   function renderTeamMatches(){
-    const data = filteredData();
-    const teams = ($('#adminTeamFilter')?.value) ? data.teams : data.teams.slice(0, 12);
+    const data = filteredData(matchFilters());
+    const teams = ($('#matchTeamFilter')?.value) ? data.teams : data.teams.slice(0, 12);
     const box = $('#adminTeamMatches');
     if(!teams.length){ box.innerHTML = emptyState('Selecciona o busca un equipo para ver sus partidos.'); return; }
     box.innerHTML = teams.map(team => {
@@ -246,8 +239,7 @@
   }
 
   function renderAccess(){
-    const q = normalize($('#adminSearch')?.value || '');
-    const users = (adminData.users || []).filter(u => !q || normalize(Object.values(u || {}).join(' ')).includes(q));
+    const users = (adminData.users || []);
     const body = $('#accessBody');
     if(!users.length){ body.innerHTML = `<tr><td colspan="6">No se encontraron accesos con esa búsqueda.</td></tr>`; return; }
     body.innerHTML = users.map((u,index)=>{
@@ -259,7 +251,6 @@
   function emptyState(text){ return `<div class="card admin-empty"><p>${safe(text)}</p></div>`; }
 
   function renderAll(){
-    syncInlineFilters();
     renderSummary(); renderTeams(); renderPlayers(); renderFixture(); renderTeamMatches(); renderAccess();
   }
 
@@ -275,13 +266,9 @@
   }
 
   function bindFilters(){
-    ['adminSearch','adminTeamFilter','adminCategoryFilter'].forEach(id => {
+    ['playerTeamFilter','playerCategoryFilter','matchTeamFilter','matchCategoryFilter'].forEach(id => {
       const el = document.getElementById(id);
-      if(el) el.addEventListener(id === 'adminSearch' ? 'input' : 'change', renderAll);
-    });
-    [['playerTeamFilter','adminTeamFilter'],['matchTeamFilter','adminTeamFilter'],['playerCategoryFilter','adminCategoryFilter'],['matchCategoryFilter','adminCategoryFilter']].forEach(([source,target]) => {
-      const el = document.getElementById(source);
-      if(el) el.addEventListener('change', () => { const main = document.getElementById(target); if(main){ main.value = el.value; renderAll(); } });
+      if(el) el.addEventListener('change', renderAll);
     });
   }
 

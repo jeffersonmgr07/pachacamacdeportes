@@ -189,9 +189,10 @@ function jsonp(action, payload={}){
 }
 
 const API = {
-  async request(action, payload={}){
+  async request(action, payload={}, options={}){
+    const silent = !!options.silent;
     if(!window.APP_CONFIG.DEMO_MODE){
-      showGlobalLoading();
+      if(!silent) showGlobalLoading();
       try{
         const res = await jsonp(action, payload);
         if(res && res.user) res.user = normalizeUserForApp(res.user);
@@ -201,7 +202,7 @@ const API = {
         if(res && res.players && action === 'getPublicData') Store.set('mf_players', res.players);
         return res;
       }finally{
-        hideGlobalLoading();
+        if(!silent) hideGlobalLoading();
       }
     }
     const db = mockDB();
@@ -351,7 +352,7 @@ const API = {
     }
   },
   login(email,password){ return this.request('login',{email,password}); },
-  getPublicData(){ return this.request('getPublicData'); },
+  getPublicData(options={}){ return this.request('getPublicData', {}, options); },
   getCoachDashboard(user){ return this.request('getCoachDashboard',{user}); },
   saveTeamProfile(profile){ return this.request('saveTeamProfile', profile); },
   savePlayer(player){ return this.request('savePlayer', player); },

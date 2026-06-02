@@ -326,7 +326,7 @@
   }
   async function softRefresh(){
     if(document.hidden || (state.currentMatch && isDemo(state.currentMatch))) return;
-    const res = await API.getPublicData();
+    const res = await API.getPublicData({silent:true});
     if(!res?.ok) return;
     state.data = res;
     const all = sortFixtureRows(res.fixture || []);
@@ -373,6 +373,6 @@
     $('#addExtraMinuteBtn')?.addEventListener('click', addExtraMinute);
     $('#refreshMatchBtn')?.addEventListener('click', () => load());
     load().catch(err => { console.error(err); toast(err.message || 'Error al cargar arbitraje.'); });
-    setInterval(() => softRefresh().catch(()=>{}), 15000);
+    setInterval(() => softRefresh().catch(()=>{}), 30000);
   });
 })();
