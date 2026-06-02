@@ -655,3 +655,59 @@ body.show-nav .mobile-menu-bars:after{top:0;transform:rotate(-45deg);background:
 .global-loading-card{min-width:240px;max-width:340px;background:#ffffff;color:#102033;border:1px solid #dbe5ef;border-radius:22px;padding:22px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.28);display:grid;gap:8px;place-items:center}
 .global-loading-card strong{font-size:18px;color:#102033}.global-loading-card small{color:#64748b;font-weight:800}.global-loading-spinner{width:42px;height:42px;border-radius:999px;border:4px solid #dbeafe;border-top-color:var(--green);animation:globalSpin .8s linear infinite}
 @keyframes globalSpin{to{transform:rotate(360deg)}}
+
+/* Ajustes puntuales 2026-06-02: entrenador y filtros admin */
+#tab-tabla .section-title,
+#tab-tabla .section-subtitle,
+#tab-tabla .table-wrap,
+#tab-tabla table,
+#tab-tabla th,
+#tab-tabla td,
+#coachStandingsBox,
+#coachStandingsBox table,
+#coachStandingsBox th,
+#coachStandingsBox td{
+  color:#102033!important;
+}
+#coachStandingsBox th,
+#tab-tabla .table-wrap th{
+  background:#14532d!important;
+  color:#ffffff!important;
+  font-weight:950!important;
+}
+#coachStandingsBox td,
+#tab-tabla .table-wrap td{
+  color:#102033!important;
+  font-weight:800!important;
+  border-top:1px solid #dbe5ef!important;
+}
+#coachStandingsBox strong{color:#071225!important;font-weight:1000!important;}
+.panel-layout #logoutBtn,
+.sidebar #logoutBtn,
+.side-menu #logoutBtn{
+  background:#ef4444!important;
+  color:#ffffff!important;
+  border:1px solid #dc2626!important;
+  box-shadow:0 10px 24px rgba(239,68,68,.20)!important;
+}
+.panel-layout #logoutBtn:hover,
+.sidebar #logoutBtn:hover,
+.side-menu #logoutBtn:hover{
+  background:#dc2626!important;
+  color:#ffffff!important;
+}
+.admin-inline-filters.card,
+.admin-inline-filters{
+  padding:9px 11px!important;
+  margin:0 0 10px!important;
+  gap:8px!important;
+  border-radius:16px!important;
+  box-shadow:0 8px 20px rgba(15,23,42,.045)!important;
+}
+.admin-inline-filters select,
+.admin-inline-filters .input{
+  min-height:38px!important;
+  padding:8px 10px!important;
+  border-radius:12px!important;
+  font-size:14px!important;
+}

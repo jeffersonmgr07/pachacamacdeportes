@@ -246,10 +246,11 @@
   }
 
   function renderAccess(){
-    const data = filteredData();
+    const q = normalize($('#adminSearch')?.value || '');
+    const users = (adminData.users || []).filter(u => !q || normalize(Object.values(u || {}).join(' ')).includes(q));
     const body = $('#accessBody');
-    if(!data.users.length){ body.innerHTML = `<tr><td colspan="6">No se encontraron accesos con esos filtros.</td></tr>`; return; }
-    body.innerHTML = data.users.map((u,index)=>{
+    if(!users.length){ body.innerHTML = `<tr><td colspan="6">No se encontraron accesos con esa búsqueda.</td></tr>`; return; }
+    body.innerHTML = users.map((u,index)=>{
       const pass = String(u.password || u.clave || '');
       return `<tr><td>${safe(u.fullName || u.nombre || '')}</td><td>${safe(u.role || u.rol || '')}</td><td>${safe(u.email || u.correo || '')}</td><td><span class="password-mask" data-pass-index="${index}" data-pass="${safe(pass)}">••••••••</span> <button type="button" class="link-button view-pass-btn" data-toggle-pass="${index}">Ver contraseña</button></td><td>${safe(u.teamName || u.equipo || '')}</td><td><span class="badge ${statusClass(u.status || u.estado)}">${safe(formatStatus(u.status || u.estado || 'activo'))}</span></td></tr>`;
     }).join('');
