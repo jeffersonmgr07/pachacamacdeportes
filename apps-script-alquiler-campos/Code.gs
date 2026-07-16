@@ -4,9 +4,11 @@
  * Zona horaria recomendada del proyecto: America/Lima.
  */
 const RENTAL_CFG = {
-  SPREADSHEET_ID: '', // Déjalo vacío si el script está vinculado a la hoja. Si es independiente, pega el ID.
+  SPREADSHEET_ID: '19fKP40MzGLqS1b1Jena6YjgWMRDyvC54EoN8vbTpBVw', // Google Sheet de Pacha Deportes
   ADMIN_EMAIL: 'pachacamacdeportes@gmail.com',
   TIMEZONE: 'America/Lima',
+  LOGO_URL: 'https://pachacamacdeportes.com/assets/img/logo-pacha-deportes.png',
+  VENUE_ADDRESS: 'Jirón Paraíso s/n, Pachacámac',
   OPEN_HOUR: 8,
   CLOSE_HOUR: 23,
   CASHIER_OPEN_HOUR: 8,
@@ -17,10 +19,19 @@ const RENTAL_CFG = {
 };
 
 function doGet(e) {
-  const callback = String((e && e.parameter && e.parameter.callback) || 'callback').replace(/[^a-zA-Z0-9_$]/g, '');
+  const params = (e && e.parameter) || {};
+
+  // Panel web de caja: TU_URL_EXEC?view=cashier
+  if (String(params.view || '').toLowerCase() === 'cashier') {
+    return HtmlService.createHtmlOutputFromFile('Cashier')
+      .setTitle('Caja - Campos deportivos')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
+
+  const callback = String(params.callback || 'callback').replace(/[^a-zA-Z0-9_$]/g, '');
   try {
-    const action = String((e.parameter && e.parameter.action) || '');
-    const payload = JSON.parse((e.parameter && e.parameter.payload) || '{}');
+    const action = String(params.action || '');
+    const payload = JSON.parse(params.payload || '{}');
     const result = routeRentalAction_(action, payload);
     return jsonp_(callback, result);
   } catch (err) {
@@ -43,20 +54,32 @@ function routeRentalAction_(action, payload) {
 function setupRentalSystem() {
   ensureRentalSheets_();
   installRentalTriggers_();
-  SpreadsheetApp.getUi().alert('Sistema de alquiler configurado. Revisa las hojas Campos_Deportivos y Reservas_Campos.');
+  const message = 'Sistema de alquiler configurado correctamente. Revisa las hojas Campos_Deportivos y Reservas_Campos.';
+  console.log(message);
+  return {ok:true, message:message};
 }
 
+// Estas funciones solo muestran interfaz si el proyecto está vinculado a una hoja.
+// En este proyecto independiente, el panel de caja se abre como aplicación web con ?view=cashier.
 function onOpen() {
-  SpreadsheetApp.getUi().createMenu('Alquiler de campos')
-    .addItem('Configurar sistema', 'setupRentalSystem')
-    .addItem('Abrir panel de caja', 'showCashierSidebar')
-    .addItem('Liberar reservas vencidas', 'expireReservationsManual')
-    .addToUi();
+  try {
+    SpreadsheetApp.getUi().createMenu('Alquiler de campos')
+      .addItem('Configurar sistema', 'setupRentalSystem')
+      .addItem('Abrir panel de caja', 'showCashierSidebar')
+      .addItem('Liberar reservas vencidas', 'expireReservationsManual')
+      .addToUi();
+  } catch (err) {
+    console.log('Proyecto independiente: no se crea menú dentro de Google Sheets.');
+  }
 }
 
 function showCashierSidebar() {
-  const html = HtmlService.createHtmlOutputFromFile('Cashier').setTitle('Caja - Campos deportivos');
-  SpreadsheetApp.getUi().showSidebar(html);
+  try {
+    const html = HtmlService.createHtmlOutputFromFile('Cashier').setTitle('Caja - Campos deportivos');
+    SpreadsheetApp.getUi().showSidebar(html);
+  } catch (err) {
+    throw new Error('Este proyecto es independiente. Abre el panel de caja usando la URL de la aplicación web terminada en /exec?view=cashier');
+  }
 }
 
 function cashierLookup(code) {
@@ -85,7 +108,9 @@ function cashierConfirmPayment(code, receiptNumber) {
 
 function expireReservationsManual() {
   const count = expireReservations_();
-  SpreadsheetApp.getUi().alert(count + ' reserva(s) vencida(s) liberada(s).');
+  const message = count + ' reserva(s) vencida(s) liberada(s).';
+  console.log(message);
+  return {ok:true, count:count, message:message};
 }
 
 function getVenues_() {
@@ -155,17 +180,38 @@ function expireReservations_() {
 }
 
 function onEdit(e) {
+  handleReservationEdit_(e);
+}
+
+// Función usada por el activador instalable del proyecto independiente.
+function rentalSpreadsheetEditTrigger(e) {
+  handleReservationEdit_(e);
+}
+
+function handleReservationEdit_(e) {
   if(!e||!e.range||e.range.getSheet().getName()!==RENTAL_CFG.SHEETS.RESERVATIONS||e.range.getRow()===1)return;
-  const headers=e.range.getSheet().getRange(1,1,1,e.range.getSheet().getLastColumn()).getValues()[0]; const key=headers[e.range.getColumn()-1];
+  const sh=e.range.getSheet();
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0];
+  const key=headers[e.range.getColumn()-1];
   if(key==='confirmPayment'&&String(e.value).toUpperCase()==='TRUE') {
-    const code=e.range.getSheet().getRange(e.range.getRow(),headers.indexOf('reservationCode')+1).getValue(); const receipt=e.range.getSheet().getRange(e.range.getRow(),headers.indexOf('receiptNumber')+1).getValue();
-    try{cashierConfirmPayment(code,receipt);}catch(err){e.range.setValue(false);SpreadsheetApp.getActive().toast(err.message,'Pago no confirmado',8);}
+    const code=sh.getRange(e.range.getRow(),headers.indexOf('reservationCode')+1).getValue();
+    const receipt=sh.getRange(e.range.getRow(),headers.indexOf('receiptNumber')+1).getValue();
+    try {
+      cashierConfirmPayment(code,receipt);
+    } catch(err) {
+      e.range.setValue(false);
+      console.log('Pago no confirmado: '+err.message);
+    }
   }
 }
 
 function installRentalTriggers_(){
-  ScriptApp.getProjectTriggers().filter(t=>['expireReservationsTrigger','sendPendingConfirmationsTrigger'].includes(t.getHandlerFunction())).forEach(t=>ScriptApp.deleteTrigger(t));
+  ScriptApp.getProjectTriggers()
+    .filter(t=>['expireReservationsTrigger','rentalSpreadsheetEditTrigger'].includes(t.getHandlerFunction()))
+    .forEach(t=>ScriptApp.deleteTrigger(t));
+
   ScriptApp.newTrigger('expireReservationsTrigger').timeBased().everyMinutes(5).create();
+  ScriptApp.newTrigger('rentalSpreadsheetEditTrigger').forSpreadsheet(ss_()).onEdit().create();
 }
 function expireReservationsTrigger(){expireReservations_();}
 
@@ -180,13 +226,58 @@ function ensureRentalSheets_(){
 }
 
 function sendReservationCreated_(r){
-  const subject='Solicitud de reserva '+r.reservationCode+' - '+r.venueName; const body=`Hola ${r.firstName},\n\nSe generó tu solicitud de reserva.\n\nCódigo: ${r.reservationCode}\nEspacio: ${r.venueName}\nHorario: ${fmt_(r.startDateTime)} a ${fmtTime_(r.endDateTime)}\nTotal: S/ ${Number(r.total).toFixed(2)}\nPaga hasta: ${fmt_(r.paymentDeadline)}\n\nLa caja cuenta con 10 minutos adicionales de gracia únicamente para registrar un pago recibido a tiempo. La reserva se confirma cuando la municipalidad registra el pago.\n\nPacha Deportes`;
-  MailApp.sendEmail({to:r.email,subject,body,cc:RENTAL_CFG.ADMIN_EMAIL});
+  const subject='Solicitud de reserva '+r.reservationCode+' - '+r.venueName;
+  const qrText=['PACHA DEPORTES','CODIGO:'+r.reservationCode,'ESPACIO:'+r.venueName,'FECHA:'+fmt_(r.startDateTime),'TOTAL:S/'+Number(r.total).toFixed(2),'DNI:'+r.dni].join('|');
+  const qrUrl='https://quickchart.io/qr?size=260&margin=1&text='+encodeURIComponent(qrText);
+  const html=emailShell_({
+    title:'Solicitud de reserva generada',
+    preheader:'Tu horario está bloqueado temporalmente hasta que se registre el pago.',
+    status:'PAGO PENDIENTE', statusBg:'#f59e0b',
+    greeting:'Hola '+html_(r.firstName)+',',
+    message:'Tu solicitud fue registrada correctamente. Presenta el código o el QR en caja municipal para efectuar el pago.',
+    code:r.reservationCode,
+    deadline:fmt_(r.paymentDeadline),
+    qrUrl:qrUrl,
+    rows:[
+      ['Espacio deportivo',r.venueName],['Dirección',RENTAL_CFG.VENUE_ADDRESS],
+      ['Fecha y horario',fmt_(r.startDateTime)+' a '+fmtTime_(r.endDateTime)],
+      ['Duración',r.hours+' '+(Number(r.hours)===1?'hora':'horas')],['Total a pagar','S/ '+Number(r.total).toFixed(2)],
+      ['Titular',r.firstName+' '+r.lastName],['DNI',r.dni],['WhatsApp',r.phone],['Correo',r.email]
+    ],
+    note:'La reserva se confirma únicamente cuando se concreta el pago. Caja dispone de 10 minutos de gracia administrativa después del vencimiento para registrar un pago recibido dentro del plazo.'
+  });
+  const body='Solicitud '+r.reservationCode+'\nPaga hasta: '+fmt_(r.paymentDeadline)+'\nTotal: S/ '+Number(r.total).toFixed(2);
+  MailApp.sendEmail({to:r.email,subject,body,htmlBody:html,cc:RENTAL_CFG.ADMIN_EMAIL,name:'Pacha Deportes'});
 }
 function sendPaymentConfirmation_(r){
-  if(bool_(r.confirmationEmailSent))return; const subject='Reserva confirmada '+r.reservationCode; const body=`Hola ${r.firstName},\n\nTu pago fue registrado y la reserva quedó confirmada.\n\nCódigo: ${r.reservationCode}\nEspacio: ${r.venueName}\nHorario: ${fmt_(r.startDateTime)} a ${fmtTime_(r.endDateTime)}\nTotal pagado: S/ ${Number(r.total).toFixed(2)}\nComprobante: ${r.receiptNumber||'Registrado en caja'}\n\nConserva este correo y tu código de reserva.\n\nPacha Deportes`;
-  MailApp.sendEmail({to:r.email,subject,body,cc:RENTAL_CFG.ADMIN_EMAIL}); updateReservationFields_(r._row,{confirmationEmailSent:true});
+  if(bool_(r.confirmationEmailSent))return;
+  const subject='Reserva confirmada '+r.reservationCode;
+  const html=emailShell_({
+    title:'Reserva confirmada',
+    preheader:'Tu pago fue registrado y el espacio quedó reservado.',
+    status:'PAGO CONFIRMADO', statusBg:'#16a34a',
+    greeting:'Hola '+html_(r.firstName)+',',
+    message:'Tu pago fue registrado correctamente. El horario ya quedó confirmado a tu nombre.',
+    code:r.reservationCode,
+    rows:[
+      ['Espacio deportivo',r.venueName],['Dirección',RENTAL_CFG.VENUE_ADDRESS],
+      ['Fecha y horario',fmt_(r.startDateTime)+' a '+fmtTime_(r.endDateTime)],
+      ['Total pagado','S/ '+Number(r.total).toFixed(2)],['Comprobante',r.receiptNumber||'Registrado en caja'],
+      ['Titular',r.firstName+' '+r.lastName],['DNI',r.dni]
+    ],
+    note:'Conserva este correo y tu código de reserva. Preséntalos cuando acudas al espacio deportivo.'
+  });
+  const body='Reserva confirmada '+r.reservationCode+'\nTotal pagado: S/ '+Number(r.total).toFixed(2);
+  MailApp.sendEmail({to:r.email,subject,body,htmlBody:html,cc:RENTAL_CFG.ADMIN_EMAIL,name:'Pacha Deportes'});
+  updateReservationFields_(r._row,{confirmationEmailSent:true});
 }
+function emailShell_(d){
+  const rows=(d.rows||[]).map(function(row){return '<tr><td style="padding:8px 0;color:#64748b;font-size:13px;width:42%;vertical-align:top">'+html_(row[0])+'</td><td style="padding:8px 0;color:#102033;font-size:13px;font-weight:700;text-align:right;vertical-align:top">'+html_(row[1])+'</td></tr>';}).join('');
+  const deadline=d.deadline?'<div style="margin:16px 0;padding:14px 16px;background:#fff7dc;border:1px solid #f2cf67;border-radius:12px"><span style="display:inline-block;padding:5px 9px;background:#f59e0b;color:#fff;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.04em">LÍMITE DE PAGO</span><div style="margin-top:8px;color:#6b4b00;font-size:15px;font-weight:800">'+html_(d.deadline)+'</div></div>':'';
+  const qr=d.qrUrl?'<td style="width:150px;text-align:center;vertical-align:middle"><img src="'+d.qrUrl+'" width="132" height="132" alt="QR de reserva" style="display:block;margin:auto;border:5px solid #fff;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.12)"></td>':'';
+  return '<!doctype html><html><body style="margin:0;background:#eef2f6;font-family:Arial,sans-serif;color:#102033"><div style="display:none;max-height:0;overflow:hidden">'+html_(d.preheader||'')+'</div><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#eef2f6;padding:24px 10px"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 12px 35px rgba(15,23,42,.12)"><tr><td style="padding:22px 24px;background:#071225"><table width="100%"><tr><td><img src="'+RENTAL_CFG.LOGO_URL+'" alt="Pacha Deportes" style="display:block;width:170px;max-width:100%;height:auto"></td><td align="right"><span style="display:inline-block;padding:7px 10px;background:'+d.statusBg+';color:#fff;border-radius:999px;font-size:11px;font-weight:800">'+html_(d.status)+'</span></td></tr></table></td></tr><tr><td style="padding:26px 24px"><h1 style="margin:0 0 8px;font-size:24px;line-height:1.2">'+html_(d.title)+'</h1><p style="margin:0 0 7px;font-size:15px;font-weight:700">'+d.greeting+'</p><p style="margin:0;color:#5b6879;font-size:14px;line-height:1.55">'+html_(d.message)+'</p>'+deadline+'<table width="100%" cellspacing="0" cellpadding="0" style="margin:16px 0;background:#f3f6f9;border-radius:14px"><tr><td style="padding:16px"><div style="font-size:11px;color:#64748b;font-weight:800;text-transform:uppercase">Código de reserva</div><div style="margin-top:5px;font-size:22px;font-weight:900;letter-spacing:.04em">'+html_(d.code)+'</div></td>'+qr+'</tr></table><table width="100%" cellspacing="0" cellpadding="0" style="border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0">'+rows+'</table><p style="margin:18px 0 0;padding:13px 15px;background:#f8fafc;border-radius:10px;color:#5b6879;font-size:12px;line-height:1.55">'+html_(d.note||'')+'</p></td></tr><tr><td style="padding:16px 24px;background:#f8fafc;color:#7b8797;font-size:11px;text-align:center">Pacha Deportes · Municipalidad de Pachacámac</td></tr></table></td></tr></table></body></html>';
+}
+function html_(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 
 function findReservation_(code){return rowsObjects_(RENTAL_CFG.SHEETS.RESERVATIONS).find(r=>String(r.reservationCode).toUpperCase()===String(code||'').trim().toUpperCase());}
 function publicReservation_(r){return {reservationCode:r.reservationCode,venueId:r.venueId,venueName:r.venueName,startDateTime:new Date(r.startDateTime).toISOString(),endDateTime:new Date(r.endDateTime).toISOString(),hours:Number(r.hours),total:Number(r.total),firstName:r.firstName,lastName:r.lastName,dni:r.dni,email:r.email,phone:r.phone,status:r.status,createdAt:new Date(r.createdAt).toISOString(),paymentDeadline:new Date(r.paymentDeadline).toISOString(),graceDeadline:new Date(r.graceDeadline).toISOString(),receiptNumber:r.receiptNumber||''};}

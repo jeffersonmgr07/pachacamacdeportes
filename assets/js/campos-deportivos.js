@@ -29,6 +29,8 @@
   function init() {
     Object.assign(els, {
       cards: $('#venueCards'),
+      chooser: $('#venueChooser'),
+      chooserText: $('#venuePickerText'),
       agenda: $('#weeklyAgenda'),
       weekLabel: $('#weekLabel'),
       status: $('#calendarStatus'),
@@ -70,6 +72,9 @@
     els.form.addEventListener('submit', submitReservation);
     els.print.addEventListener('click', () => window.print());
     document.querySelectorAll('[data-close-result]').forEach(button => button.addEventListener('click', closeModal));
+    const syncVenueChooser = () => { if (els.chooser) { if (window.matchMedia('(max-width: 680px)').matches) els.chooser.removeAttribute('open'); else els.chooser.setAttribute('open', ''); } };
+    syncVenueChooser();
+    window.addEventListener('resize', syncVenueChooser);
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape' && els.modal.classList.contains('open')) closeModal();
     });
@@ -109,6 +114,8 @@
     state.selected.clear();
     renderVenues();
     els.venueLabel.textContent = venue.name;
+    if (els.chooserText) els.chooserText.textContent = venue.name;
+    if (els.chooser && window.matchMedia('(max-width: 680px)').matches) els.chooser.removeAttribute('open');
     updateSummary();
     loadAvailability();
   }
@@ -289,7 +296,7 @@
 
     els.code.textContent = res.reservationCode;
     els.message.textContent = 'El horario se encuentra bloqueado temporalmente mientras realizas el pago.';
-    els.deadline.innerHTML = `<strong>Tiempo límite de pago:</strong><br>${deadline.toLocaleString('es-PE', {dateStyle:'full', timeStyle:'short'})}<br><small>Luego del vencimiento, caja dispone de 10 minutos de gracia para registrar un pago recibido dentro del plazo.</small>`;
+    els.deadline.innerHTML = `<strong>Tiempo límite de pago</strong><span>${deadline.toLocaleString('es-PE', {dateStyle:'full', timeStyle:'short'})}</span><small>Luego del vencimiento, caja dispone de 10 minutos de gracia para registrar un pago recibido dentro del plazo.</small>`;
     els.receiptVenue.textContent = res.venueName;
     els.receiptAddress.textContent = address;
     els.receiptDate.textContent = start.toLocaleDateString('es-PE', {weekday:'long', day:'numeric', month:'long', year:'numeric'});

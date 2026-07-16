@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Alquiler de campos deportivos | Pacha Deportes</title>
   <meta name="description" content="Consulta la disponibilidad semanal y solicita la reserva de espacios deportivos municipales de Pachacámac.">
-  <link rel="stylesheet" href="assets/css/styles.css?v=20260716-campos-v2">
-  <link rel="stylesheet" href="assets/css/campos-deportivos.css?v=20260716-campos-v2">
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260716-campos-v3">
+  <link rel="stylesheet" href="assets/css/campos-deportivos.css?v=20260716-campos-v3">
 </head>
 <body>
   <div data-header data-active="campos"></div>
@@ -26,9 +26,16 @@
 
       <section class="rental-venue-section" aria-labelledby="venueTitle">
         <div class="section-head compact-head">
-          <h2 class="section-title" id="venueTitle">1. Selecciona el espacio deportivo</h2>
+          <h2 class="section-title" id="venueTitle">Selecciona el espacio deportivo</h2>
         </div>
-        <div id="venueCards" class="venue-grid" aria-live="polite"></div>
+        <details id="venueChooser" class="venue-picker">
+          <summary class="venue-picker-summary">
+            <span>Espacio deportivo</span>
+            <strong id="venuePickerText">Selecciona un campo</strong>
+            <i aria-hidden="true">⌄</i>
+          </summary>
+          <div id="venueCards" class="venue-grid" aria-live="polite"></div>
+        </details>
       </section>
 
       <section class="rental-calendar-section" aria-label="Calendario semanal de disponibilidad">
@@ -120,26 +127,26 @@
 
         <div id="reservationDeadline" class="reservation-deadline"></div>
 
-        <section class="receipt-details" aria-label="Datos de la reserva">
-          <h3>Detalle de la reserva</h3>
-          <dl>
-            <div><dt>Espacio deportivo</dt><dd id="receiptVenue">—</dd></div>
-            <div><dt>Dirección</dt><dd id="receiptAddress">—</dd></div>
-            <div><dt>Fecha</dt><dd id="receiptDate">—</dd></div>
-            <div><dt>Horario</dt><dd id="receiptTime">—</dd></div>
-            <div><dt>Duración</dt><dd id="receiptDuration">—</dd></div>
-            <div><dt>Total a pagar</dt><dd id="receiptTotal">—</dd></div>
-          </dl>
+        <section class="receipt-details receipt-compact" aria-label="Datos de la reserva">
+          <h3>Resumen de la reserva</h3>
+          <div class="receipt-summary-list">
+            <div><span>Espacio</span><strong id="receiptVenue">—</strong></div>
+            <div><span>Dirección</span><strong id="receiptAddress">—</strong></div>
+            <div><span>Fecha</span><strong id="receiptDate">—</strong></div>
+            <div><span>Horario</span><strong id="receiptTime">—</strong></div>
+            <div><span>Duración</span><strong id="receiptDuration">—</strong></div>
+            <div class="receipt-total-row"><span>Total a pagar</span><strong id="receiptTotal">—</strong></div>
+          </div>
         </section>
 
-        <section class="receipt-details applicant-details" aria-label="Datos del titular">
-          <h3>Titular de la reserva</h3>
-          <dl>
-            <div><dt>Nombre completo</dt><dd id="receiptName">—</dd></div>
-            <div><dt>DNI</dt><dd id="receiptDni">—</dd></div>
-            <div><dt>WhatsApp</dt><dd id="receiptPhone">—</dd></div>
-            <div><dt>Correo electrónico</dt><dd id="receiptEmail">—</dd></div>
-          </dl>
+        <section class="receipt-details receipt-compact applicant-details" aria-label="Datos del titular">
+          <h3>Titular</h3>
+          <div class="receipt-summary-list applicant-list">
+            <div><span>Nombre</span><strong id="receiptName">—</strong></div>
+            <div><span>DNI</span><strong id="receiptDni">—</strong></div>
+            <div><span>WhatsApp</span><strong id="receiptPhone">—</strong></div>
+            <div><span>Correo</span><strong id="receiptEmail">—</strong></div>
+          </div>
         </section>
 
         <p class="result-note">Presenta este código para efectuar el pago. Conserva este comprobante hasta que la reserva sea confirmada.</p>
@@ -153,9 +160,9 @@
   </div>
 
   <div data-footer></div>
-  <script src="assets/components/header.js?v=20260716-campos-v2"></script>
+  <script src="assets/components/header.js?v=20260716-campos-v3"></script>
   <script src="assets/components/footer.js"></script>
   <script src="assets/js/config.js?v=20260716-campos-v2"></script>
-  <script src="assets/js/campos-deportivos.js?v=20260716-campos-v2"></script>
+  <script src="assets/js/campos-deportivos.js?v=20260716-campos-v3"></script>
 </body>
 </html>
