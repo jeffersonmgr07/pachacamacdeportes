@@ -1,1 +1,53 @@
-<!doctype html><html><head><base target="_top"><style>body{font-family:Arial,sans-serif;padding:14px;color:#172033}label{display:block;font-weight:700;margin:12px 0 5px}input{box-sizing:border-box;width:100%;padding:11px;border:1px solid #ccd5e0;border-radius:8px}button{width:100%;padding:12px;margin-top:12px;border:0;border-radius:9px;background:#17365d;color:white;font-weight:700;cursor:pointer}.pay{background:#287a35}.card{margin-top:14px;padding:14px;border-radius:10px;background:#eef3f8}.error{color:#a51d2d}.ok{color:#236b31}small{color:#667085}</style></head><body><h2>Confirmar pago</h2><p><small>Busca el código mostrado por el cliente. El sistema valida automáticamente el vencimiento y los 10 minutos de gracia.</small></p><label>Código de reserva</label><input id="code" placeholder="PC-260716-ABCDE"><button onclick="search()">Buscar reserva</button><div id="result"></div><script>let current='';function search(){const c=document.getElementById('code').value.trim();document.getElementById('result').innerHTML='Buscando…';google.script.run.withSuccessHandler(show).withFailureHandler(err).cashierLookup(c)}function show(x){if(!x.ok){document.getElementById('result').innerHTML='<p class="error">'+x.message+'</p>';return}current=x.reservation.reservationCode;const r=x.reservation;document.getElementById('result').innerHTML='<div class="card"><b>'+r.venueName+'</b><p>'+new Date(r.startDateTime).toLocaleString('es-PE')+'<br>'+r.hours+' hora(s) · S/ '+Number(r.total).toFixed(2)+'</p><p>Cliente: '+r.firstName+' '+r.lastName+'<br>DNI: '+r.dni+'<br>Estado: <b>'+r.status+'</b></p><label>N.° de comprobante</label><input id="receipt"><button class="pay" onclick="pay()">Confirmar pago</button></div>'}function pay(){const receipt=document.getElementById('receipt').value.trim();if(!receipt&&!confirm('¿Confirmar sin número de comprobante?'))return;google.script.run.withSuccessHandler(x=>{document.getElementById('result').innerHTML='<p class="ok"><b>'+x.message+'</b></p>'}).withFailureHandler(err).cashierConfirmPayment(current,receipt)}function err(e){document.getElementById('result').innerHTML='<p class="error">'+e.message+'</p>'}</script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    :root{font-family:Arial,sans-serif;color:#172033;background:#eef2f6}*{box-sizing:border-box}body{margin:0;padding:16px}.shell{max-width:760px;margin:auto}.top{background:#071225;color:#fff;padding:18px;border-radius:16px;margin-bottom:14px}.top h1{font-size:21px;margin:0 0 5px}.top p{margin:0;color:#c9d3df;font-size:13px}.tabs{display:flex;gap:8px;margin-bottom:12px}.tab{flex:1;border:0;border-radius:10px;padding:11px;font-weight:800;cursor:pointer;background:#dce4ed;color:#18304f}.tab.active{background:#17365d;color:#fff}.panel{display:none;background:#fff;border-radius:16px;padding:16px;box-shadow:0 8px 25px rgba(15,23,42,.08)}.panel.active{display:block}label{display:block;font-weight:700;margin:12px 0 5px;font-size:13px}input,select,textarea{width:100%;padding:11px;border:1px solid #ccd5e0;border-radius:9px;font:inherit}textarea{min-height:78px;resize:vertical}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{width:100%;padding:12px;margin-top:12px;border:0;border-radius:9px;background:#17365d;color:#fff;font-weight:800;cursor:pointer}.btn.pay{background:#287a35}.btn.danger{background:#a9222f}.card{margin-top:14px;padding:14px;border-radius:12px;background:#eef3f8}.error{color:#a51d2d;font-weight:700}.ok{color:#236b31;font-weight:700}.items{display:grid;gap:8px;margin:10px 0}.item{background:#fff;border:1px solid #d9e1ea;padding:9px;border-radius:9px;font-size:13px}.block-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border-bottom:1px solid #e4e9ef;padding:10px 0}.block-row:last-child{border-bottom:0}.mini{width:auto;margin:0;padding:8px 10px;font-size:12px}.muted{color:#667085;font-size:12px}@media(max-width:600px){body{padding:10px}.grid{grid-template-columns:1fr}.tabs{position:sticky;top:0;z-index:3;background:#eef2f6;padding:6px 0}.top{padding:15px}}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <div class="top"><h1>Caja y administración de campos</h1><p>Acceso restringido a cuentas Google autorizadas.</p></div>
+  <div class="tabs">
+    <button class="tab active" data-tab="payment">Confirmar pago</button>
+    <button class="tab" data-tab="block">Bloqueo municipal</button>
+  </div>
+
+  <section id="payment" class="panel active">
+    <h2>Validar una reserva</h2>
+    <label>Código de reserva</label>
+    <input id="code" autocomplete="off" placeholder="260716A9X7K">
+    <button class="btn" onclick="searchReservation()">Buscar reserva</button>
+    <div id="paymentResult"></div>
+  </section>
+
+  <section id="block" class="panel">
+    <h2>Bloquear horario sin pago</h2>
+    <p class="muted">Úsalo para eventos municipales, mantenimiento u otras actividades institucionales.</p>
+    <label>Espacio deportivo</label>
+    <select id="blockVenue"><option value="COLISEO_PACHACAMAC">Coliseo Deportivo Pachacámac</option></select>
+    <label>Fecha</label><input id="blockDate" type="date">
+    <div class="grid"><div><label>Hora de inicio</label><input id="blockStart" type="time" min="08:00" max="22:00" step="3600"></div><div><label>Hora de fin</label><input id="blockEnd" type="time" min="09:00" max="23:00" step="3600"></div></div>
+    <label>Motivo</label><textarea id="blockReason" placeholder="Ej.: Evento municipal por el Día del Niño"></textarea>
+    <button class="btn danger" onclick="createBlock()">Bloquear horario</button>
+    <div id="blockMessage"></div>
+    <h3>Bloqueos activos</h3><div id="blockList" class="card">Cargando…</div>
+  </section>
+</div>
+<script>
+  let currentCode='';
+  document.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab,.panel').forEach(x=>x.classList.remove('active'));btn.classList.add('active');document.getElementById(btn.dataset.tab).classList.add('active');if(btn.dataset.tab==='block')loadBlocks();}));
+  function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function formatDateTime(v){return new Date(v).toLocaleString('es-PE',{weekday:'long',day:'numeric',month:'long',year:'numeric',hour:'numeric',minute:'2-digit'});}
+  function searchReservation(){const c=document.getElementById('code').value.trim();document.getElementById('paymentResult').innerHTML='Buscando…';google.script.run.withSuccessHandler(showReservation).withFailureHandler(showPaymentError).cashierLookup(c);}
+  function showReservation(x){if(!x.ok){document.getElementById('paymentResult').innerHTML='<p class="error">'+esc(x.message)+'</p>';return;}currentCode=x.reservation.reservationCode;const r=x.reservation;const items=(r.items||[]).map((item,i)=>'<div class="item"><b>Horario '+(i+1)+'</b><br>'+esc(formatDateTime(item.startDateTime))+' a '+esc(new Date(item.endDateTime).toLocaleTimeString('es-PE',{hour:'numeric',minute:'2-digit'}))+'<br>S/ '+Number(item.subtotal).toFixed(2)+'</div>').join('');document.getElementById('paymentResult').innerHTML='<div class="card"><b>'+esc(r.venueName)+'</b><div class="items">'+items+'</div><p>Total: <b>S/ '+Number(r.total).toFixed(2)+'</b><br>Cliente: '+esc(r.firstName+' '+r.lastName)+'<br>DNI: '+esc(r.dni)+'<br>Estado: <b>'+esc(r.status)+'</b></p><label>N.° de comprobante</label><input id="receipt"><button class="btn pay" onclick="confirmPayment()">Confirmar pago</button></div>';}
+  function confirmPayment(){const receipt=document.getElementById('receipt').value.trim();if(!receipt&&!confirm('¿Confirmar sin número de comprobante?'))return;google.script.run.withSuccessHandler(x=>{document.getElementById('paymentResult').innerHTML='<p class="ok">'+esc(x.message)+'</p>';}).withFailureHandler(showPaymentError).cashierConfirmPayment(currentCode,receipt);}
+  function showPaymentError(e){document.getElementById('paymentResult').innerHTML='<p class="error">'+esc(e.message||e)+'</p>';}
+  function createBlock(){const d=document.getElementById('blockDate').value,s=document.getElementById('blockStart').value,e=document.getElementById('blockEnd').value;if(!d||!s||!e){document.getElementById('blockMessage').innerHTML='<p class="error">Completa fecha y horas.</p>';return;}const data={venueId:document.getElementById('blockVenue').value,startDateTime:d+'T'+s+':00',endDateTime:d+'T'+e+':00',reason:document.getElementById('blockReason').value.trim()};google.script.run.withSuccessHandler(x=>{document.getElementById('blockMessage').innerHTML='<p class="ok">'+esc(x.message)+'</p>';loadBlocks();}).withFailureHandler(err=>{document.getElementById('blockMessage').innerHTML='<p class="error">'+esc(err.message||err)+'</p>';}).cashierCreateBlock(data);}
+  function loadBlocks(){google.script.run.withSuccessHandler(x=>{const list=document.getElementById('blockList');if(!x.blocks.length){list.innerHTML='<span class="muted">No hay bloqueos activos.</span>';return;}list.innerHTML=x.blocks.map(b=>'<div class="block-row"><div><b>'+esc(b.venueName)+'</b><br><span class="muted">'+esc(formatDateTime(b.startDateTime))+' a '+esc(new Date(b.endDateTime).toLocaleTimeString('es-PE',{hour:'numeric',minute:'2-digit'}))+' · '+esc(b.reason)+'</span></div><button class="btn mini" onclick="releaseBlock(\''+esc(b.blockId)+'\')">Liberar</button></div>').join('');}).withFailureHandler(err=>{document.getElementById('blockList').innerHTML='<p class="error">'+esc(err.message||err)+'</p>';}).cashierListBlocks();}
+  function releaseBlock(id){if(!confirm('¿Liberar este horario?'))return;google.script.run.withSuccessHandler(loadBlocks).withFailureHandler(err=>alert(err.message||err)).cashierCancelBlock(id);}
+</script>
+</body>
+</html>
