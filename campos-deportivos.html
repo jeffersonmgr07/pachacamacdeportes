@@ -6,7 +6,7 @@
   <title>Alquiler de campos deportivos | Pacha Deportes</title>
   <meta name="description" content="Consulta la disponibilidad semanal y solicita la reserva de espacios deportivos municipales de Pachacámac.">
   <link rel="stylesheet" href="assets/css/styles.css?v=20260716-campos-v3">
-  <link rel="stylesheet" href="assets/css/campos-deportivos.css?v=20260716-campos-v3">
+  <link rel="stylesheet" href="assets/css/campos-deportivos.css?v=20260716-campos-v4">
 </head>
 <body>
   <div data-header data-active="campos"></div>
@@ -99,14 +99,16 @@
 
       <article id="printableReceipt" class="reservation-receipt">
         <header class="receipt-header">
-          <div class="receipt-brand">
+          <div class="receipt-logo-bar">
             <img src="assets/img/logo-pacha-deportes.png" alt="Pacha Deportes">
-            <div>
+          </div>
+          <div class="receipt-title-row">
+            <div class="receipt-brand-copy">
               <span>Reserva online</span>
               <h2 id="resultTitle">Solicitud de reserva</h2>
             </div>
+            <span class="receipt-status">Pago pendiente</span>
           </div>
-          <span class="receipt-status">Pago pendiente</span>
         </header>
 
         <div class="receipt-intro">
@@ -122,7 +124,7 @@
             <span>Código de reserva</span>
             <strong id="reservationCode"></strong>
           </div>
-          <img id="reservationQr" class="reservation-qr" alt="Código QR de la reserva">
+          <img id="reservationQr" class="reservation-qr" alt="Código QR de la reserva" referrerpolicy="no-referrer">
         </div>
 
         <div id="reservationDeadline" class="reservation-deadline"></div>
@@ -149,11 +151,11 @@
           </div>
         </section>
 
-        <p class="result-note">Presenta este código para efectuar el pago. Conserva este comprobante hasta que la reserva sea confirmada.</p>
+        <p class="result-note">Presenta este código al efectuar el pago en la caja de la municipalidad. Haz una captura de este comprobante y consérvala hasta que la reserva sea confirmada.</p>
       </article>
 
       <div class="receipt-actions no-print">
-        <button id="printReservation" class="btn btn-secondary" type="button">Imprimir comprobante</button>
+        <button id="printReservation" class="receipt-print-btn" type="button" title="Imprimir comprobante" aria-label="Imprimir comprobante">🖨️</button>
         <button class="btn btn-primary" type="button" data-close-result>Cerrar</button>
       </div>
     </div>
@@ -163,6 +165,6 @@
   <script src="assets/components/header.js?v=20260716-campos-v3"></script>
   <script src="assets/components/footer.js"></script>
   <script src="assets/js/config.js?v=20260716-campos-v2"></script>
-  <script src="assets/js/campos-deportivos.js?v=20260716-campos-v3"></script>
+  <script src="assets/js/campos-deportivos.js?v=20260716-campos-v4"></script>
 </body>
 </html>

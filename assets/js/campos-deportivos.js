@@ -296,7 +296,7 @@
 
     els.code.textContent = res.reservationCode;
     els.message.textContent = 'El horario se encuentra bloqueado temporalmente mientras realizas el pago.';
-    els.deadline.innerHTML = `<strong>Tiempo límite de pago</strong><span>${deadline.toLocaleString('es-PE', {dateStyle:'full', timeStyle:'short'})}</span><small>Luego del vencimiento, caja dispone de 10 minutos de gracia para registrar un pago recibido dentro del plazo.</small>`;
+    els.deadline.innerHTML = `<strong>Tiempo límite de pago</strong><span>${formatSpanishDeadline(deadline)}</span>`;
     els.receiptVenue.textContent = res.venueName;
     els.receiptAddress.textContent = address;
     els.receiptDate.textContent = start.toLocaleDateString('es-PE', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
@@ -317,7 +317,14 @@
       `TOTAL:S/${Number(res.total).toFixed(2)}`,
       `DNI:${applicant.dni}`
     ].join('|');
-    els.qr.src = `https://quickchart.io/qr?size=300&margin=1&text=${encodeURIComponent(qrText)}`;
+    const qrData = encodeURIComponent(qrText);
+    els.qr.dataset.fallbackUsed = 'false';
+    els.qr.onerror = () => {
+      if (els.qr.dataset.fallbackUsed === 'true') return;
+      els.qr.dataset.fallbackUsed = 'true';
+      els.qr.src = `https://quickchart.io/qr?size=300&margin=1&text=${qrData}`;
+    };
+    els.qr.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=8&data=${qrData}`;
 
     els.modal.classList.add('open');
     els.modal.setAttribute('aria-hidden', 'false');
@@ -356,6 +363,11 @@
   function fmtDate(date) { return date.toLocaleDateString('es-PE', {day:'numeric', month:'long'}); }
   function formatFullDate(date) { return new Date(`${date}T12:00:00`).toLocaleDateString('es-PE', {weekday:'long', day:'numeric', month:'long', year:'numeric'}); }
   function formatTime(date) { return date.toLocaleTimeString('es-PE', {hour:'numeric', minute:'2-digit', hour12:true}); }
+  function formatSpanishDeadline(date) {
+    const day = date.toLocaleDateString('es-PE', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+    const time = date.toLocaleTimeString('es-PE', {hour:'numeric', minute:'2-digit', hour12:true});
+    return `${day}, hasta las ${time}`;
+  }
   function hourLabel(hour) { const value = hour % 12 || 12; return `${value}:00 ${hour < 12 ? 'a. m.' : 'p. m.'}`; }
   function priceFor(hour) { return hour < 18 ? 20 : 30; }
   function truthy(value) { return value === true || String(value).toLowerCase() === 'true' || value === 1; }

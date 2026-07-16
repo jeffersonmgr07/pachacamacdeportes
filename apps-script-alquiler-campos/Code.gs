@@ -228,7 +228,7 @@ function ensureRentalSheets_(){
 function sendReservationCreated_(r){
   const subject='Solicitud de reserva '+r.reservationCode+' - '+r.venueName;
   const qrText=['PACHA DEPORTES','CODIGO:'+r.reservationCode,'ESPACIO:'+r.venueName,'FECHA:'+fmt_(r.startDateTime),'TOTAL:S/'+Number(r.total).toFixed(2),'DNI:'+r.dni].join('|');
-  const qrUrl='https://quickchart.io/qr?size=260&margin=1&text='+encodeURIComponent(qrText);
+  const qrUrl='https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=8&data='+encodeURIComponent(qrText);
   const html=emailShell_({
     title:'Solicitud de reserva generada',
     preheader:'Tu horario está bloqueado temporalmente hasta que se registre el pago.',
@@ -236,7 +236,7 @@ function sendReservationCreated_(r){
     greeting:'Hola '+html_(r.firstName)+',',
     message:'Tu solicitud fue registrada correctamente. Presenta el código o el QR en caja municipal para efectuar el pago.',
     code:r.reservationCode,
-    deadline:fmt_(r.paymentDeadline),
+    deadline:fmtDeadline_(r.paymentDeadline),
     qrUrl:qrUrl,
     rows:[
       ['Espacio deportivo',r.venueName],['Dirección',RENTAL_CFG.VENUE_ADDRESS],
@@ -244,9 +244,9 @@ function sendReservationCreated_(r){
       ['Duración',r.hours+' '+(Number(r.hours)===1?'hora':'horas')],['Total a pagar','S/ '+Number(r.total).toFixed(2)],
       ['Titular',r.firstName+' '+r.lastName],['DNI',r.dni],['WhatsApp',r.phone],['Correo',r.email]
     ],
-    note:'La reserva se confirma únicamente cuando se concreta el pago. Caja dispone de 10 minutos de gracia administrativa después del vencimiento para registrar un pago recibido dentro del plazo.'
+    note:'La reserva queda confirmada únicamente cuando se concreta el pago. Presenta este código al efectuar el pago en la caja de la municipalidad.'
   });
-  const body='Solicitud '+r.reservationCode+'\nPaga hasta: '+fmt_(r.paymentDeadline)+'\nTotal: S/ '+Number(r.total).toFixed(2);
+  const body='Solicitud '+r.reservationCode+'\nPaga hasta: '+fmtDeadline_(r.paymentDeadline)+'\nTotal: S/ '+Number(r.total).toFixed(2);
   MailApp.sendEmail({to:r.email,subject,body,htmlBody:html,cc:RENTAL_CFG.ADMIN_EMAIL,name:'Pacha Deportes'});
 }
 function sendPaymentConfirmation_(r){
@@ -284,10 +284,24 @@ function publicReservation_(r){return {reservationCode:r.reservationCode,venueId
 function updateReservationFields_(row,fields){const sh=sheet_(RENTAL_CFG.SHEETS.RESERVATIONS),headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0];Object.keys(fields).forEach(k=>{const c=headers.indexOf(k)+1;if(c>0)sh.getRange(row,c).setValue(fields[k]);});}
 function rowsObjects_(name){const sh=sheet_(name),v=sh.getDataRange().getValues();if(v.length<2)return[];const h=v[0];return v.slice(1).filter(r=>r.some(x=>x!==''&&x!==null)).map((r,i)=>{const o={_row:i+2};h.forEach((k,j)=>o[k]=r[j]);return o;});}
 function validateApplicant_(p){if(!clean_(p.firstName)||!clean_(p.lastName))throw new Error('Ingresa nombres y apellidos.');if(digits_(p.dni).length!==8)throw new Error('El DNI debe tener 8 dígitos.');if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean_(p.email)))throw new Error('Correo electrónico inválido.');if(digits_(p.phone).length<9)throw new Error('Número de WhatsApp inválido.');}
-function makeCode_(){return 'PC-'+Utilities.formatDate(new Date(),RENTAL_CFG.TIMEZONE,'yyMMdd')+'-'+Math.random().toString(36).slice(2,7).toUpperCase();}
+function makeCode_(){const alphabet='ABCDEFGHJKMNPQRSTUVWXYZ23456789';let random='';for(let i=0;i<5;i++)random+=alphabet.charAt(Math.floor(Math.random()*alphabet.length));return Utilities.formatDate(new Date(),RENTAL_CFG.TIMEZONE,'yyMMdd')+random;}
 function jsonp_(cb,obj){return ContentService.createTextOutput(cb+'('+JSON.stringify(obj)+');').setMimeType(ContentService.MimeType.JAVASCRIPT);}
 function ss_(){return RENTAL_CFG.SPREADSHEET_ID?SpreadsheetApp.openById(RENTAL_CFG.SPREADSHEET_ID):SpreadsheetApp.getActive();} function sheet_(n){const s=ss_().getSheetByName(n);if(!s)throw new Error('Falta la hoja '+n);return s;}
 function parseLocal_(s){const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?/);return m?new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]),Number(m[5]),Number(m[6]||0)):new Date('invalid');}
 function startDay_(d){const x=new Date(d);x.setHours(0,0,0,0);return x;} function localDateKey_(d){return Utilities.formatDate(new Date(d),RENTAL_CFG.TIMEZONE,'yyyy-MM-dd');}
-function fmt_(d){return Utilities.formatDate(new Date(d),RENTAL_CFG.TIMEZONE,"EEEE d 'de' MMMM 'de' yyyy, h:mm a");} function fmtTime_(d){return Utilities.formatDate(new Date(d),RENTAL_CFG.TIMEZONE,'h:mm a');}
+function fmt_(d){
+  const date=new Date(d);
+  const days=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  const months=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  return days[Number(Utilities.formatDate(date,RENTAL_CFG.TIMEZONE,'u'))%7]+' '+Number(Utilities.formatDate(date,RENTAL_CFG.TIMEZONE,'d'))+' de '+months[Number(Utilities.formatDate(date,RENTAL_CFG.TIMEZONE,'M'))-1]+' de '+Utilities.formatDate(date,RENTAL_CFG.TIMEZONE,'yyyy')+', '+fmtTime_(date);
+}
+function fmtDeadline_(d){
+  const text=fmt_(d);
+  const pos=text.lastIndexOf(', ');
+  return pos===-1?text:text.slice(0,pos)+', hasta las '+text.slice(pos+2);
+}
+function fmtTime_(d){
+  const raw=Utilities.formatDate(new Date(d),RENTAL_CFG.TIMEZONE,'h:mm a');
+  return raw.replace(/AM/i,'a. m.').replace(/PM/i,'p. m.');
+}
 function clean_(v){return String(v==null?'':v).trim();} function digits_(v){return clean_(v).replace(/\D/g,'');} function bool_(v){return v===true||String(v).toLowerCase()==='true'||v===1;}
