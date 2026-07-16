@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Alquiler de campos deportivos | Pacha Deportes</title>
+  <meta name="description" content="Consulta la disponibilidad semanal y solicita la reserva de espacios deportivos municipales de Pachacámac.">
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260716-campos">
+  <link rel="stylesheet" href="assets/css/campos-deportivos.css?v=20260716-campos">
+</head>
+<body>
+  <div data-header data-active="campos"></div>
+
+  <section class="sports-rental-hero">
+    <div class="container">
+      <span class="kicker">Reserva municipal</span>
+      <h1>Alquiler de campos deportivos</h1>
+      <p>Consulta horarios disponibles, selecciona una o más horas consecutivas y genera tu solicitud de reserva.</p>
+    </div>
+  </section>
+
+  <main class="section rental-main">
+    <div class="container">
+      <div class="rental-alert rental-alert-info">
+        <strong>Importante:</strong> la solicitud bloquea temporalmente el horario. La reserva queda confirmada únicamente cuando la caja municipal registra el pago.
+      </div>
+
+      <section class="rental-venue-section" aria-labelledby="venueTitle">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title" id="venueTitle">1. Selecciona el espacio deportivo</h2>
+            <p class="section-subtitle">Los espacios marcados como “Próximamente” todavía no reciben reservas en línea.</p>
+          </div>
+        </div>
+        <div id="venueCards" class="venue-grid" aria-live="polite"></div>
+      </section>
+
+      <section class="rental-calendar-section" aria-labelledby="calendarTitle">
+        <div class="calendar-toolbar">
+          <div>
+            <h2 class="section-title" id="calendarTitle">2. Elige fecha y horario</h2>
+            <p id="selectedVenueLabel" class="section-subtitle">Selecciona un espacio habilitado.</p>
+          </div>
+          <div class="week-controls">
+            <button id="prevWeek" class="btn btn-secondary" type="button" aria-label="Semana anterior">‹</button>
+            <button id="todayWeek" class="btn btn-secondary" type="button">Hoy</button>
+            <button id="nextWeek" class="btn btn-secondary" type="button" aria-label="Semana siguiente">›</button>
+          </div>
+        </div>
+
+        <div class="calendar-legend" aria-label="Leyenda de disponibilidad">
+          <span><i class="legend-dot available"></i>Disponible</span>
+          <span><i class="legend-dot selected"></i>Seleccionado</span>
+          <span><i class="legend-dot pending"></i>Pago pendiente</span>
+          <span><i class="legend-dot occupied"></i>Ocupado</span>
+          <span><i class="legend-dot past"></i>Horario pasado</span>
+        </div>
+
+        <div id="calendarStatus" class="calendar-status" role="status"></div>
+        <div class="agenda-shell">
+          <div id="weekLabel" class="week-label"></div>
+          <div id="weeklyAgenda" class="weekly-agenda" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section id="reservationPanel" class="reservation-panel" hidden>
+        <div class="reservation-summary">
+          <div>
+            <span class="kicker">Tu selección</span>
+            <h2 id="selectionTitle">Reserva</h2>
+            <div id="selectionDetails"></div>
+          </div>
+          <div class="price-box">
+            <span>Total estimado</span>
+            <strong id="selectionTotal">S/ 0.00</strong>
+          </div>
+        </div>
+
+        <form id="reservationForm" class="reservation-form" novalidate>
+          <h3>3. Datos del solicitante</h3>
+          <div class="form-grid">
+            <label>Nombres<input class="input" name="firstName" autocomplete="given-name" required maxlength="60"></label>
+            <label>Apellidos<input class="input" name="lastName" autocomplete="family-name" required maxlength="80"></label>
+            <label>DNI<input class="input" name="dni" inputmode="numeric" pattern="[0-9]{8}" minlength="8" maxlength="8" required></label>
+            <label>Correo electrónico<input class="input" name="email" type="email" autocomplete="email" required maxlength="120"></label>
+            <label>WhatsApp<input class="input" name="phone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20"></label>
+          </div>
+          <label class="terms-check"><input type="checkbox" name="terms" required> Declaro que los datos son correctos y acepto que la solicitud se anule automáticamente si el pago no se registra dentro del plazo indicado.</label>
+          <button class="btn btn-primary reserve-button" type="submit">Solicitar reserva</button>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <div id="reservationModal" class="reservation-result-modal" aria-hidden="true">
+    <div class="reservation-result-card" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+      <button class="modal-x" type="button" data-close-result aria-label="Cerrar">×</button>
+      <span class="result-icon">✓</span>
+      <h2 id="resultTitle">Solicitud generada</h2>
+      <p id="resultMessage"></p>
+      <img id="reservationQr" class="reservation-qr" alt="Código QR de la reserva">
+      <div class="reservation-code-wrap"><span>Código de reserva</span><strong id="reservationCode"></strong></div>
+      <div id="reservationDeadline" class="reservation-deadline"></div>
+      <p class="result-note">Presenta este código en la caja de la Municipalidad de Pachacámac. La atención es de lunes a viernes, de 8:00 a. m. a 5:00 p. m.</p>
+      <button class="btn btn-primary" type="button" data-close-result>Entendido</button>
+    </div>
+  </div>
+
+  <div data-footer></div>
+  <script src="assets/components/header.js?v=20260716-campos"></script>
+  <script src="assets/components/footer.js"></script>
+  <script src="assets/js/config.js?v=20260716-campos"></script>
+  <script src="assets/js/campos-deportivos.js?v=20260716-campos"></script>
+</body>
+</html>

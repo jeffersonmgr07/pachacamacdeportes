@@ -25,6 +25,7 @@ function headerHTML(active = 'deportes', championship = false){
     <a class="${active==='campeonatos'?'active':''}" href="campeonatos.html">Campeonatos</a>
     <a class="${active==='talleres'?'active':''}" href="talleres.html">Talleres</a>
     <a class="${active==='comunicados'?'active':''}" href="comunicados.html">Comunicados</a>
+    <a class="${active==='campos'?'active':''}" href="campos-deportivos.html">Campos deportivos</a>
     ${loginButton}
   `;
   const navChamp = `
