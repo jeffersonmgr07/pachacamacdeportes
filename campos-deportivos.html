@@ -2,49 +2,42 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Alquiler de campos deportivos | Pacha Deportes</title>
   <meta name="description" content="Consulta la disponibilidad semanal y solicita la reserva de espacios deportivos municipales de Pachacámac.">
-  <link rel="stylesheet" href="assets/css/styles.css?v=20260716-campos">
-  <link rel="stylesheet" href="assets/css/campos-deportivos.css?v=20260716-campos">
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260716-campos-v2">
+  <link rel="stylesheet" href="assets/css/campos-deportivos.css?v=20260716-campos-v2">
 </head>
 <body>
   <div data-header data-active="campos"></div>
 
   <section class="sports-rental-hero">
     <div class="container">
-      <span class="kicker">Reserva municipal</span>
+      <span class="kicker">Reserva online de espacios deportivos</span>
       <h1>Alquiler de campos deportivos</h1>
-      <p>Consulta horarios disponibles, selecciona una o más horas consecutivas y genera tu solicitud de reserva.</p>
     </div>
   </section>
 
   <main class="section rental-main">
-    <div class="container">
+    <div class="container rental-container">
       <div class="rental-alert rental-alert-info">
-        <strong>Importante:</strong> la solicitud bloquea temporalmente el horario. La reserva queda confirmada únicamente cuando la caja municipal registra el pago.
+        <strong>Importante:</strong> la solicitud bloquea temporalmente el horario. La reserva queda confirmada únicamente cuando se concreta el pago de la reserva.
       </div>
 
       <section class="rental-venue-section" aria-labelledby="venueTitle">
-        <div class="section-head">
-          <div>
-            <h2 class="section-title" id="venueTitle">1. Selecciona el espacio deportivo</h2>
-            <p class="section-subtitle">Los espacios marcados como “Próximamente” todavía no reciben reservas en línea.</p>
-          </div>
+        <div class="section-head compact-head">
+          <h2 class="section-title" id="venueTitle">1. Selecciona el espacio deportivo</h2>
         </div>
         <div id="venueCards" class="venue-grid" aria-live="polite"></div>
       </section>
 
-      <section class="rental-calendar-section" aria-labelledby="calendarTitle">
+      <section class="rental-calendar-section" aria-label="Calendario semanal de disponibilidad">
         <div class="calendar-toolbar">
-          <div>
-            <h2 class="section-title" id="calendarTitle">2. Elige fecha y horario</h2>
-            <p id="selectedVenueLabel" class="section-subtitle">Selecciona un espacio habilitado.</p>
-          </div>
-          <div class="week-controls">
-            <button id="prevWeek" class="btn btn-secondary" type="button" aria-label="Semana anterior">‹</button>
-            <button id="todayWeek" class="btn btn-secondary" type="button">Hoy</button>
-            <button id="nextWeek" class="btn btn-secondary" type="button" aria-label="Semana siguiente">›</button>
+          <p id="selectedVenueLabel" class="selected-venue-label">Selecciona un espacio habilitado.</p>
+          <div class="week-controls" aria-label="Navegación semanal">
+            <button id="prevWeek" class="week-nav-button" type="button" aria-label="Semana anterior">‹</button>
+            <button id="todayWeek" class="week-number-button" type="button" aria-label="Volver a la semana actual">Semana</button>
+            <button id="nextWeek" class="week-nav-button" type="button" aria-label="Semana siguiente">›</button>
           </div>
         </div>
 
@@ -57,10 +50,11 @@
         </div>
 
         <div id="calendarStatus" class="calendar-status" role="status"></div>
-        <div class="agenda-shell">
+        <div class="agenda-shell" tabindex="0" aria-label="Desliza horizontalmente para revisar todos los días de la semana">
           <div id="weekLabel" class="week-label"></div>
           <div id="weeklyAgenda" class="weekly-agenda" aria-live="polite"></div>
         </div>
+        <p class="mobile-scroll-hint">Desliza hacia los lados para ver los demás días.</p>
       </section>
 
       <section id="reservationPanel" class="reservation-panel" hidden>
@@ -77,15 +71,15 @@
         </div>
 
         <form id="reservationForm" class="reservation-form" novalidate>
-          <h3>3. Datos del solicitante</h3>
+          <h3>Datos del solicitante</h3>
           <div class="form-grid">
             <label>Nombres<input class="input" name="firstName" autocomplete="given-name" required maxlength="60"></label>
             <label>Apellidos<input class="input" name="lastName" autocomplete="family-name" required maxlength="80"></label>
             <label>DNI<input class="input" name="dni" inputmode="numeric" pattern="[0-9]{8}" minlength="8" maxlength="8" required></label>
             <label>Correo electrónico<input class="input" name="email" type="email" autocomplete="email" required maxlength="120"></label>
-            <label>WhatsApp<input class="input" name="phone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20"></label>
+            <label class="full-field">Número de WhatsApp<input class="input" name="phone" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20"></label>
           </div>
-          <label class="terms-check"><input type="checkbox" name="terms" required> Declaro que los datos son correctos y acepto que la solicitud se anule automáticamente si el pago no se registra dentro del plazo indicado.</label>
+          <label class="terms-check"><input type="checkbox" name="terms" required> <span>Declaro que los datos son correctos y acepto que la solicitud se anule automáticamente si el pago no se registra dentro del plazo indicado.</span></label>
           <button class="btn btn-primary reserve-button" type="submit">Solicitar reserva</button>
         </form>
       </section>
@@ -94,22 +88,74 @@
 
   <div id="reservationModal" class="reservation-result-modal" aria-hidden="true">
     <div class="reservation-result-card" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
-      <button class="modal-x" type="button" data-close-result aria-label="Cerrar">×</button>
-      <span class="result-icon">✓</span>
-      <h2 id="resultTitle">Solicitud generada</h2>
-      <p id="resultMessage"></p>
-      <img id="reservationQr" class="reservation-qr" alt="Código QR de la reserva">
-      <div class="reservation-code-wrap"><span>Código de reserva</span><strong id="reservationCode"></strong></div>
-      <div id="reservationDeadline" class="reservation-deadline"></div>
-      <p class="result-note">Presenta este código en la caja de la Municipalidad de Pachacámac. La atención es de lunes a viernes, de 8:00 a. m. a 5:00 p. m.</p>
-      <button class="btn btn-primary" type="button" data-close-result>Entendido</button>
+      <button class="modal-x no-print" type="button" data-close-result aria-label="Cerrar">×</button>
+
+      <article id="printableReceipt" class="reservation-receipt">
+        <header class="receipt-header">
+          <div class="receipt-brand">
+            <img src="assets/img/logo-pacha-deportes.png" alt="Pacha Deportes">
+            <div>
+              <span>Reserva online</span>
+              <h2 id="resultTitle">Solicitud de reserva</h2>
+            </div>
+          </div>
+          <span class="receipt-status">Pago pendiente</span>
+        </header>
+
+        <div class="receipt-intro">
+          <span class="result-icon">✓</span>
+          <div>
+            <strong>Solicitud generada correctamente</strong>
+            <p id="resultMessage"></p>
+          </div>
+        </div>
+
+        <div class="receipt-code-row">
+          <div class="reservation-code-wrap">
+            <span>Código de reserva</span>
+            <strong id="reservationCode"></strong>
+          </div>
+          <img id="reservationQr" class="reservation-qr" alt="Código QR de la reserva">
+        </div>
+
+        <div id="reservationDeadline" class="reservation-deadline"></div>
+
+        <section class="receipt-details" aria-label="Datos de la reserva">
+          <h3>Detalle de la reserva</h3>
+          <dl>
+            <div><dt>Espacio deportivo</dt><dd id="receiptVenue">—</dd></div>
+            <div><dt>Dirección</dt><dd id="receiptAddress">—</dd></div>
+            <div><dt>Fecha</dt><dd id="receiptDate">—</dd></div>
+            <div><dt>Horario</dt><dd id="receiptTime">—</dd></div>
+            <div><dt>Duración</dt><dd id="receiptDuration">—</dd></div>
+            <div><dt>Total a pagar</dt><dd id="receiptTotal">—</dd></div>
+          </dl>
+        </section>
+
+        <section class="receipt-details applicant-details" aria-label="Datos del titular">
+          <h3>Titular de la reserva</h3>
+          <dl>
+            <div><dt>Nombre completo</dt><dd id="receiptName">—</dd></div>
+            <div><dt>DNI</dt><dd id="receiptDni">—</dd></div>
+            <div><dt>WhatsApp</dt><dd id="receiptPhone">—</dd></div>
+            <div><dt>Correo electrónico</dt><dd id="receiptEmail">—</dd></div>
+          </dl>
+        </section>
+
+        <p class="result-note">Presenta este código para efectuar el pago. Conserva este comprobante hasta que la reserva sea confirmada.</p>
+      </article>
+
+      <div class="receipt-actions no-print">
+        <button id="printReservation" class="btn btn-secondary" type="button">Imprimir comprobante</button>
+        <button class="btn btn-primary" type="button" data-close-result>Cerrar</button>
+      </div>
     </div>
   </div>
 
   <div data-footer></div>
-  <script src="assets/components/header.js?v=20260716-campos"></script>
+  <script src="assets/components/header.js?v=20260716-campos-v2"></script>
   <script src="assets/components/footer.js"></script>
-  <script src="assets/js/config.js?v=20260716-campos"></script>
-  <script src="assets/js/campos-deportivos.js?v=20260716-campos"></script>
+  <script src="assets/js/config.js?v=20260716-campos-v2"></script>
+  <script src="assets/js/campos-deportivos.js?v=20260716-campos-v2"></script>
 </body>
 </html>
