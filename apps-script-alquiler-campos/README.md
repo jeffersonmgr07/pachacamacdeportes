@@ -1,38 +1,52 @@
-# Sistema de alquiler de campos v5
+# Reserva de campos deportivos v7
 
-## Almacenamiento
-GitHub Pages solo aloja el HTML/CSS/JS. Las reservas se guardan en Google Sheets:
-- `Reservas_Campos`: cabecera de la solicitud, cliente, total, estado y vencimiento.
-- `Reserva_Items`: cada fecha y bloque horario de la reserva.
-- `Bloqueos_Campos`: horarios bloqueados por la municipalidad sin pago.
-- `Campos_Deportivos`: catálogo de espacios.
+## Tarifas implementadas (TUSNE 2025, página 6)
 
-El campo `itemsJson` de `Reservas_Campos` es una copia compacta para consulta; la fuente principal de cada horario es `Reserva_Items`.
+El TUSNE distingue tarifas por hora según tipo de espacio, día y horario:
 
-## Seguridad recomendada: dos implementaciones del mismo Apps Script
+- Losa deportiva: S/ 20 de lunes a viernes (día y noche), S/ 20 sábados/domingos/feriados de día y S/ 25 de noche.
+- Grass sintético, público general: S/ 30 lunes-viernes de día; S/ 40 fin de semana/feriado de día; S/ 40 lunes-viernes de noche; S/ 50 fin de semana/feriado de noche.
+- Estadio municipal, público general: S/ 120 lunes-viernes de día; S/ 150 fin de semana de día; S/ 160 de noche.
 
-### 1. Implementación pública
-- Ejecutar como: **tú**.
-- Acceso: **cualquier usuario**.
-- Esta URL se coloca en `assets/js/config.js` como `RENTALS_API_URL`.
-- Solo permite consultar disponibilidad y crear solicitudes.
-- Las funciones de caja exigen una cuenta Google incluida en `AUTHORIZED_CASHIERS`.
+El TUSNE no define a qué hora comienza la tarifa nocturna. En `Code.gs` se configuró operativamente a las 18:00 mediante `NIGHT_START_HOUR: 18`.
 
-### 2. Implementación privada de caja
-- Ejecutar como: **usuario que accede a la aplicación web**.
-- Acceso: usuarios con cuenta Google (o solo usuarios de tu organización, si usas Google Workspace).
-- Abrir: `URL_PRIVADA/exec?view=cashier`.
-- La cuenta debe aparecer en `AUTHORIZED_CASHIERS`.
+La hoja `Feriados` permite registrar fechas feriadas con columnas `date`, `description` y `active`.
 
-No incrustes una contraseña fija en GitHub Pages: el JavaScript es público y cualquier persona podría leerla.
+## Espacios habilitados
+
+- Coliseo Deportivo Municipal de Pachacámac — tarifa LOSA.
+- Campo Deportivo Matamoros — tarifa GRASS.
+- Estadio Municipal Sector B Manchay — tarifa ESTADIO.
+- Estadio Municipal de Pachacámac — tarifa ESTADIO.
+
+## Seguridad de caja
+
+`AUTHORIZED_CASHIERS` permite buscar reservas y confirmar pagos.
+
+`EVENT_ADMIN_EMAILS` permite además registrar y retirar eventos institucionales. Por defecto, solo `pachacamacdeportes@gmail.com` administra eventos.
+
+La confirmación manual mediante casillas de Google Sheets fue desactivada. Los pagos deben validarse desde la implementación privada del panel Cashier.
 
 ## Instalación
-1. Reemplaza `Code.gs` y `Cashier.html`.
-2. Añade los correos autorizados en `AUTHORIZED_CASHIERS`.
-3. Ejecuta `setupRentalSystem()` una vez.
-4. Autoriza permisos.
-5. Actualiza la implementación pública con una nueva versión.
-6. Crea la implementación privada de caja.
 
-## Bloqueos municipales
-En el panel privado abre **Bloqueo municipal**, indica campo, fecha, hora de inicio, hora de fin y motivo. El calendario público lo mostrará en rojo como ocupado. El bloqueo puede liberarse desde el mismo panel.
+1. Reemplaza `Code.gs` y `Cashier.html` en Apps Script.
+2. Ejecuta `setupRentalSystem()` una vez.
+3. Actualiza la implementación pública (ejecutar como propietario, acceso público).
+4. Actualiza o crea la implementación privada (ejecutar como usuario que accede, acceso con cuenta Google).
+5. Abre caja con `URL_PRIVADA/exec?view=cashier`.
+
+Para agregar cajeros:
+
+```javascript
+AUTHORIZED_CASHIERS: [
+  'pachacamacdeportes@gmail.com',
+  'caja1.pachacamadeportes@gmail.com',
+  'caja2.pachacamadeportes@gmail.com'
+]
+```
+
+Solo el administrador debe figurar en:
+
+```javascript
+EVENT_ADMIN_EMAILS: ['pachacamacdeportes@gmail.com']
+```

@@ -9,10 +9,10 @@
 </head>
 <body>
 <div class="shell">
-  <div class="top"><h1>Caja y administración de campos</h1><p>Acceso restringido a cuentas Google autorizadas.</p></div>
+  <div class="top"><h1>Caja de campos deportivos</h1><p>Acceso restringido a cuentas Google autorizadas.</p></div>
   <div class="tabs">
     <button class="tab active" data-tab="payment">Confirmar pago</button>
-    <button class="tab" data-tab="block">Bloqueo municipal</button>
+    <button id="eventTab" class="tab" data-tab="block" hidden>Eventos</button>
   </div>
 
   <section id="payment" class="panel active">
@@ -24,30 +24,33 @@
   </section>
 
   <section id="block" class="panel">
-    <h2>Bloquear horario sin pago</h2>
-    <p class="muted">Úsalo para eventos municipales, mantenimiento u otras actividades institucionales.</p>
+    <h2>Registrar evento</h2>
+    <p class="muted">Solo la cuenta administradora puede ocupar horarios por actividades institucionales.</p>
     <label>Espacio deportivo</label>
     <select id="blockVenue"><option value="COLISEO_PACHACAMAC">Coliseo Deportivo Pachacámac</option></select>
     <label>Fecha</label><input id="blockDate" type="date">
     <div class="grid"><div><label>Hora de inicio</label><input id="blockStart" type="time" min="08:00" max="22:00" step="3600"></div><div><label>Hora de fin</label><input id="blockEnd" type="time" min="09:00" max="23:00" step="3600"></div></div>
     <label>Motivo</label><textarea id="blockReason" placeholder="Ej.: Evento municipal por el Día del Niño"></textarea>
-    <button class="btn danger" onclick="createBlock()">Bloquear horario</button>
+    <button class="btn danger" onclick="createBlock()">Registrar evento</button>
     <div id="blockMessage"></div>
-    <h3>Bloqueos activos</h3><div id="blockList" class="card">Cargando…</div>
+    <h3>Eventos activos</h3><div id="blockList" class="card">Cargando…</div>
   </section>
 </div>
 <script>
   let currentCode='';
-  document.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab,.panel').forEach(x=>x.classList.remove('active'));btn.classList.add('active');document.getElementById(btn.dataset.tab).classList.add('active');if(btn.dataset.tab==='block')loadBlocks();}));
+  let canManageEvents=false;
+  initCashier();
+  function initCashier(){google.script.run.withSuccessHandler(ctx=>{canManageEvents=!!ctx.canManageEvents;document.getElementById('eventTab').hidden=!canManageEvents;const select=document.getElementById('blockVenue');select.innerHTML=(ctx.venues||[]).map(v=>'<option value="'+esc(v.venueId)+'">'+esc(v.name)+'</option>').join('');}).withFailureHandler(err=>{document.body.innerHTML='<div class="shell"><div class="panel active"><p class="error">'+esc(err.message||err)+'</p></div></div>';}).cashierGetContext();}
+  document.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab,.panel').forEach(x=>x.classList.remove('active'));btn.classList.add('active');document.getElementById(btn.dataset.tab).classList.add('active');if(btn.dataset.tab==='block'&&canManageEvents)loadBlocks();}));
   function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function formatDateTime(v){return new Date(v).toLocaleString('es-PE',{weekday:'long',day:'numeric',month:'long',year:'numeric',hour:'numeric',minute:'2-digit'});}
   function searchReservation(){const c=document.getElementById('code').value.trim();document.getElementById('paymentResult').innerHTML='Buscando…';google.script.run.withSuccessHandler(showReservation).withFailureHandler(showPaymentError).cashierLookup(c);}
   function showReservation(x){if(!x.ok){document.getElementById('paymentResult').innerHTML='<p class="error">'+esc(x.message)+'</p>';return;}currentCode=x.reservation.reservationCode;const r=x.reservation;const items=(r.items||[]).map((item,i)=>'<div class="item"><b>Horario '+(i+1)+'</b><br>'+esc(formatDateTime(item.startDateTime))+' a '+esc(new Date(item.endDateTime).toLocaleTimeString('es-PE',{hour:'numeric',minute:'2-digit'}))+'<br>S/ '+Number(item.subtotal).toFixed(2)+'</div>').join('');document.getElementById('paymentResult').innerHTML='<div class="card"><b>'+esc(r.venueName)+'</b><div class="items">'+items+'</div><p>Total: <b>S/ '+Number(r.total).toFixed(2)+'</b><br>Cliente: '+esc(r.firstName+' '+r.lastName)+'<br>DNI: '+esc(r.dni)+'<br>Estado: <b>'+esc(r.status)+'</b></p><label>N.° de comprobante</label><input id="receipt"><button class="btn pay" onclick="confirmPayment()">Confirmar pago</button></div>';}
   function confirmPayment(){const receipt=document.getElementById('receipt').value.trim();if(!receipt&&!confirm('¿Confirmar sin número de comprobante?'))return;google.script.run.withSuccessHandler(x=>{document.getElementById('paymentResult').innerHTML='<p class="ok">'+esc(x.message)+'</p>';}).withFailureHandler(showPaymentError).cashierConfirmPayment(currentCode,receipt);}
   function showPaymentError(e){document.getElementById('paymentResult').innerHTML='<p class="error">'+esc(e.message||e)+'</p>';}
-  function createBlock(){const d=document.getElementById('blockDate').value,s=document.getElementById('blockStart').value,e=document.getElementById('blockEnd').value;if(!d||!s||!e){document.getElementById('blockMessage').innerHTML='<p class="error">Completa fecha y horas.</p>';return;}const data={venueId:document.getElementById('blockVenue').value,startDateTime:d+'T'+s+':00',endDateTime:d+'T'+e+':00',reason:document.getElementById('blockReason').value.trim()};google.script.run.withSuccessHandler(x=>{document.getElementById('blockMessage').innerHTML='<p class="ok">'+esc(x.message)+'</p>';loadBlocks();}).withFailureHandler(err=>{document.getElementById('blockMessage').innerHTML='<p class="error">'+esc(err.message||err)+'</p>';}).cashierCreateBlock(data);}
-  function loadBlocks(){google.script.run.withSuccessHandler(x=>{const list=document.getElementById('blockList');if(!x.blocks.length){list.innerHTML='<span class="muted">No hay bloqueos activos.</span>';return;}list.innerHTML=x.blocks.map(b=>'<div class="block-row"><div><b>'+esc(b.venueName)+'</b><br><span class="muted">'+esc(formatDateTime(b.startDateTime))+' a '+esc(new Date(b.endDateTime).toLocaleTimeString('es-PE',{hour:'numeric',minute:'2-digit'}))+' · '+esc(b.reason)+'</span></div><button class="btn mini" onclick="releaseBlock(\''+esc(b.blockId)+'\')">Liberar</button></div>').join('');}).withFailureHandler(err=>{document.getElementById('blockList').innerHTML='<p class="error">'+esc(err.message||err)+'</p>';}).cashierListBlocks();}
-  function releaseBlock(id){if(!confirm('¿Liberar este horario?'))return;google.script.run.withSuccessHandler(loadBlocks).withFailureHandler(err=>alert(err.message||err)).cashierCancelBlock(id);}
+  function createBlock(){if(!canManageEvents)return;const d=document.getElementById('blockDate').value,s=document.getElementById('blockStart').value,e=document.getElementById('blockEnd').value;if(!d||!s||!e){document.getElementById('blockMessage').innerHTML='<p class="error">Completa fecha y horas.</p>';return;}const data={venueId:document.getElementById('blockVenue').value,startDateTime:d+'T'+s+':00',endDateTime:d+'T'+e+':00',reason:document.getElementById('blockReason').value.trim()};google.script.run.withSuccessHandler(x=>{document.getElementById('blockMessage').innerHTML='<p class="ok">'+esc(x.message)+'</p>';loadBlocks();}).withFailureHandler(err=>{document.getElementById('blockMessage').innerHTML='<p class="error">'+esc(err.message||err)+'</p>';}).cashierCreateBlock(data);}
+  function loadBlocks(){if(!canManageEvents)return;google.script.run.withSuccessHandler(x=>{const list=document.getElementById('blockList');if(!x.blocks.length){list.innerHTML='<span class="muted">No hay eventos activos.</span>';return;}list.innerHTML=x.blocks.map(b=>'<div class="block-row"><div><b>'+esc(b.venueName)+'</b><br><span class="muted">'+esc(formatDateTime(b.startDateTime))+' a '+esc(new Date(b.endDateTime).toLocaleTimeString('es-PE',{hour:'numeric',minute:'2-digit'}))+' · '+esc(b.reason)+'</span></div><button class="btn mini" onclick="releaseBlock(\''+esc(b.blockId)+'\')">Liberar</button></div>').join('');}).withFailureHandler(err=>{document.getElementById('blockList').innerHTML='<p class="error">'+esc(err.message||err)+'</p>';}).cashierListBlocks();}
+  function releaseBlock(id){if(!canManageEvents)return;if(!confirm('¿Liberar este horario?'))return;google.script.run.withSuccessHandler(loadBlocks).withFailureHandler(err=>alert(err.message||err)).cashierCancelBlock(id);}
 </script>
 </body>
 </html>

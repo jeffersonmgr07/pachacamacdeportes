@@ -3,12 +3,12 @@
 
   const cfg = window.APP_CONFIG || {};
   const API_URL = cfg.RENTALS_API_URL || '';
-  const VENUE_ADDRESSES = { COLISEO_PACHACAMAC: 'Jirón Paraíso s/n, Pachacámac' };
+  
   const venuesFallback = [
-    {venueId:'COLISEO_PACHACAMAC',name:'Coliseo Deportivo Pachacámac',type:'Coliseo deportivo',active:true},
-    {venueId:'ESTADIO_MUNICIPAL_PACHACAMAC',name:'Estadio Municipal de Pachacámac',type:'Estadio',active:false},
-    {venueId:'CAMPO_MATAMOROS',name:'Campo Deportivo Matamoros',type:'Grass sintético',active:false},
-    {venueId:'ESTADIO_SECTOR_B_MANCHAY',name:'Estadio Municipal Sector B Manchay',type:'Estadio',active:false}
+    {venueId:'COLISEO_PACHACAMAC',name:'Coliseo Deportivo Municipal de Pachacámac',type:'Losa deportiva municipal',address:'Jirón Paraíso s/n, Pachacámac',pricingCode:'LOSA',active:true},
+    {venueId:'CAMPO_MATAMOROS',name:'Campo Deportivo Matamoros',type:'Campo de grass sintético',address:'Matamoros, Pachacámac',pricingCode:'GRASS',active:true},
+    {venueId:'ESTADIO_SECTOR_B_MANCHAY',name:'Estadio Municipal Sector B Manchay',type:'Estadio municipal',address:'Sector B, Manchay, Pachacámac',pricingCode:'ESTADIO',active:true},
+    {venueId:'ESTADIO_MUNICIPAL_PACHACAMAC',name:'Estadio Municipal de Pachacámac',type:'Estadio municipal',address:'Pachacámac, Lima',pricingCode:'ESTADIO',active:true}
   ];
 
   const state = {
@@ -16,6 +16,7 @@
     venue: null,
     weekStart: startOfWeek(new Date()),
     bookings: [],
+    holidays: new Set(),
     selected: new Set(),
     serverNow: new Date()
   };
@@ -97,6 +98,7 @@
       const res = await api('getAvailability', {venueId:state.venue.venueId,startDate:dateKey(state.weekStart),endDate:dateKey(addDays(state.weekStart,6))});
       if (!res.ok) throw new Error(res.message || 'No fue posible consultar la agenda.');
       state.bookings = res.bookings || [];
+      state.holidays = new Set(res.holidayDates || []);
       if (res.serverNow) state.serverNow = new Date(res.serverNow);
       els.status.textContent = '';
     } catch (error) {
@@ -141,11 +143,11 @@
     if (end <= now || isCurrentHour) return {cls:`past ${isCurrentHour?'now':''}`,label:isCurrentHour?'Ahora':'No disponible',sub:isCurrentHour?'Hora actual':'',disabled:true};
     if (booking) {
       const status = String(booking.status||'').toUpperCase();
-      if (status === 'PAGADO' || status === 'BLOQUEADO') return {cls:'occupied',label:'Ocupado',sub:status==='BLOQUEADO'?'Bloqueo municipal':'Reservado',disabled:true};
+      if (status === 'PAGADO' || status === 'EVENTO' || status === 'BLOQUEADO') return {cls:'occupied',label:'Ocupado',sub:(status==='EVENTO'||status==='BLOQUEADO')?`Evento${booking.reason?': '+booking.reason:''}`:'Reservado',disabled:true};
       return {cls:'pending',label:'En proceso',sub:'Pago pendiente',disabled:true};
     }
-    if (state.selected.has(key)) return {cls:'selected',label:'Seleccionado',sub:`S/ ${priceFor(hour)}`,disabled:false};
-    return {cls:'available',label:'Disponible',sub:`S/ ${priceFor(hour)}`,disabled:false};
+    if (state.selected.has(key)) return {cls:'selected',label:'Seleccionado',sub:`S/ ${priceFor(hour,day)}`,disabled:false};
+    return {cls:'available',label:'Disponible',sub:`S/ ${priceFor(hour,day)}`,disabled:false};
   }
 
   function toggleSlot(key) {
@@ -162,9 +164,9 @@
     slots.forEach(slot => {
       const last = groups[groups.length-1];
       if (last && last.date === slot.date && last.endHour === slot.hour) {
-        last.endHour = slot.hour + 1; last.hours++; last.subtotal += priceFor(slot.hour);
+        last.endHour = slot.hour + 1; last.hours++; last.subtotal += priceFor(slot.hour,slot.start);
       } else {
-        groups.push({date:slot.date,startHour:slot.hour,endHour:slot.hour+1,hours:1,subtotal:priceFor(slot.hour)});
+        groups.push({date:slot.date,startHour:slot.hour,endHour:slot.hour+1,hours:1,subtotal:priceFor(slot.hour,slot.start)});
       }
     });
     return groups;
@@ -177,9 +179,10 @@
     const groups = groupSlots(slots);
     const total = groups.reduce((sum,g)=>sum+g.subtotal,0);
     els.title.textContent = state.venue?.name || 'Reserva';
+    const multiple = groups.length > 1;
     els.details.innerHTML = `<div class="selection-block-list">${groups.map((g,i)=>`
       <div class="selection-block">
-        <div><span>Horario ${i+1}</span><strong>${formatFullDate(g.date)}</strong><small>${hourLabel(g.startHour)} a ${hourLabel(g.endHour)}</small></div>
+        <div><span>${multiple ? `Horario ${i+1}` : 'Horario'}</span><strong>${hourLabel(g.startHour)} a ${hourLabel(g.endHour)}</strong><small>${formatFullDate(g.date)}</small></div>
         <div class="selection-block-price"><strong>S/ ${g.subtotal.toFixed(2)}</strong><small>${g.hours} ${g.hours===1?'hora':'horas'}</small></div>
       </div>`).join('')}</div>`;
     els.total.textContent = `S/ ${total.toFixed(2)}`;
@@ -209,15 +212,23 @@
   function showResult(res, applicant) {
     const items = res.items || [];
     const totalHours = items.reduce((s,i)=>s+Number(i.hours||0),0);
-    const address = VENUE_ADDRESSES[state.venue?.venueId] || 'Pachacámac, Lima';
+    const address = state.venue?.address || 'Pachacámac, Lima';
     els.code.textContent = res.reservationCode;
     els.message.textContent = 'Los horarios se encuentran bloqueados temporalmente mientras realizas el pago.';
     els.deadline.innerHTML = `<strong>Tiempo límite de pago</strong><span>${formatSpanishDeadline(new Date(res.paymentDeadline))}</span>`;
     els.receiptVenue.textContent = res.venueName;
     els.receiptAddress.textContent = address;
+    const multipleItems = items.length > 1;
     els.receiptItems.innerHTML = items.map((item,i)=>{
       const start=new Date(item.startDateTime), end=new Date(item.endDateTime);
-      return `<div class="receipt-item-row"><span>Horario ${i+1}</span><div><strong>${start.toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</strong><small>${formatTime(start)} a ${formatTime(end)} · S/ ${Number(item.subtotal).toFixed(2)}</small></div></div>`;
+      return `<div class="receipt-item-row">
+        <span>${multipleItems ? `Horario ${i+1}` : 'Horario'}</span>
+        <div>
+          <strong class="receipt-item-time">${formatTime(start)} a ${formatTime(end)}</strong>
+          <small class="receipt-item-date">${start.toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</small>
+          <small class="receipt-item-meta">${Number(item.hours)} ${Number(item.hours)===1?'hora':'horas'} · S/ ${Number(item.subtotal).toFixed(2)}</small>
+        </div>
+      </div>`;
     }).join('');
     els.receiptDuration.textContent = `${totalHours} ${totalHours===1?'hora':'horas'}`;
     els.receiptTotal.textContent = `S/ ${Number(res.total).toFixed(2)}`;
@@ -241,7 +252,15 @@
   function formatTime(date){return date.toLocaleTimeString('es-PE',{hour:'numeric',minute:'2-digit',hour12:true});}
   function formatSpanishDeadline(date){return `${date.toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}, hasta las ${formatTime(date)}`;}
   function hourLabel(hour){const value=hour%12||12;return `${value}:00 ${hour<12?'a. m.':'p. m.'}`;}
-  function priceFor(hour){return hour<18?20:30;}
+  function priceFor(hour,date){
+    const venueCode = String(state.venue?.pricingCode || 'LOSA').toUpperCase();
+    const d = date instanceof Date ? date : new Date(date || Date.now());
+    const weekend = d.getDay() === 0 || d.getDay() === 6 || state.holidays.has(dateKey(d));
+    const night = hour >= 18;
+    if (venueCode === 'GRASS') return weekend ? (night ? 50 : 40) : (night ? 40 : 30);
+    if (venueCode === 'ESTADIO') return weekend ? (night ? 160 : 150) : (night ? 160 : 120);
+    return weekend && night ? 25 : 20;
+  }
   function truthy(value){return value===true||String(value).toLowerCase()==='true'||value===1;}
   function isoWeekNumber(date){const v=new Date(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate()));const day=v.getUTCDay()||7;v.setUTCDate(v.getUTCDate()+4-day);const ys=new Date(Date.UTC(v.getUTCFullYear(),0,1));return Math.ceil((((v-ys)/86400000)+1)/7);}
   function escapeHtml(value){return String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}

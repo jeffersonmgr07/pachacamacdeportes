@@ -39,3 +39,29 @@
 /* v5: selección de múltiples fechas y bloques horarios */
 .selection-block-list{display:grid;gap:10px;margin-top:12px}.selection-block{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 14px;border:1px solid rgba(255,255,255,.15);border-radius:12px;background:rgba(255,255,255,.06)}.selection-block>div:first-child{display:grid;gap:3px}.selection-block span{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;opacity:.72}.selection-block strong{font-size:.96rem}.selection-block small{opacity:.8}.selection-block-price{text-align:right;display:grid;gap:2px;white-space:nowrap}.receipt-items-wrap{display:block!important}.receipt-items-list{display:grid;gap:8px;margin-top:8px}.receipt-item-row{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:9px 0;border-bottom:1px solid #e5e9ef}.receipt-item-row:last-child{border-bottom:0}.receipt-item-row>span{font-size:.72rem;font-weight:800;text-transform:uppercase;color:#667085}.receipt-item-row>div{display:grid;gap:3px}.receipt-item-row small{color:#667085}.receipt-summary-list .receipt-items-wrap>span{display:block;color:#667085;font-size:.78rem;text-transform:uppercase;font-weight:800}.receipt-summary-list .receipt-items-wrap{padding:10px 0}
 @media(max-width:680px){.selection-block{align-items:flex-start}.selection-block strong{font-size:.88rem}.selection-block-price strong{font-size:.9rem}.receipt-item-row{grid-template-columns:1fr}.receipt-item-row>span{margin-bottom:-4px}}
+
+/* Ajustes v7: recibo móvil, horarios y cierre del modal */
+.modal-x{right:28px;top:28px;width:42px;height:42px;display:grid;place-items:center;background:#fff;color:#071225;border:2px solid rgba(7,18,37,.14);font-size:30px;font-weight:800;line-height:1;box-shadow:0 7px 20px rgba(0,0,0,.28)}
+.modal-x:hover{background:#dff500;color:#071225;transform:scale(1.04)}
+.modal-x:focus-visible{outline:4px solid rgba(223,245,0,.45);outline-offset:2px}
+.reservation-deadline{align-items:center!important;text-align:center;padding:15px 16px!important}
+.reservation-deadline strong{align-self:center}
+.reservation-deadline span{display:block;width:100%;text-align:center;line-height:1.45}
+.receipt-items-list{gap:10px}
+.receipt-item-row{grid-template-columns:94px minmax(0,1fr);align-items:center;padding:12px 0}
+.receipt-item-row>span{display:inline-flex;justify-content:center;align-items:center;min-height:30px;padding:6px 10px;border-radius:999px;background:#17365d;color:#fff;font-size:.68rem;letter-spacing:.04em;text-align:center}
+.receipt-item-row>div{gap:4px;text-align:right;min-width:0}
+.receipt-item-time{font-size:.92rem;color:#102033}
+.receipt-item-date{display:block;color:#475569;font-weight:700;text-transform:capitalize}
+.receipt-item-meta{display:block;color:#18733c!important;font-weight:800}
+@media(max-width:680px){
+  .modal-x{right:17px;top:17px;width:40px;height:40px;font-size:28px}
+  .receipt-logo-bar{padding-right:64px;padding-left:64px}
+  .reservation-deadline{padding:14px 12px!important}
+  .reservation-deadline span{font-size:.88rem}
+  .receipt-item-row{grid-template-columns:1fr;gap:8px;padding:13px 0}
+  .receipt-item-row>span{justify-self:start;min-height:28px}
+  .receipt-item-row>div{text-align:left;gap:3px}
+  .receipt-item-time{font-size:.96rem}
+  .receipt-item-date,.receipt-item-meta{font-size:.76rem}
+}
