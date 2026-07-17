@@ -65,3 +65,9 @@
   .receipt-item-time{font-size:.96rem}
   .receipt-item-date,.receipt-item-meta{font-size:.76rem}
 }
+
+
+/* Estado de carga de disponibilidad */
+.calendar-status.loading-card,.calendar-status.error-card{min-height:0;margin:0 0 12px;padding:12px 14px;border-radius:13px;display:flex;align-items:center;gap:11px;background:rgba(23,54,93,.72);border:1px solid rgba(148,163,184,.22);color:#fff;box-shadow:0 10px 28px rgba(0,0,0,.14)}
+.calendar-status.loading-card strong{display:block;font-size:.88rem}.calendar-status.loading-card small{display:block;margin-top:2px;color:#b9c7d9;font-weight:500;font-size:.76rem}.calendar-status.error-card{background:rgba(143,36,48,.78);color:#fff}.calendar-spinner{width:22px;height:22px;flex:0 0 22px;border:3px solid rgba(255,255,255,.28);border-top-color:#a8e600;border-radius:50%;animation:calendarSpin .75s linear infinite}@keyframes calendarSpin{to{transform:rotate(360deg)}}.agenda-shell.is-loading{opacity:.72;pointer-events:none}
+@media(max-width:680px){.calendar-status.loading-card{padding:11px 12px}.calendar-status.loading-card small{font-size:.71rem}}

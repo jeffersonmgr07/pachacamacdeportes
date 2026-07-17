@@ -93,19 +93,34 @@
   async function loadAvailability() {
     if (!state.venue) return;
     updateWeekButton();
-    els.status.textContent = 'Consultando disponibilidad…';
+    setCalendarLoading(true);
     try {
       const res = await api('getAvailability', {venueId:state.venue.venueId,startDate:dateKey(state.weekStart),endDate:dateKey(addDays(state.weekStart,6))});
       if (!res.ok) throw new Error(res.message || 'No fue posible consultar la agenda.');
       state.bookings = res.bookings || [];
       state.holidays = new Set(res.holidayDates || []);
       if (res.serverNow) state.serverNow = new Date(res.serverNow);
-      els.status.textContent = '';
+      setCalendarLoading(false);
     } catch (error) {
       state.bookings = [];
-      els.status.textContent = API_URL ? error.message : 'Configura RENTALS_API_URL en assets/js/config.js.';
+      setCalendarLoading(false, API_URL ? error.message : 'Configura RENTALS_API_URL en assets/js/config.js.');
     }
     renderAgenda();
+  }
+
+
+  function setCalendarLoading(isLoading, message = '') {
+    const shell = els.agenda?.closest('.agenda-shell');
+    if (shell) shell.classList.toggle('is-loading', isLoading);
+    if (isLoading) {
+      els.status.className = 'calendar-status loading-card';
+      els.status.innerHTML = '<span class="calendar-spinner" aria-hidden="true"></span><span><strong>Revisando disponibilidad</strong><small>Estamos cargando los horarios del espacio seleccionado.</small></span>';
+      els.agenda.setAttribute('aria-busy', 'true');
+    } else {
+      els.status.className = 'calendar-status' + (message ? ' error-card' : '');
+      els.status.textContent = message;
+      els.agenda.removeAttribute('aria-busy');
+    }
   }
 
   function renderAgenda() {
