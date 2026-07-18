@@ -18,7 +18,8 @@
     bookings: [],
     holidays: new Set(),
     selected: new Set(),
-    serverNow: new Date()
+    serverNow: new Date(),
+    availabilityCache: new Map()
   };
   const $ = selector => document.querySelector(selector);
   const els = {};
@@ -93,19 +94,33 @@
   async function loadAvailability() {
     if (!state.venue) return;
     updateWeekButton();
+    const payload = {venueId:state.venue.venueId,startDate:dateKey(state.weekStart),endDate:dateKey(addDays(state.weekStart,6))};
+    const cacheKey = `${payload.venueId}|${payload.startDate}|${payload.endDate}`;
+    const cached = state.availabilityCache.get(cacheKey);
+    if (cached && Date.now() - cached.savedAt < 45000) {
+      applyAvailability(cached.data);
+      renderAgenda();
+      return;
+    }
     setCalendarLoading(true);
     try {
-      const res = await api('getAvailability', {venueId:state.venue.venueId,startDate:dateKey(state.weekStart),endDate:dateKey(addDays(state.weekStart,6))});
+      const res = await api('getAvailability', payload);
       if (!res.ok) throw new Error(res.message || 'No fue posible consultar la agenda.');
-      state.bookings = res.bookings || [];
-      state.holidays = new Set(res.holidayDates || []);
-      if (res.serverNow) state.serverNow = new Date(res.serverNow);
+      state.availabilityCache.set(cacheKey,{savedAt:Date.now(),data:res});
+      applyAvailability(res);
       setCalendarLoading(false);
     } catch (error) {
       state.bookings = [];
       setCalendarLoading(false, API_URL ? error.message : 'Configura RENTALS_API_URL en assets/js/config.js.');
     }
     renderAgenda();
+  }
+
+  function applyAvailability(res) {
+    state.bookings = res.bookings || [];
+    state.holidays = new Set(res.holidayDates || []);
+    if (res.serverNow) state.serverNow = new Date(res.serverNow);
+    setCalendarLoading(false);
   }
 
 
@@ -219,7 +234,7 @@
       const res = await api('createReservation', payload);
       if (!res.ok) throw new Error(res.message || 'No se pudo crear la reserva.');
       showResult(res, applicant);
-      state.selected.clear(); els.form.reset(); updateSummary(); await loadAvailability();
+      state.selected.clear(); state.availabilityCache.clear(); els.form.reset(); updateSummary(); await loadAvailability();
     } catch (error) { alert(error.message); }
     finally { button.disabled=false; button.textContent='Solicitar reserva'; }
   }
