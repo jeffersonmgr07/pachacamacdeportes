@@ -18,8 +18,7 @@
     bookings: [],
     holidays: new Set(),
     selected: new Set(),
-    serverNow: new Date(),
-    availabilityCache: new Map()
+    serverNow: new Date()
   };
   const $ = selector => document.querySelector(selector);
   const els = {};
@@ -94,22 +93,21 @@
   async function loadAvailability() {
     if (!state.venue) return;
     updateWeekButton();
-    const payload = {venueId:state.venue.venueId,startDate:dateKey(state.weekStart),endDate:dateKey(addDays(state.weekStart,6))};
-    const cacheKey = `${payload.venueId}|${payload.startDate}|${payload.endDate}`;
-    const cached = state.availabilityCache.get(cacheKey);
-    if (cached && Date.now() - cached.savedAt < 45000) {
-      applyAvailability(cached.data);
-      renderAgenda();
-      return;
-    }
+    const requestId = `${state.venue.venueId}-${Date.now()}`;
+    state.availabilityRequestId = requestId;
+    const payload = {
+      venueId:state.venue.venueId,
+      startDate:dateKey(state.weekStart),
+      endDate:dateKey(addDays(state.weekStart,6))
+    };
     setCalendarLoading(true);
     try {
       const res = await api('getAvailability', payload);
+      if (state.availabilityRequestId !== requestId) return;
       if (!res.ok) throw new Error(res.message || 'No fue posible consultar la agenda.');
-      state.availabilityCache.set(cacheKey,{savedAt:Date.now(),data:res});
       applyAvailability(res);
-      setCalendarLoading(false);
     } catch (error) {
+      if (state.availabilityRequestId !== requestId) return;
       state.bookings = [];
       setCalendarLoading(false, API_URL ? error.message : 'Configura RENTALS_API_URL en assets/js/config.js.');
     }
@@ -142,20 +140,127 @@
     const days = Array.from({length:7}, (_, i) => addDays(state.weekStart, i));
     els.weekLabel.textContent = `Del ${fmtDate(days[0])} al ${fmtDate(days[6])}`;
     updateWeekButton();
-    let html = '<div class="agenda-cell agenda-header"></div>' + days.map(day => `
-      <div class="agenda-cell agenda-header ${dateKey(day) === dateKey(state.serverNow) ? 'today' : ''}">
-        <strong>${day.toLocaleDateString('es-PE',{weekday:'short'}).replace('.','')}</strong><span>${day.toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit'})}</span>
-      </div>`).join('');
+
+    const parts = [];
+    parts.push('<div class="agenda-cell agenda-header agenda-corner" style="grid-column:1;grid-row:1"></div>');
+    days.forEach((day, dayIndex) => {
+      parts.push(`
+        <div class="agenda-cell agenda-header ${dateKey(day) === dateKey(state.serverNow) ? 'today' : ''}"
+             style="grid-column:${dayIndex + 2};grid-row:1">
+          <strong>${day.toLocaleDateString('es-PE',{weekday:'short'}).replace('.','')}</strong>
+          <span>${day.toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit'})}</span>
+        </div>`);
+    });
+
     for (let hour=8; hour<23; hour++) {
-      html += `<div class="agenda-cell agenda-time">${hourLabel(hour)}</div>`;
-      for (const day of days) {
+      parts.push(`<div class="agenda-cell agenda-time" style="grid-column:1;grid-row:${hour - 6}">${hourLabel(hour)}</div>`);
+    }
+
+    days.forEach((day, dayIndex) => {
+      const dayBlocks = consolidatedBookingsForDay(day);
+      const covered = new Set();
+
+      dayBlocks.forEach(block => {
+        for (let hour=block.startHour; hour<block.endHour; hour++) covered.add(hour);
+        const view = bookingPresentation(block);
+        const span = Math.max(1, block.endHour - block.startHour);
+        parts.push(`
+          <button class="calendar-booking-block ${view.cls}" type="button" disabled
+                  style="grid-column:${dayIndex + 2};grid-row:${block.startHour - 6} / span ${span}"
+                  aria-label="${escapeHtml(view.aria)}">
+            <span class="booking-status">${escapeHtml(view.title)}</span>
+            ${view.name ? `<strong>${escapeHtml(view.name)}</strong>` : ''}
+            ${view.reason ? `<strong>${escapeHtml(view.reason)}</strong>` : ''}
+            <small>${hourLabel(block.startHour)} a ${hourLabel(block.endHour)}</small>
+          </button>`);
+      });
+
+      for (let hour=8; hour<23; hour++) {
+        if (covered.has(hour)) continue;
         const key = `${dateKey(day)}|${hour}`;
         const info = slotInfo(day,hour,key);
-        html += `<div class="agenda-cell"><button class="slot-button ${info.cls}" type="button" data-slot="${key}" ${info.disabled?'disabled':''}>${info.label}${info.sub?`<small>${info.sub}</small>`:''}</button></div>`;
+        parts.push(`
+          <button class="slot-button ${info.cls}" type="button" data-slot="${key}"
+                  style="grid-column:${dayIndex + 2};grid-row:${hour - 6}"
+                  ${info.disabled?'disabled':''}>
+            ${info.label}${info.sub?`<small>${info.sub}</small>`:''}
+          </button>`);
       }
+    });
+
+    els.agenda.innerHTML = parts.join('');
+    els.agenda.querySelectorAll('[data-slot]:not(:disabled)').forEach(button =>
+      button.addEventListener('click', () => toggleSlot(button.dataset.slot))
+    );
+  }
+
+  function consolidatedBookingsForDay(day) {
+    const dayStart = new Date(`${dateKey(day)}T00:00:00`);
+    const dayEnd = new Date(`${dateKey(day)}T23:59:59`);
+    const normalized = state.bookings
+      .filter(item => new Date(item.startDateTime) < dayEnd && new Date(item.endDateTime) > dayStart)
+      .map(item => {
+        const start = new Date(item.startDateTime);
+        const end = new Date(item.endDateTime);
+        return {
+          ...item,
+          startHour: Math.max(8, start.getHours()),
+          endHour: Math.min(23, end.getHours() + (end.getMinutes() > 0 ? 1 : 0))
+        };
+      })
+      .filter(item => item.endHour > item.startHour)
+      .sort((a,b) => a.startHour - b.startHour);
+
+    const groups = [];
+    normalized.forEach(item => {
+      const last = groups[groups.length - 1];
+      const sameReservation = last &&
+        String(last.status || '').toUpperCase() === String(item.status || '').toUpperCase() &&
+        String(last.reservationCode || last.blockId || '') === String(item.reservationCode || item.blockId || '') &&
+        last.endHour === item.startHour;
+
+      if (sameReservation) {
+        last.endHour = item.endHour;
+      } else {
+        groups.push({...item});
+      }
+    });
+    return groups;
+  }
+
+  function bookingPresentation(block) {
+    const status = String(block.status || '').toUpperCase();
+    const time = `${hourLabel(block.startHour)} a ${hourLabel(block.endHour)}`;
+
+    if (status === 'EVENTO' || status === 'BLOQUEADO') {
+      const reason = String(block.reason || 'Evento municipal').trim();
+      return {
+        cls: 'municipal-event',
+        title: 'Evento municipal',
+        reason,
+        name: '',
+        aria: `Reservado para evento municipal: ${reason}, de ${time}`
+      };
     }
-    els.agenda.innerHTML = html;
-    els.agenda.querySelectorAll('[data-slot]:not(:disabled)').forEach(button => button.addEventListener('click', () => toggleSlot(button.dataset.slot)));
+
+    if (status === 'PAGADO') {
+      const renterName = String(block.renterName || 'Reserva confirmada').trim();
+      return {
+        cls: 'confirmed-rental',
+        title: 'Ocupado',
+        name: `Alquilado por ${renterName}`,
+        reason: '',
+        aria: `Ocupado, alquilado por ${renterName}, de ${time}`
+      };
+    }
+
+    return {
+      cls: 'pending-rental',
+      title: 'Pago pendiente',
+      name: '',
+      reason: '',
+      aria: `Horario con pago pendiente, de ${time}`
+    };
   }
 
   function updateWeekButton() {
@@ -169,12 +274,14 @@
     const end = new Date(start.getTime()+3600000);
     const now = state.serverNow;
     const isCurrentHour = start <= now && end > now;
-    const booking = state.bookings.find(item => new Date(item.startDateTime) < end && new Date(item.endDateTime) > start);
-    if (end <= now || isCurrentHour) return {cls:`past ${isCurrentHour?'now':''}`,label:isCurrentHour?'Ahora':'No disponible',sub:isCurrentHour?'Hora actual':'',disabled:true};
-    if (booking) {
-      const status = String(booking.status||'').toUpperCase();
-      if (status === 'PAGADO' || status === 'EVENTO' || status === 'BLOQUEADO') return {cls:'occupied',label:'Ocupado',sub:(status==='EVENTO'||status==='BLOQUEADO')?`Evento${booking.reason?': '+booking.reason:''}`:'Reservado',disabled:true};
-      return {cls:'pending',label:'En proceso',sub:'Pago pendiente',disabled:true};
+
+    if (end <= now || isCurrentHour) {
+      return {
+        cls:`past ${isCurrentHour?'now':''}`,
+        label:isCurrentHour?'Ahora':'No disponible',
+        sub:isCurrentHour?'Hora actual':'',
+        disabled:true
+      };
     }
     if (state.selected.has(key)) return {cls:'selected',label:'Seleccionado',sub:`S/ ${priceFor(hour,day)}`,disabled:false};
     return {cls:'available',label:'Disponible',sub:`S/ ${priceFor(hour,day)}`,disabled:false};
@@ -234,7 +341,7 @@
       const res = await api('createReservation', payload);
       if (!res.ok) throw new Error(res.message || 'No se pudo crear la reserva.');
       showResult(res, applicant);
-      state.selected.clear(); state.availabilityCache.clear(); els.form.reset(); updateSummary(); await loadAvailability();
+      state.selected.clear(); els.form.reset(); updateSummary(); await loadAvailability();
     } catch (error) { alert(error.message); }
     finally { button.disabled=false; button.textContent='Solicitar reserva'; }
   }
