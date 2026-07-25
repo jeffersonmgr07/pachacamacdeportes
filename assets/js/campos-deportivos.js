@@ -233,13 +233,14 @@
     const time = `${hourLabel(block.startHour)} a ${hourLabel(block.endHour)}`;
 
     if (status === 'EVENTO' || status === 'BLOQUEADO') {
-      const reason = String(block.reason || 'Evento municipal').trim();
+      const reason = String(block.reason || 'Reserva administrativa').trim();
+      const municipal = truthy(block.isMunicipalEvent);
       return {
         cls: 'municipal-event',
-        title: 'Evento municipal',
+        title: municipal ? 'Evento municipal' : 'Reservado para',
         reason,
         name: '',
-        aria: `Reservado para evento municipal: ${reason}, de ${time}`
+        aria: municipal ? `Evento municipal: ${reason}, de ${time}` : `Reservado para ${reason}, de ${time}`
       };
     }
 
@@ -351,8 +352,10 @@
     const totalHours = items.reduce((s,i)=>s+Number(i.hours||0),0);
     const address = state.venue?.address || 'Pachacámac, Lima';
     els.code.textContent = res.reservationCode;
-    els.message.textContent = 'Los horarios se encuentran bloqueados temporalmente mientras realizas el pago.';
-    els.deadline.innerHTML = `<strong>Tiempo límite de pago</strong><span>${formatSpanishDeadline(new Date(res.paymentDeadline))}</span>`;
+    els.message.textContent = res.requiresAdminCoordination
+      ? 'La caja municipal está cerrada. El horario quedó bloqueado temporalmente mientras coordinas el pago con el administrador.'
+      : 'Los horarios se encuentran bloqueados temporalmente mientras realizas el pago.';
+    els.deadline.innerHTML = `<strong>Tiempo límite de pago</strong><span>${formatSpanishDeadline(new Date(res.paymentDeadline))}</span>${res.requiresAdminCoordination ? `<em class="coordination-note">${escapeHtml(res.paymentNotice || 'Coordina de inmediato con el administrador para concretar la reserva.')}</em>` : ''}`;
     els.receiptVenue.textContent = res.venueName;
     els.receiptAddress.textContent = address;
     const multipleItems = items.length > 1;

@@ -23,6 +23,7 @@ const RENTAL_CFG = {
   CASHIER_CLOSE_HOUR: 17,
   CASHIER_SATURDAY_CLOSE_HOUR: 12,
   SAME_DAY_PAYMENT_MINUTES: 30,
+  CLOSED_CASHIER_SAME_DAY_MINUTES: 30,
   FUTURE_PAYMENT_BUSINESS_MINUTES: 120,
   GRACE_MINUTES: 10,
   NEAR_DAYS: 7,
@@ -80,7 +81,7 @@ function setupRentalSystem() {
   ensureRentalSheets_();
   installRentalTriggers_();
   bumpAvailabilityRevision_();
-  return {ok:true,message:'Sistema v11 configurado. Incluye plazos de 2 horas hábiles y agenda con bloques consolidados.'};
+  return {ok:true,message:'Sistema v12 configurado. Incluye coordinación administrativa fuera del horario de caja y clasificación de eventos.'};
 }
 
 function onOpen() {
@@ -201,7 +202,8 @@ function getAvailability_(p) {
       startDateTime:s.toISOString(),
       endDateTime:e.toISOString(),
       status:'EVENTO',
-      reason:block.reason || 'Evento'
+      reason:block.reason || 'Reserva administrativa',
+      isMunicipalEvent:bool_(block.isMunicipalEvent)
     });
   });
 
@@ -230,8 +232,9 @@ function createReservation_(p) {
     ensureNoConflicts_(venue.venueId, parsedItems);
 
     const earliestStart = parsedItems[0].start;
-    if (!canPayBeforeEvent_(now,earliestStart)) throw new Error('No es posible completar el pago antes del primer horario seleccionado.');
-    const deadline = paymentDeadline_(now,earliestStart);
+    const paymentPlan = paymentPlan_(now, earliestStart);
+    if (!paymentPlan || !(paymentPlan.deadline > now)) throw new Error('No es posible completar el pago antes del primer horario seleccionado.');
+    const deadline = paymentPlan.deadline;
     const grace = new Date(deadline.getTime()+RENTAL_CFG.GRACE_MINUTES*60000);
     const total = parsedItems.reduce((s,i)=>s+i.subtotal,0);
     const hours = parsedItems.reduce((s,i)=>s+i.hours,0);
@@ -242,7 +245,7 @@ function createReservation_(p) {
     appendObject_(RENTAL_CFG.SHEETS.RESERVATIONS, {
       reservationCode:code,venueId:venue.venueId,venueName:venue.name,itemsJson:JSON.stringify(publicItems),hours:hours,total:total,
       firstName:clean_(p.firstName),lastName:clean_(p.lastName),dni:digits_(p.dni),email:clean_(p.email).toLowerCase(),phone:clean_(p.phone),
-      status:'PENDIENTE',createdAt:createdAt,paymentDeadline:deadline,graceDeadline:grace,receiptNumber:'',confirmPayment:false,
+      status:'PENDIENTE',createdAt:createdAt,paymentDeadline:deadline,graceDeadline:grace,paymentMode:paymentPlan.mode,paymentNotice:paymentPlan.notice,receiptNumber:'',confirmPayment:false,
       paidAt:'',confirmedBy:'',confirmationEmailSent:false,expiredAt:''
     });
 
@@ -254,7 +257,7 @@ function createReservation_(p) {
     const reservation = findReservation_(code);
     bumpAvailabilityRevision_();
     sendReservationCreated_(reservation);
-    return {ok:true,reservationCode:code,venueName:venue.name,items:publicItems,total:total,hours:hours,paymentDeadline:deadline.toISOString(),graceDeadline:grace.toISOString()};
+    return {ok:true,reservationCode:code,venueName:venue.name,items:publicItems,total:total,hours:hours,paymentDeadline:deadline.toISOString(),graceDeadline:grace.toISOString(),paymentMode:paymentPlan.mode,requiresAdminCoordination:paymentPlan.mode==='COORDINAR_ADMIN',paymentNotice:paymentPlan.notice};
   } finally {
     lock.releaseLock();
   }
@@ -332,9 +335,9 @@ function cashierCreateBlock(data) {
     if(localDateKey_(start)!==localDateKey_(end))throw new Error('El bloqueo debe comenzar y terminar el mismo día.');
     ensureNoConflicts_(venue.venueId,[{start:start,end:end}]);
     const blockId='EVT'+makeCode_();
-    appendObject_(RENTAL_CFG.SHEETS.BLOCKS,{blockId:blockId,venueId:venue.venueId,venueName:venue.name,startDateTime:start,endDateTime:end,reason:clean_(data.reason)||'Evento',createdAt:new Date(),createdBy:cashier,active:true});
+    appendObject_(RENTAL_CFG.SHEETS.BLOCKS,{blockId:blockId,venueId:venue.venueId,venueName:venue.name,startDateTime:start,endDateTime:end,reason:clean_(data.reason)||'Reserva administrativa',isMunicipalEvent:bool_(data.isMunicipalEvent),createdAt:new Date(),createdBy:cashier,active:true});
     bumpAvailabilityRevision_();
-    return {ok:true,message:'Evento registrado. El horario ya figura como ocupado.',blockId:blockId};
+    return {ok:true,message:(bool_(data.isMunicipalEvent)?'Evento municipal registrado. ':'Reserva administrativa registrada. ')+'El horario ya figura como ocupado.',blockId:blockId};
   } finally {lock.releaseLock();}
 }
 
@@ -418,9 +421,9 @@ function ensureRentalSheets_(){
   const ss=ss_();
   ensureSheet_(ss,RENTAL_CFG.SHEETS.VENUES,['venueId','name','type','address','pricingCode','active']);
   syncVenueCatalog_();
-  ensureSheet_(ss,RENTAL_CFG.SHEETS.RESERVATIONS,['reservationCode','venueId','venueName','itemsJson','hours','total','firstName','lastName','dni','email','phone','status','createdAt','paymentDeadline','graceDeadline','receiptNumber','confirmPayment','paidAt','confirmedBy','confirmationEmailSent','expiredAt','cancellationReason','refundReference','cancelledAt','cancelledBy','cancellationEmailSent']);
+  ensureSheet_(ss,RENTAL_CFG.SHEETS.RESERVATIONS,['reservationCode','venueId','venueName','itemsJson','hours','total','firstName','lastName','dni','email','phone','status','createdAt','paymentDeadline','graceDeadline','paymentMode','paymentNotice','receiptNumber','confirmPayment','paidAt','confirmedBy','confirmationEmailSent','expiredAt','cancellationReason','refundReference','cancelledAt','cancelledBy','cancellationEmailSent']);
   ensureSheet_(ss,RENTAL_CFG.SHEETS.ITEMS,['itemId','reservationCode','venueId','venueName','startDateTime','endDateTime','hours','subtotal']);
-  ensureSheet_(ss,RENTAL_CFG.SHEETS.BLOCKS,['blockId','venueId','venueName','startDateTime','endDateTime','reason','createdAt','createdBy','active']);
+  ensureSheet_(ss,RENTAL_CFG.SHEETS.BLOCKS,['blockId','venueId','venueName','startDateTime','endDateTime','reason','isMunicipalEvent','createdAt','createdBy','active']);
   ensureSheet_(ss,RENTAL_CFG.SHEETS.HOLIDAYS,['date','description','active']);
   // La confirmación se realiza únicamente desde el panel privado de caja.
 }
@@ -477,7 +480,7 @@ function sendReservationCreated_(r) {
     status: 'PAGO PENDIENTE',
     statusBg: '#f59e0b',
     greeting: 'Hola ' + html_(r.firstName) + ',',
-    message: 'Tu solicitud fue registrada correctamente. Presenta el código o el QR en caja municipal para efectuar el pago.',
+    message: String(r.paymentMode||'')==='COORDINAR_ADMIN' ? 'Tu solicitud fue registrada correctamente. La caja municipal está cerrada para este plazo; coordina de inmediato con el administrador de Pacha Deportes para concretar la reserva.' : 'Tu solicitud fue registrada correctamente. Presenta el código o el QR en caja municipal para efectuar el pago.',
     code: r.reservationCode,
     deadline: fmtDeadline_(r.paymentDeadline),
     qrUrl: qrUrl,
@@ -492,7 +495,7 @@ function sendReservationCreated_(r) {
       ['WhatsApp', r.phone],
       ['Correo', r.email]
     ],
-    note: 'La reserva queda confirmada únicamente cuando se concreta el pago. Presenta este código al efectuar el pago en la caja de la municipalidad.'
+    note: String(r.paymentMode||'')==='COORDINAR_ADMIN' ? 'La caja municipal está cerrada. Comunícate de inmediato con el administrador para coordinar el pago antes del límite indicado. La reserva solo queda confirmada cuando el pago es registrado.' : 'La reserva queda confirmada únicamente cuando se concreta el pago. Presenta este código al efectuar el pago en la caja de la municipalidad.'
   });
 
   MailApp.sendEmail({
@@ -687,7 +690,7 @@ function venueAddress_(venueId){
   return venue && venue.address ? venue.address : 'Pachacámac, Lima';
 }
 
-function publicReservation_(r){const items=reservationItems_(r.reservationCode).map(i=>({startDateTime:new Date(i.startDateTime).toISOString(),endDateTime:new Date(i.endDateTime).toISOString(),hours:Number(i.hours),subtotal:Number(i.subtotal)}));return {reservationCode:r.reservationCode,venueId:r.venueId,venueName:r.venueName,items:items,hours:Number(r.hours),total:Number(r.total),firstName:r.firstName,lastName:r.lastName,dni:r.dni,email:r.email,phone:r.phone,status:r.status,createdAt:new Date(r.createdAt).toISOString(),paymentDeadline:new Date(r.paymentDeadline).toISOString(),graceDeadline:new Date(r.graceDeadline).toISOString(),receiptNumber:r.receiptNumber||'',cancellationReason:r.cancellationReason||'',refundReference:r.refundReference||'',cancelledAt:r.cancelledAt?new Date(r.cancelledAt).toISOString():'',cancelledBy:r.cancelledBy||''};}
+function publicReservation_(r){const items=reservationItems_(r.reservationCode).map(i=>({startDateTime:new Date(i.startDateTime).toISOString(),endDateTime:new Date(i.endDateTime).toISOString(),hours:Number(i.hours),subtotal:Number(i.subtotal)}));return {reservationCode:r.reservationCode,venueId:r.venueId,venueName:r.venueName,items:items,hours:Number(r.hours),total:Number(r.total),firstName:r.firstName,lastName:r.lastName,dni:r.dni,email:r.email,phone:r.phone,status:r.status,createdAt:new Date(r.createdAt).toISOString(),paymentDeadline:new Date(r.paymentDeadline).toISOString(),graceDeadline:new Date(r.graceDeadline).toISOString(),paymentMode:r.paymentMode||'CAJA',paymentNotice:r.paymentNotice||'',receiptNumber:r.receiptNumber||'',cancellationReason:r.cancellationReason||'',refundReference:r.refundReference||'',cancelledAt:r.cancelledAt?new Date(r.cancelledAt).toISOString():'',cancelledBy:r.cancelledBy||''};}
 function reservationItems_(code){return rowsObjects_(RENTAL_CFG.SHEETS.ITEMS).filter(i=>String(i.reservationCode)===String(code)).sort((a,b)=>new Date(a.startDateTime)-new Date(b.startDateTime));}
 function reservationMap_(){const map={};rowsObjects_(RENTAL_CFG.SHEETS.RESERVATIONS).forEach(r=>map[String(r.reservationCode)]=r);return map;}
 function findReservation_(code){return rowsObjects_(RENTAL_CFG.SHEETS.RESERVATIONS).find(r=>String(r.reservationCode).toUpperCase()===String(code||'').trim().toUpperCase());}
@@ -696,43 +699,43 @@ function updateReservationFields_(row,fields){updateFields_(RENTAL_CFG.SHEETS.RE
 function updateFields_(sheetName,row,fields){const sh=sheet_(sheetName),headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0];Object.keys(fields).forEach(k=>{const c=headers.indexOf(k)+1;if(c>0)sh.getRange(row,c).setValue(fields[k]);});}
 function rowsObjects_(name){const sh=sheet_(name),v=sh.getDataRange().getValues();if(v.length<2)return[];const h=v[0];return v.slice(1).filter(r=>r.some(x=>x!==''&&x!==null)).map((r,i)=>{const o={_row:i+2};h.forEach((k,j)=>o[k]=r[j]);return o;});}
 function validateApplicant_(p){if(!clean_(p.firstName)||!clean_(p.lastName))throw new Error('Ingresa nombres y apellidos.');if(digits_(p.dni).length!==8)throw new Error('El DNI debe tener 8 dígitos.');if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean_(p.email)))throw new Error('Correo electrónico inválido.');if(digits_(p.phone).length<9)throw new Error('Número de WhatsApp inválido.');}
-function paymentDeadline_(now,eventStart){
+function paymentPlan_(now,eventStart){
   const today=startDay_(now);
   const eventDay=startDay_(eventStart);
   const dayDiff=Math.round((eventDay-today)/86400000);
-  const latestBeforeEvent=new Date(eventStart.getTime()-30*60000);
+  const latestBeforeEvent=new Date(eventStart.getTime()-5*60000);
   let deadline;
-  let paymentWindowStart=now;
+  let mode='CAJA';
+  let notice='Presenta el código en la caja municipal antes del límite indicado.';
 
-  // Reserva para hoy: 30 minutos, sin sobrepasar el cierre de caja
-  // ni los 30 minutos previos al inicio del alquiler.
-  if(dayDiff===0){
-    if(!isCashierOpen_(now)) return new Date(0);
-    deadline=new Date(now.getTime()+RENTAL_CFG.SAME_DAY_PAYMENT_MINUTES*60000);
-    deadline=minDate_(deadline,cashierClose_(now),latestBeforeEvent);
+  // Mismo día con caja abierta: 30 minutos, limitado por cierre e inicio.
+  if(dayDiff===0 && isCashierOpen_(now)){
+    deadline=minDate_(new Date(now.getTime()+RENTAL_CFG.SAME_DAY_PAYMENT_MINUTES*60000),cashierClose_(now),latestBeforeEvent);
   }
-  // Reserva para mañana o cualquier fecha posterior:
-  // 2 horas hábiles. Si la solicitud se crea con caja abierta, el plazo
-  // no se arrastra al día siguiente: termina como máximo al cierre de hoy.
-  // Si se crea fuera de horario, empieza a contar desde la próxima apertura.
+  // Mismo día con caja cerrada: se permite una solicitud excepcional por 30 minutos.
+  // El usuario debe coordinar directamente con el administrador para que el pago sea registrado.
+  else if(dayDiff===0){
+    mode='COORDINAR_ADMIN';
+    notice='La caja municipal está cerrada. Coordina de inmediato con el administrador de Pacha Deportes para concretar el pago antes del límite indicado.';
+    deadline=minDate_(new Date(now.getTime()+RENTAL_CFG.CLOSED_CASHIER_SAME_DAY_MINUTES*60000),latestBeforeEvent);
+  }
+  // Fechas futuras: dos horas hábiles según horario de caja.
   else if(dayDiff>=1){
-    if(isCashierOpen_(now)){
-      deadline=new Date(now.getTime()+RENTAL_CFG.FUTURE_PAYMENT_BUSINESS_MINUTES*60000);
-      deadline=minDate_(deadline,cashierClose_(now),latestBeforeEvent);
-    }else{
+    if(isCashierOpen_(now)) deadline=minDate_(new Date(now.getTime()+RENTAL_CFG.FUTURE_PAYMENT_BUSINESS_MINUTES*60000),cashierClose_(now),latestBeforeEvent);
+    else{
       const opening=nextCashierOpening_(now);
-      paymentWindowStart=opening;
-      deadline=new Date(opening.getTime()+RENTAL_CFG.FUTURE_PAYMENT_BUSINESS_MINUTES*60000);
-      deadline=minDate_(deadline,cashierClose_(opening),latestBeforeEvent);
+      deadline=minDate_(new Date(opening.getTime()+RENTAL_CFG.FUTURE_PAYMENT_BUSINESS_MINUTES*60000),cashierClose_(opening),latestBeforeEvent);
     }
-  }else{
-    return new Date(0);
-  }
+  } else return null;
 
   deadline=roundUpToFiveMinutes_(deadline);
-  const applicableClose=cashierClose_(deadline);
-  deadline=minDate_(deadline,applicableClose,latestBeforeEvent);
-  return deadline>now && deadline>paymentWindowStart ? deadline : new Date(0);
+  deadline=minDate_(deadline,latestBeforeEvent);
+  if(!(deadline>now)) return null;
+  return {deadline:deadline,mode:mode,notice:notice};
+}
+function paymentDeadline_(now,eventStart){
+  const plan=paymentPlan_(now,eventStart);
+  return plan?plan.deadline:new Date(0);
 }
 
 function nextCashierOpening_(fromDate){
