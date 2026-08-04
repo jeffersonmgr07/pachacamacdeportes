@@ -1,5 +1,5 @@
 /**
- * Pacha Deportes - Reservas de espacios deportivos v10
+ * Pacha Deportes - Reservas de espacios deportivos y talleres v13
  * - Reserva pública de varios días y horarios bajo un solo código.
  * - Datos guardados en Google Sheets (no en GitHub).
  * - Panel de caja protegido por cuenta Google y lista blanca.
@@ -14,6 +14,7 @@ const RENTAL_CFG = {
   ], // agrega aquí caja2, caja3, etc.
   EVENT_ADMIN_EMAILS: ['pachacamacdeportes@gmail.com'],
   RESERVATION_ADMIN_EMAILS: ['pachacamacdeportes@gmail.com'],
+  WORKSHOP_ADMIN_EMAILS: ['pachacamacdeportes@gmail.com'],
   TIMEZONE: 'America/Lima',
   LOGO_URL: 'https://pachacamacdeportes.com/assets/img/logo-pacha-deportes.png',
   NIGHT_START_HOUR: 18, // El TUSNE distingue día/noche, pero no fija la hora. Se usa 6:00 p. m. como regla operativa.
@@ -32,7 +33,11 @@ const RENTAL_CFG = {
     RESERVATIONS: 'Reservas_Campos',
     ITEMS: 'Reserva_Items',
     BLOCKS: 'Bloqueos_Campos',
-    HOLIDAYS: 'Feriados'
+    HOLIDAYS: 'Feriados',
+    WORKSHOP_CATALOG: 'Talleres_Catalogo',
+    WORKSHOP_ENROLLMENTS: 'Talleres_Matriculas',
+    WORKSHOP_INVOICES: 'Talleres_Cuotas',
+    WORKSHOP_ORDERS: 'Talleres_Ordenes'
   }
 };
 
@@ -42,7 +47,7 @@ function doGet(e) {
     try {
       requireCashier_();
       return HtmlService.createHtmlOutputFromFile('Cashier')
-        .setTitle('Caja y eventos - Campos deportivos')
+        .setTitle('Caja y administración deportiva')
         .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT);
     } catch (err) {
       return HtmlService.createHtmlOutput('<h2>Acceso restringido</h2><p>'+html_(err.message)+'</p>')
@@ -73,15 +78,20 @@ function routePublicAction_(action, payload) {
       ensureRentalSheets_();
       expireReservations_();
       return lookupReservation_(payload);
+    case 'getWorkshopCatalog': return getWorkshopCatalog_();
+    case 'createWorkshopEnrollment': return createWorkshopEnrollment_(payload);
+    case 'lookupWorkshopAccount': return lookupWorkshopAccount_(payload);
+    case 'createWorkshopPaymentOrder': return createWorkshopPaymentOrder_(payload);
     default: throw new Error('Acción pública no válida.');
   }
 }
 
 function setupRentalSystem() {
   ensureRentalSheets_();
+  ensureWorkshopSheets_();
   installRentalTriggers_();
   bumpAvailabilityRevision_();
-  return {ok:true,message:'Sistema v12 configurado. Incluye coordinación administrativa fuera del horario de caja y clasificación de eventos.'};
+  return {ok:true,message:'Sistema v13 configurado. Incluye reservas, caja, eventos e inscripciones de talleres.'};
 }
 
 function onOpen() {
@@ -90,13 +100,14 @@ function onOpen() {
       .addItem('Configurar sistema', 'setupRentalSystem')
       .addItem('Abrir panel de caja', 'showCashierSidebar')
       .addItem('Liberar reservas vencidas', 'expireReservationsManual')
+      .addItem('Actualizar matrículas de talleres', 'expireWorkshopDataManual')
       .addToUi();
   } catch (_) {}
 }
 
 function showCashierSidebar() {
   requireCashier_();
-  SpreadsheetApp.getUi().showSidebar(HtmlService.createHtmlOutputFromFile('Cashier').setTitle('Caja y eventos'));
+  SpreadsheetApp.getUi().showSidebar(HtmlService.createHtmlOutputFromFile('Cashier').setTitle('Caja y administración deportiva'));
 }
 
 function requireCashier_() {
@@ -128,6 +139,7 @@ function cashierGetContext() {
     email: email,
     canManageEvents: RENTAL_CFG.EVENT_ADMIN_EMAILS.map(x => String(x).toLowerCase()).indexOf(email) !== -1,
     canCancelReservations: RENTAL_CFG.RESERVATION_ADMIN_EMAILS.map(x => String(x).toLowerCase()).indexOf(email) !== -1,
+    canManageWorkshops: (RENTAL_CFG.WORKSHOP_ADMIN_EMAILS || []).map(x => String(x).toLowerCase()).indexOf(email) !== -1,
     venues: rowsObjects_(RENTAL_CFG.SHEETS.VENUES)
       .filter(v => bool_(v.active))
       .map(v => ({venueId:v.venueId,name:v.name}))
@@ -392,6 +404,7 @@ function cashierCancelPaidReservation(code, reason, refundReference) {
 }
 
 function expireReservationsManual(){requireCashier_();const count=expireReservations_();return {ok:true,count:count,message:count+' reserva(s) vencida(s) liberada(s).'};}
+function expireWorkshopDataManual(){requireWorkshopAdmin_();expireWorkshopData_();return {ok:true,message:'Órdenes y matrículas de talleres actualizadas.'};}
 function expireReservations_(){
   ensureRentalSheets_();const rows=rowsObjects_(RENTAL_CFG.SHEETS.RESERVATIONS),now=new Date();let count=0,changed=false;
   rows.forEach(r=>{const status=String(r.status).toUpperCase(),deadline=new Date(r.paymentDeadline),grace=new Date(r.graceDeadline);if(status==='PENDIENTE'&&now>deadline&&now<=grace){updateReservationFields_(r._row,{status:'GRACIA'});changed=true;}else if(['PENDIENTE','GRACIA'].includes(status)&&now>grace){updateReservationFields_(r._row,{status:'VENCIDO',expiredAt:now});count++;changed=true;}});
@@ -415,7 +428,7 @@ function installRentalTriggers_(){
     .forEach(t=>ScriptApp.deleteTrigger(t));
   ScriptApp.newTrigger('expireReservationsTrigger').timeBased().everyMinutes(5).create();
 }
-function expireReservationsTrigger(){expireReservations_();}
+function expireReservationsTrigger(){expireReservations_();expireWorkshopData_();}
 
 function ensureRentalSheets_(){
   const ss=ss_();
@@ -673,7 +686,7 @@ function emailShell_(d) {
           '<p style="color:#5b6879;font-size:14px;line-height:1.55">' + html_(d.message) + '</p>' +
           deadline +
           '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:16px 0;background:#f3f6f9;border-radius:14px"><tr>' +
-            '<td style="padding:16px"><div style="font-size:11px;color:#64748b;font-weight:800">CÓDIGO DE RESERVA</div><div style="margin-top:5px;font-size:22px;font-weight:900">' + html_(d.code) + '</div></td>' +
+            '<td style="padding:16px"><div style="font-size:11px;color:#64748b;font-weight:800">' + html_(d.codeLabel || 'CÓDIGO DE RESERVA') + '</div><div style="margin-top:5px;font-size:22px;font-weight:900">' + html_(d.code) + '</div></td>' +
             qr +
           '</tr></table>' +
           (d.schedulesHtml || '') +

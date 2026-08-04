@@ -4,165 +4,98 @@
   <base target="_top">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
-    :root{font-family:Arial,sans-serif;color:#172033;background:#eef2f6}*{box-sizing:border-box}body{margin:0;padding:16px}.shell{max-width:760px;margin:auto}.top{background:#071225;color:#fff;padding:18px;border-radius:16px;margin-bottom:14px}.top h1{font-size:21px;margin:0 0 5px}.top p{margin:0;color:#c9d3df;font-size:13px}.tabs{display:flex;gap:8px;margin-bottom:12px}.tab{flex:1;border:0;border-radius:10px;padding:11px;font-weight:800;cursor:pointer;background:#dce4ed;color:#18304f}.tab.active{background:#17365d;color:#fff}.panel{display:none;background:#fff;border-radius:16px;padding:16px;box-shadow:0 8px 25px rgba(15,23,42,.08)}.panel.active{display:block}label{display:block;font-weight:700;margin:12px 0 5px;font-size:13px}input,select,textarea{width:100%;padding:11px;border:1px solid #ccd5e0;border-radius:9px;font:inherit}textarea{min-height:78px;resize:vertical}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{width:100%;padding:12px;margin-top:12px;border:0;border-radius:9px;background:#17365d;color:#fff;font-weight:800;cursor:pointer;transition:opacity .2s,transform .2s}.btn:disabled{opacity:.58;cursor:wait}.btn.busy{position:relative;color:transparent}.btn.busy:after{content:'';position:absolute;inset:0;margin:auto;width:19px;height:19px;border:3px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:spin .75s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.btn.pay{background:#287a35}.btn.danger{background:#a9222f}.btn.warning{background:#b45309}.check-row{display:flex;align-items:center;gap:9px;margin-top:12px;font-weight:700;font-size:13px}.check-row input{width:auto;margin:0}.admin-note{margin:10px 0;padding:11px 12px;border-radius:10px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:12px;line-height:1.45}.status-pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#e2e8f0;font-size:11px;font-weight:800}.status-pill.paid{background:#dcfce7;color:#166534}.card{margin-top:14px;padding:14px;border-radius:12px;background:#eef3f8}.error{color:#a51d2d;font-weight:700}.ok{color:#236b31;font-weight:700}.items{display:grid;gap:8px;margin:10px 0}.item{background:#fff;border:1px solid #d9e1ea;padding:9px;border-radius:9px;font-size:13px}.block-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border-bottom:1px solid #e4e9ef;padding:10px 0}.block-row:last-child{border-bottom:0}.mini{width:auto;margin:0;padding:8px 10px;font-size:12px}.muted{color:#667085;font-size:12px}.modal-backdrop[hidden]{display:none}.modal-backdrop{position:fixed;inset:0;background:rgba(7,18,37,.62);display:grid;place-items:center;padding:18px;z-index:100}.modal-box{width:min(420px,100%);background:#fff;border-radius:18px;padding:24px;text-align:center;box-shadow:0 24px 70px rgba(15,23,42,.28)}.modal-icon{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;margin:0 auto 13px;background:#dcfce7;color:#15803d;font-size:30px;font-weight:900}.modal-box h3{margin:0 0 8px;font-size:22px}.modal-box p{margin:0;color:#667085;line-height:1.45}.modal-box .btn{margin-top:18px}.screen-busy{pointer-events:none;user-select:none}.processing[hidden]{display:none}.processing{position:fixed;inset:0;background:rgba(7,18,37,.72);display:grid;place-items:center;padding:20px;z-index:150}.processing-box{width:min(360px,100%);background:#fff;border-radius:18px;padding:24px;text-align:center;box-shadow:0 24px 70px rgba(15,23,42,.32)}.processing-spinner{width:46px;height:46px;margin:0 auto 14px;border:5px solid #dce5ef;border-top-color:#17365d;border-radius:50%;animation:spin .8s linear infinite}.processing-box h3{margin:0 0 7px;font-size:20px}.processing-box p{margin:0;color:#667085;line-height:1.45}@media(max-width:600px){body{padding:10px}.grid{grid-template-columns:1fr}.tabs{position:sticky;top:0;z-index:3;background:#eef2f6;padding:6px 0}.top{padding:15px}}
+    :root{font-family:Arial,sans-serif;color:#172033;background:#eef2f6}*{box-sizing:border-box}body{margin:0;padding:16px}.shell{max-width:1100px;margin:auto}.top{background:#071225;color:#fff;padding:18px;border-radius:16px;margin-bottom:14px}.top h1{font-size:21px;margin:0 0 5px}.top p{margin:0;color:#c9d3df;font-size:13px}.tabs{display:flex;gap:8px;margin-bottom:12px;overflow:auto;padding-bottom:3px}.tab{flex:1 0 auto;border:0;border-radius:10px;padding:11px 14px;font-weight:800;cursor:pointer;background:#dce4ed;color:#18304f;white-space:nowrap}.tab.active{background:#17365d;color:#fff}.panel{display:none;background:#fff;border-radius:16px;padding:16px;box-shadow:0 8px 25px rgba(15,23,42,.08)}.panel.active{display:block}h2{margin-top:0}label{display:block;font-weight:700;margin:12px 0 5px;font-size:13px}input,select,textarea{width:100%;padding:11px;border:1px solid #ccd5e0;border-radius:9px;font:inherit}textarea{min-height:78px;resize:vertical}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.btn{width:100%;padding:12px;margin-top:12px;border:0;border-radius:9px;background:#17365d;color:#fff;font-weight:800;cursor:pointer;transition:opacity .2s,transform .2s}.btn:disabled{opacity:.58;cursor:wait}.btn.busy{position:relative;color:transparent}.btn.busy:after{content:'';position:absolute;inset:0;margin:auto;width:19px;height:19px;border:3px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:spin .75s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.btn.pay{background:#287a35}.btn.danger{background:#a9222f}.btn.warning{background:#b45309}.btn.secondary{background:#64748b}.check-row{display:flex;align-items:flex-start;gap:9px;margin-top:12px;font-weight:700;font-size:13px}.check-row input{width:auto;margin:1px 0 0}.admin-note{margin:10px 0;padding:11px 12px;border-radius:10px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:12px;line-height:1.45}.status-pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#e2e8f0;font-size:11px;font-weight:800}.status-pill.paid,.status-pill.active{background:#dcfce7;color:#166534}.status-pill.pending{background:#fef3c7;color:#92400e}.status-pill.cancelled{background:#fee2e2;color:#991b1b}.card{margin-top:14px;padding:14px;border-radius:12px;background:#eef3f8}.error{color:#a51d2d;font-weight:700}.ok{color:#236b31;font-weight:700}.warning-text{padding:9px 10px;border-radius:8px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-weight:700;font-size:12px;line-height:1.4}.items{display:grid;gap:8px;margin:10px 0}.item{background:#fff;border:1px solid #d9e1ea;padding:10px;border-radius:9px;font-size:13px}.invoice-item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}.invoice-item input{width:18px;height:18px}.invoice-item small{display:block;color:#667085;margin-top:3px}.block-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border-bottom:1px solid #e4e9ef;padding:10px 0}.block-row:last-child{border-bottom:0}.mini{width:auto;margin:0;padding:8px 10px;font-size:12px}.muted{color:#667085;font-size:12px}.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}.summary-card{padding:14px;border-radius:12px;background:#f5f7fa;border:1px solid #e1e7ef}.summary-card strong{display:block;font-size:24px;color:#17365d}.summary-card span{font-size:12px;color:#667085;font-weight:700}.table-wrap{overflow:auto;border:1px solid #dbe2ea;border-radius:12px;margin-top:12px}table{width:100%;border-collapse:collapse;min-width:980px}th{background:#17365d;color:#fff;text-align:left;padding:10px;font-size:12px}td{padding:10px;border-top:1px solid #e5eaf0;font-size:12px;vertical-align:top}.row-actions{display:flex;gap:5px}.row-actions .btn{width:auto;margin:0;padding:7px 8px;font-size:11px}.modal-backdrop[hidden]{display:none}.modal-backdrop{position:fixed;inset:0;background:rgba(7,18,37,.62);display:grid;place-items:center;padding:18px;z-index:100}.modal-box{width:min(420px,100%);background:#fff;border-radius:18px;padding:24px;text-align:center;box-shadow:0 24px 70px rgba(15,23,42,.28)}.modal-icon{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;margin:0 auto 13px;background:#dcfce7;color:#15803d;font-size:30px;font-weight:900}.modal-box h3{margin:0 0 8px;font-size:22px}.modal-box p{margin:0;color:#667085;line-height:1.45}.modal-box .btn{margin-top:18px}.screen-busy{pointer-events:none;user-select:none}.processing[hidden]{display:none}.processing{position:fixed;inset:0;background:rgba(7,18,37,.72);display:grid;place-items:center;padding:20px;z-index:150}.processing-box{width:min(360px,100%);background:#fff;border-radius:18px;padding:24px;text-align:center;box-shadow:0 24px 70px rgba(15,23,42,.32)}.processing-spinner{width:46px;height:46px;margin:0 auto 14px;border:5px solid #dce5ef;border-top-color:#17365d;border-radius:50%;animation:spin .8s linear infinite}.processing-box h3{margin:0 0 7px;font-size:20px}.processing-box p{margin:0;color:#667085;line-height:1.45}@media(max-width:760px){body{padding:10px}.grid,.grid-3,.summary-grid{grid-template-columns:1fr}.tabs{position:sticky;top:0;z-index:3;background:#eef2f6;padding:6px 0}.top{padding:15px}.invoice-item{grid-template-columns:auto 1fr}.invoice-item>strong{grid-column:2}.row-actions{display:grid}}
   </style>
 </head>
 <body>
 <div class="shell">
-  <div class="top"><h1>Caja de campos deportivos</h1><p>Acceso restringido a cuentas Google autorizadas.</p></div>
+  <div class="top"><h1>Caja y administración deportiva</h1><p>Campos deportivos y matrículas de talleres · Acceso restringido a cuentas Google autorizadas.</p></div>
   <div class="tabs">
-    <button class="tab active" data-tab="payment">Confirmar pago</button>
+    <button class="tab active" data-tab="payment">Pago de campos</button>
+    <button class="tab" data-tab="workshopPayment">Pago de talleres</button>
     <button id="eventTab" class="tab" data-tab="block" hidden>Eventos</button>
     <button id="cancelTab" class="tab" data-tab="cancel" hidden>Anular reserva</button>
+    <button id="workshopAdminTab" class="tab" data-tab="workshopAdmin" hidden>Administrar talleres</button>
   </div>
 
   <section id="payment" class="panel active">
-    <h2>Validar una reserva</h2>
-    <label>Código de reserva</label>
-    <input id="code" autocomplete="off" placeholder="260716A9X7K">
-    <button class="btn" onclick="searchReservation()">Buscar reserva</button>
-    <div id="paymentResult"></div>
+    <h2>Validar una reserva de campo</h2>
+    <label>Código de reserva</label><input id="code" autocomplete="off" placeholder="260716A9X7K">
+    <button class="btn" onclick="searchReservation()">Buscar reserva</button><div id="paymentResult"></div>
+  </section>
+
+  <section id="workshopPayment" class="panel">
+    <h2>Registrar pago de taller</h2>
+    <p class="muted">Busca por código de pago (PAG…) o código de matrícula (TAL…). Puedes confirmar una o varias cuotas.</p>
+    <label>Código de pago o matrícula</label><input id="workshopCode" autocomplete="off" placeholder="PAG5097AB3KQ o TAL5097AB3KQ">
+    <button class="btn" onclick="searchWorkshopPayment()">Buscar matrícula</button><div id="workshopPaymentResult"></div>
   </section>
 
   <section id="block" class="panel">
-    <h2>Registrar evento</h2>
-    <p class="muted">Solo la cuenta administradora puede ocupar horarios por actividades institucionales.</p>
-    <label>Espacio deportivo</label>
-    <select id="blockVenue"><option value="COLISEO_PACHACAMAC">Coliseo Deportivo Pachacámac</option></select>
+    <h2>Registrar evento</h2><p class="muted">Solo la cuenta administradora puede ocupar horarios por actividades institucionales.</p>
+    <label>Espacio deportivo</label><select id="blockVenue"><option value="COLISEO_PACHACAMAC">Coliseo Deportivo Pachacámac</option></select>
     <label>Fecha</label><input id="blockDate" type="date">
     <div class="grid"><div><label>Hora de inicio</label><input id="blockStart" type="time" min="08:00" max="22:00" step="3600"></div><div><label>Hora de fin</label><input id="blockEnd" type="time" min="09:00" max="23:00" step="3600"></div></div>
     <label>Motivo o nombre de la reserva</label><textarea id="blockReason" placeholder="Ej.: Día del Niño, mantenimiento, actividad deportiva"></textarea><label class="check-row"><input id="blockMunicipal" type="checkbox"> Es un evento municipal</label>
-    <button class="btn danger" onclick="createBlock()">Registrar evento</button>
-    <div id="blockMessage"></div>
-    <h3>Eventos activos</h3><div id="blockList" class="card">Cargando…</div>
+    <button class="btn danger" onclick="createBlock()">Registrar evento</button><div id="blockMessage"></div><h3>Eventos activos</h3><div id="blockList" class="card">Cargando…</div>
   </section>
+
   <section id="cancel" class="panel">
-    <h2>Anular una reserva pagada</h2>
-    <div class="admin-note"><strong>Uso administrativo.</strong> Esta acción no borra el registro: cambia el estado a anulado, deja trazabilidad y libera los horarios para nuevas reservas.</div>
-    <label>Código de reserva</label>
-    <input id="cancelCode" autocomplete="off" placeholder="260716A9X7K">
-    <button class="btn" onclick="searchPaidReservation()">Buscar reserva pagada</button>
-    <div id="cancelResult"></div>
+    <h2>Anular una reserva pagada</h2><div class="admin-note"><strong>Uso administrativo.</strong> Esta acción no borra el registro: cambia el estado a anulado, deja trazabilidad y libera los horarios.</div>
+    <label>Código de reserva</label><input id="cancelCode" autocomplete="off" placeholder="260716A9X7K"><button class="btn" onclick="searchPaidReservation()">Buscar reserva pagada</button><div id="cancelResult"></div>
   </section>
 
+  <section id="workshopAdmin" class="panel">
+    <h2>Administración de talleres</h2>
+    <div id="workshopSummary" class="summary-grid"></div>
+    <div class="grid-3"><div><label>Taller</label><select id="workshopFilter"><option value="">Todos</option></select></div><div><label>Estado</label><select id="workshopStatusFilter"><option value="">Todos</option><option value="ACTIVO">Activos</option><option value="PENDIENTE_PAGO">Pendientes de pago</option><option value="BAJA_FALTA_PAGO">Baja por falta de pago</option><option value="BAJA_ADMINISTRATIVA">Baja administrativa</option></select></div><div><label>Búsqueda local</label><input id="workshopSearch" placeholder="Alumno, DNI, apoderado o código"></div></div>
+    <button class="btn" onclick="loadWorkshopDashboard()">Actualizar listado</button>
+    <div id="workshopDashboardMessage"></div>
+    <div class="table-wrap"><table><thead><tr><th>Alumno</th><th>Taller / matrícula</th><th>Apoderado</th><th>Estado</th><th>Pagos</th><th>Pendiente</th><th>Acciones</th></tr></thead><tbody id="workshopDashboardBody"></tbody></table></div>
+  </section>
 </div>
-<div id="successModal" class="modal-backdrop" hidden><div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="successTitle"><div class="modal-icon">✓</div><h3 id="successTitle">Operación registrada</h3><p id="successText">La información se guardó correctamente.</p><button class="btn pay" type="button" onclick="closeSuccessModal()">Aceptar</button></div></div><div id="processingOverlay" class="processing" hidden aria-live="assertive" aria-busy="true"><div class="processing-box"><div class="processing-spinner"></div><h3 id="processingTitle">Guardando información</h3><p id="processingText">Espera un momento. No cierres esta ventana ni vuelvas a pulsar el botón.</p></div></div>
+
+<div id="successModal" class="modal-backdrop" hidden><div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="successTitle"><div class="modal-icon">✓</div><h3 id="successTitle">Operación registrada</h3><p id="successText">La información se guardó correctamente.</p><button class="btn pay" type="button" onclick="closeSuccessModal()">Aceptar</button></div></div>
+<div id="processingOverlay" class="processing" hidden aria-live="assertive" aria-busy="true"><div class="processing-box"><div class="processing-spinner"></div><h3 id="processingTitle">Guardando información</h3><p id="processingText">Espera un momento. No cierres esta ventana ni vuelvas a pulsar el botón.</p></div></div>
 <script>
-  let currentCode='';
-  let canManageEvents=false;
-  let canCancelReservations=false;
-  let currentCancelCode='';
+  let currentCode='',currentCancelCode='',currentWorkshopEnrollment='',currentWorkshopOrder='';
+  let canManageEvents=false,canCancelReservations=false,canManageWorkshops=false,workshopDashboardRows=[];
   initCashier();
-  function initCashier(){google.script.run.withSuccessHandler(ctx=>{canManageEvents=!!ctx.canManageEvents;canCancelReservations=!!ctx.canCancelReservations;document.getElementById('eventTab').hidden=!canManageEvents;document.getElementById('cancelTab').hidden=!canCancelReservations;const select=document.getElementById('blockVenue');select.innerHTML=(ctx.venues||[]).map(v=>'<option value="'+esc(v.venueId)+'">'+esc(v.name)+'</option>').join('');}).withFailureHandler(err=>{document.body.innerHTML='<div class="shell"><div class="panel active"><p class="error">'+esc(err.message||err)+'</p></div></div>';}).cashierGetContext();}
-  document.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab,.panel').forEach(x=>x.classList.remove('active'));btn.classList.add('active');document.getElementById(btn.dataset.tab).classList.add('active');if(btn.dataset.tab==='block'&&canManageEvents)loadBlocks();if(btn.dataset.tab==='cancel'&&canCancelReservations)setTimeout(()=>document.getElementById('cancelCode').focus(),50);}));
   function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function norm(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();}
+  function money(v){return 'S/ '+Number(v||0).toFixed(2);}
+  function formatDate(v){return new Date(v).toLocaleDateString('es-PE',{day:'numeric',month:'short',year:'numeric'});}
   function formatDateTime(v){return new Date(v).toLocaleString('es-PE',{weekday:'long',day:'numeric',month:'long',year:'numeric',hour:'numeric',minute:'2-digit'});}
+  function statusClass(v){const s=norm(v);if(s==='ACTIVO'||s==='PAGADO')return'active';if(s.includes('PENDIENTE'))return'pending';return'cancelled';}
+  function initCashier(){google.script.run.withSuccessHandler(ctx=>{canManageEvents=!!ctx.canManageEvents;canCancelReservations=!!ctx.canCancelReservations;canManageWorkshops=!!ctx.canManageWorkshops;document.getElementById('eventTab').hidden=!canManageEvents;document.getElementById('cancelTab').hidden=!canCancelReservations;document.getElementById('workshopAdminTab').hidden=!canManageWorkshops;const select=document.getElementById('blockVenue');select.innerHTML=(ctx.venues||[]).map(v=>'<option value="'+esc(v.venueId)+'">'+esc(v.name)+'</option>').join('');}).withFailureHandler(err=>{document.body.innerHTML='<div class="shell"><div class="panel active"><p class="error">'+esc(err.message||err)+'</p></div></div>';}).cashierGetContext();}
+  document.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab,.panel').forEach(x=>x.classList.remove('active'));btn.classList.add('active');document.getElementById(btn.dataset.tab).classList.add('active');if(btn.dataset.tab==='block'&&canManageEvents)loadBlocks();if(btn.dataset.tab==='cancel'&&canCancelReservations)setTimeout(()=>document.getElementById('cancelCode').focus(),50);if(btn.dataset.tab==='workshopPayment')setTimeout(()=>document.getElementById('workshopCode').focus(),50);if(btn.dataset.tab==='workshopAdmin'&&canManageWorkshops)loadWorkshopDashboard();}));
+  function setProcessing(active,title,text){const overlay=document.getElementById('processingOverlay');document.getElementById('processingTitle').textContent=title||'Guardando información';document.getElementById('processingText').textContent=text||'Espera un momento.';overlay.hidden=!active;document.body.classList.toggle('screen-busy',active);}
+  function showSuccess(title,text){document.getElementById('successTitle').textContent=title;document.getElementById('successText').textContent=text;document.getElementById('successModal').hidden=false;}
+  function closeSuccessModal(){document.getElementById('successModal').hidden=true;if(document.getElementById('payment').classList.contains('active')){currentCode='';document.getElementById('code').value='';document.getElementById('paymentResult').innerHTML='';document.getElementById('code').focus();}else if(document.getElementById('workshopPayment').classList.contains('active')){currentWorkshopEnrollment='';currentWorkshopOrder='';document.getElementById('workshopCode').value='';document.getElementById('workshopPaymentResult').innerHTML='';document.getElementById('workshopCode').focus();}else if(document.getElementById('block').classList.contains('active'))document.getElementById('blockDate').focus();else if(document.getElementById('cancel').classList.contains('active')){currentCancelCode='';document.getElementById('cancelCode').value='';document.getElementById('cancelResult').innerHTML='';document.getElementById('cancelCode').focus();}else if(document.getElementById('workshopAdmin').classList.contains('active'))loadWorkshopDashboard();}
+
   function searchReservation(){const c=document.getElementById('code').value.trim();document.getElementById('paymentResult').innerHTML='Buscando…';google.script.run.withSuccessHandler(showReservation).withFailureHandler(showPaymentError).cashierLookup(c);}
-  function showReservation(x){if(!x.ok){document.getElementById('paymentResult').innerHTML='<p class="error">'+esc(x.message)+'</p>';return;}currentCode=x.reservation.reservationCode;const r=x.reservation;const items=(r.items||[]).map((item,i)=>'<div class="item"><b>Horario '+(i+1)+'</b><br>'+esc(formatDateTime(item.startDateTime))+' a '+esc(new Date(item.endDateTime).toLocaleTimeString('es-PE',{hour:'numeric',minute:'2-digit'}))+'<br>S/ '+Number(item.subtotal).toFixed(2)+'</div>').join('');document.getElementById('paymentResult').innerHTML='<div class="card"><b>'+esc(r.venueName)+'</b><div class="items">'+items+'</div><p>Total: <b>S/ '+Number(r.total).toFixed(2)+'</b><br>Cliente: '+esc(r.firstName+' '+r.lastName)+'<br>DNI: '+esc(r.dni)+'<br>Estado: <b>'+esc(r.status)+'</b></p><label>N.° de comprobante</label><input id="receipt"><button id="confirmPayButton" class="btn pay" onclick="confirmPayment()">Confirmar pago</button></div>';}
-  function setProcessing(active,title,text){
-    const overlay=document.getElementById('processingOverlay');
-    document.getElementById('processingTitle').textContent=title||'Guardando información';
-    document.getElementById('processingText').textContent=text||'Espera un momento. No cierres esta ventana ni vuelvas a pulsar el botón.';
-    overlay.hidden=!active;
-    document.body.classList.toggle('screen-busy',active);
-  }
-  function showSuccess(title,text){
-    document.getElementById('successTitle').textContent=title;
-    document.getElementById('successText').textContent=text;
-    document.getElementById('successModal').hidden=false;
-  }
-  function confirmPayment(){
-    const receipt=document.getElementById('receipt').value.trim();
-    if(!receipt&&!confirm('¿Confirmar sin número de comprobante?'))return;
-    const button=document.getElementById('confirmPayButton');
-    if(!button||button.disabled)return;
-    button.disabled=true;button.classList.add('busy');button.setAttribute('aria-busy','true');
-    setProcessing(true,'Registrando pago','Estamos validando y guardando el pago. No cierres esta ventana ni pulses nuevamente.');
-    google.script.run.withSuccessHandler(()=>{
-      setProcessing(false);
-      showSuccess('Pago registrado','El pago fue confirmado y el correo de confirmación fue enviado al cliente.');
-    }).withFailureHandler(error=>{
-      setProcessing(false);
-      button.disabled=false;button.classList.remove('busy');button.removeAttribute('aria-busy');
-      showPaymentError(error);
-    }).cashierConfirmPayment(currentCode,receipt);
-  }
-  function closeSuccessModal(){
-    document.getElementById('successModal').hidden=true;
-    const paymentActive=document.getElementById('payment').classList.contains('active');
-    if(paymentActive){
-      currentCode='';
-      document.getElementById('code').value='';
-      document.getElementById('paymentResult').innerHTML='';
-      document.getElementById('code').focus();
-    }else if(document.getElementById('block').classList.contains('active')){
-      document.getElementById('blockDate').focus();
-    }else if(document.getElementById('cancel').classList.contains('active')){
-      currentCancelCode='';
-      document.getElementById('cancelCode').value='';
-      document.getElementById('cancelResult').innerHTML='';
-      document.getElementById('cancelCode').focus();
-    }
-  }
+  function showReservation(x){if(!x.ok){document.getElementById('paymentResult').innerHTML='<p class="error">'+esc(x.message)+'</p>';return;}currentCode=x.reservation.reservationCode;const r=x.reservation;const items=(r.items||[]).map((item,i)=>'<div class="item"><b>Horario '+(i+1)+'</b><br>'+esc(formatDateTime(item.startDateTime))+' a '+esc(new Date(item.endDateTime).toLocaleTimeString('es-PE',{hour:'numeric',minute:'2-digit'}))+'<br>'+money(item.subtotal)+'</div>').join('');document.getElementById('paymentResult').innerHTML='<div class="card"><b>'+esc(r.venueName)+'</b><div class="items">'+items+'</div><p>Total: <b>'+money(r.total)+'</b><br>Cliente: '+esc(r.firstName+' '+r.lastName)+'<br>DNI: '+esc(r.dni)+'<br>Estado: <b>'+esc(r.status)+'</b></p><label>N.° de comprobante</label><input id="receipt"><button id="confirmPayButton" class="btn pay" onclick="confirmPayment()">Confirmar pago</button></div>';}
+  function confirmPayment(){const receipt=document.getElementById('receipt').value.trim();if(!receipt&&!confirm('¿Confirmar sin número de comprobante?'))return;const button=document.getElementById('confirmPayButton');if(!button||button.disabled)return;button.disabled=true;button.classList.add('busy');setProcessing(true,'Registrando pago','Estamos validando y guardando el pago del campo deportivo.');google.script.run.withSuccessHandler(()=>{setProcessing(false);showSuccess('Pago registrado','El pago fue confirmado y el correo fue enviado al cliente.');}).withFailureHandler(error=>{setProcessing(false);button.disabled=false;button.classList.remove('busy');showPaymentError(error);}).cashierConfirmPayment(currentCode,receipt);}
   function showPaymentError(e){document.getElementById('paymentResult').innerHTML='<p class="error">'+esc(e.message||e)+'</p>';}
-  function createBlock(){
-    if(!canManageEvents)return;
-    const d=document.getElementById('blockDate').value,s=document.getElementById('blockStart').value,e=document.getElementById('blockEnd').value;
-    const reason=document.getElementById('blockReason').value.trim();
-    if(!d||!s||!e){document.getElementById('blockMessage').innerHTML='<p class="error">Completa fecha y horas.</p>';return;}
-    const button=document.querySelector('#block .btn.danger');
-    if(button.disabled)return;
-    button.disabled=true;button.classList.add('busy');button.setAttribute('aria-busy','true');
-    const data={venueId:document.getElementById('blockVenue').value,startDateTime:d+'T'+s+':00',endDateTime:d+'T'+e+':00',reason,isMunicipalEvent:document.getElementById('blockMunicipal').checked};
-    setProcessing(true,'Guardando reserva','Estamos bloqueando el horario seleccionado. No cierres esta ventana ni pulses nuevamente.');
-    google.script.run.withSuccessHandler(x=>{
-      setProcessing(false);
-      button.disabled=false;button.classList.remove('busy');button.removeAttribute('aria-busy');
-      document.getElementById('blockDate').value='';
-      document.getElementById('blockStart').value='';
-      document.getElementById('blockEnd').value='';
-      document.getElementById('blockReason').value='';
-      document.getElementById('blockMunicipal').checked=false;
-      document.getElementById('blockMessage').innerHTML='';
-      loadBlocks();
-      showSuccess('Horario reservado',x.message||'El horario quedó ocupado y ya no está disponible para reservas.');
-    }).withFailureHandler(err=>{
-      setProcessing(false);
-      button.disabled=false;button.classList.remove('busy');button.removeAttribute('aria-busy');
-      document.getElementById('blockMessage').innerHTML='<p class="error">'+esc(err.message||err)+'</p>';
-    }).cashierCreateBlock(data);
-  }
+
+  function searchWorkshopPayment(){const query=document.getElementById('workshopCode').value.trim();const target=document.getElementById('workshopPaymentResult');if(!query){target.innerHTML='<p class="error">Ingresa un código.</p>';return;}target.innerHTML='Buscando…';google.script.run.withSuccessHandler(showWorkshopPayment).withFailureHandler(err=>{target.innerHTML='<p class="error">'+esc(err.message||err)+'</p>';}).cashierWorkshopLookup(query);}
+  function showWorkshopPayment(x){const target=document.getElementById('workshopPaymentResult');if(!x.ok){target.innerHTML='<p class="error">'+esc(x.message)+'</p>';return;}const e=x.enrollment;const invalidOrder=!!x.orderWarning;currentWorkshopEnrollment=e.enrollmentCode;currentWorkshopOrder=x.order&&!invalidOrder?x.order.orderCode:'';const selected=x.selectedInvoiceIds||[];const orderWarning=x.orderWarning?'<p class="warning-text">'+esc(x.orderWarning)+'</p>':'';const invoices=(e.invoices||[]).map(inv=>{const paid=norm(inv.status)==='PAGADO',disabled=paid||norm(inv.status)==='ANULADO'||invalidOrder;const checked=selected.includes(inv.invoiceId)&&!disabled;return '<label class="item invoice-item"><input type="checkbox" class="workshopInvoiceCheck" value="'+esc(inv.invoiceId)+'" '+(checked?'checked ':'')+(disabled?'disabled ':'')+'><span><b>'+esc(inv.label)+'</b><small>Vence: '+esc(formatDate(inv.dueDate))+' · '+esc(inv.status)+(inv.overdue?' · VENCIDO':'')+'</small></span><strong>'+money(inv.amount)+'</strong></label>';}).join('');target.innerHTML='<div class="card"><div><b>'+esc(e.studentName)+'</b> <span class="status-pill '+statusClass(e.status)+'">'+esc(e.statusLabel||e.status)+'</span></div><p>'+esc(e.workshopName)+'<br>Matrícula: <b>'+esc(e.enrollmentCode)+'</b></p>'+orderWarning+'<div class="items">'+invoices+'</div>'+(invalidOrder?'':'<button class="btn secondary" type="button" onclick="selectAllWorkshopPending()">Seleccionar todas las pendientes</button><label>N.° de comprobante</label><input id="workshopReceipt"><button id="confirmWorkshopPayButton" class="btn pay" onclick="confirmWorkshopPayment()">Confirmar cuotas seleccionadas</button>')+'</div>';}
+  function selectAllWorkshopPending(){document.querySelectorAll('.workshopInvoiceCheck:not(:disabled)').forEach(x=>x.checked=true);}
+  function confirmWorkshopPayment(){const ids=[...document.querySelectorAll('.workshopInvoiceCheck:checked')].map(x=>x.value);const receipt=document.getElementById('workshopReceipt').value.trim();if(!ids.length){document.getElementById('workshopPaymentResult').insertAdjacentHTML('beforeend','<p class="error">Selecciona al menos una cuota.</p>');return;}if(!receipt&&!confirm('¿Confirmar sin número de comprobante?'))return;const button=document.getElementById('confirmWorkshopPayButton');button.disabled=true;button.classList.add('busy');setProcessing(true,'Registrando pago de taller','Se actualizarán las cuotas, la matrícula y el correo del apoderado.');google.script.run.withSuccessHandler(x=>{setProcessing(false);showSuccess('Pago de taller registrado',x.message||'El pago fue confirmado.');}).withFailureHandler(err=>{setProcessing(false);button.disabled=false;button.classList.remove('busy');document.getElementById('workshopPaymentResult').insertAdjacentHTML('beforeend','<p class="error">'+esc(err.message||err)+'</p>');}).cashierConfirmWorkshopPayment(currentWorkshopEnrollment,ids,receipt,currentWorkshopOrder);}
+
+  function createBlock(){if(!canManageEvents)return;const d=document.getElementById('blockDate').value,s=document.getElementById('blockStart').value,e=document.getElementById('blockEnd').value,reason=document.getElementById('blockReason').value.trim();if(!d||!s||!e){document.getElementById('blockMessage').innerHTML='<p class="error">Completa fecha y horas.</p>';return;}const button=document.querySelector('#block .btn.danger');button.disabled=true;button.classList.add('busy');const data={venueId:document.getElementById('blockVenue').value,startDateTime:d+'T'+s+':00',endDateTime:d+'T'+e+':00',reason,isMunicipalEvent:document.getElementById('blockMunicipal').checked};setProcessing(true,'Guardando evento','Estamos bloqueando el horario seleccionado.');google.script.run.withSuccessHandler(x=>{setProcessing(false);button.disabled=false;button.classList.remove('busy');document.getElementById('blockDate').value='';document.getElementById('blockStart').value='';document.getElementById('blockEnd').value='';document.getElementById('blockReason').value='';document.getElementById('blockMunicipal').checked=false;loadBlocks();showSuccess('Horario reservado',x.message||'El horario quedó ocupado.');}).withFailureHandler(err=>{setProcessing(false);button.disabled=false;button.classList.remove('busy');document.getElementById('blockMessage').innerHTML='<p class="error">'+esc(err.message||err)+'</p>';}).cashierCreateBlock(data);}
   function loadBlocks(){if(!canManageEvents)return;google.script.run.withSuccessHandler(x=>{const list=document.getElementById('blockList');if(!x.blocks.length){list.innerHTML='<span class="muted">No hay eventos activos.</span>';return;}list.innerHTML=x.blocks.map(b=>'<div class="block-row"><div><b>'+esc(b.venueName)+'</b><br><span class="muted">'+esc(formatDateTime(b.startDateTime))+' a '+esc(new Date(b.endDateTime).toLocaleTimeString('es-PE',{hour:'numeric',minute:'2-digit'}))+' · '+esc(b.reason)+'</span></div><button class="btn mini" onclick="releaseBlock(\''+esc(b.blockId)+'\')">Liberar</button></div>').join('');}).withFailureHandler(err=>{document.getElementById('blockList').innerHTML='<p class="error">'+esc(err.message||err)+'</p>';}).cashierListBlocks();}
-  function releaseBlock(id){if(!canManageEvents)return;if(!confirm('¿Liberar este horario?'))return;setProcessing(true,'Liberando evento','Estamos retirando el evento y actualizando la disponibilidad.');google.script.run.withSuccessHandler(x=>{setProcessing(false);loadBlocks();showSuccess('Horario liberado',x.message||'El evento fue retirado y el horario volvió a estar disponible.');}).withFailureHandler(err=>{setProcessing(false);alert(err.message||err);}).cashierCancelBlock(id);}
+  function releaseBlock(id){if(!canManageEvents||!confirm('¿Liberar este horario?'))return;setProcessing(true,'Liberando evento','Estamos retirando el evento.');google.script.run.withSuccessHandler(x=>{setProcessing(false);loadBlocks();showSuccess('Horario liberado',x.message||'El horario volvió a estar disponible.');}).withFailureHandler(err=>{setProcessing(false);alert(err.message||err);}).cashierCancelBlock(id);}
 
-  function searchPaidReservation(){
-    if(!canCancelReservations)return;
-    const code=document.getElementById('cancelCode').value.trim();
-    const target=document.getElementById('cancelResult');
-    if(!code){target.innerHTML='<p class="error">Ingresa el código de reserva.</p>';return;}
-    target.innerHTML='Buscando…';
-    google.script.run.withSuccessHandler(showPaidReservation).withFailureHandler(err=>{target.innerHTML='<p class="error">'+esc(err.message||err)+'</p>';}).cashierLookupPaidReservation(code);
-  }
-  function showPaidReservation(x){
-    const target=document.getElementById('cancelResult');
-    if(!x.ok){target.innerHTML='<p class="error">'+esc(x.message)+'</p>';return;}
-    const r=x.reservation;currentCancelCode=r.reservationCode;
-    const items=(r.items||[]).map((item,i)=>'<div class="item"><b>'+(r.items.length===1?'Horario':'Horario '+(i+1))+'</b><br>'+esc(formatDateTime(item.startDateTime))+' a '+esc(new Date(item.endDateTime).toLocaleTimeString('es-PE',{hour:'numeric',minute:'2-digit'}))+'<br>S/ '+Number(item.subtotal).toFixed(2)+'</div>').join('');
-    target.innerHTML='<div class="card"><b>'+esc(r.venueName)+'</b> <span class="status-pill paid">PAGADO</span><div class="items">'+items+'</div><p>Total: <b>S/ '+Number(r.total).toFixed(2)+'</b><br>Cliente: '+esc(r.firstName+' '+r.lastName)+'<br>DNI: '+esc(r.dni)+'<br>Comprobante: '+esc(r.receiptNumber||'Sin número')+'</p><label>Motivo de la anulación y devolución</label><textarea id="cancelReason" placeholder="Ej.: La municipalidad requiere el espacio para una actividad institucional"></textarea><label>Referencia de devolución (opcional)</label><input id="refundReference" placeholder="Ej.: Nota de crédito, operación o constancia"><button id="cancelReservationButton" class="btn warning" onclick="cancelPaidReservation()">Anular y liberar horarios</button></div>';
-  }
-  function cancelPaidReservation(){
-    if(!canCancelReservations||!currentCancelCode)return;
-    const reason=document.getElementById('cancelReason').value.trim();
-    const refund=document.getElementById('refundReference').value.trim();
-    if(reason.length<5){document.getElementById('cancelResult').insertAdjacentHTML('beforeend','<p class="error">Indica el motivo de la anulación.</p>');return;}
-    if(!confirm('¿Confirmas que deseas anular esta reserva pagada y liberar todos sus horarios?'))return;
-    const button=document.getElementById('cancelReservationButton');
-    if(!button||button.disabled)return;
-    button.disabled=true;button.classList.add('busy');
-    setProcessing(true,'Anulando reserva','Estamos registrando la anulación, liberando los horarios y enviando la notificación al cliente.');
-    google.script.run.withSuccessHandler(x=>{setProcessing(false);showSuccess('Reserva anulada',x.message||'La reserva fue anulada y sus horarios quedaron disponibles.');}).withFailureHandler(err=>{setProcessing(false);button.disabled=false;button.classList.remove('busy');document.getElementById('cancelResult').insertAdjacentHTML('beforeend','<p class="error">'+esc(err.message||err)+'</p>');}).cashierCancelPaidReservation(currentCancelCode,reason,refund);
-  }
+  function searchPaidReservation(){if(!canCancelReservations)return;const code=document.getElementById('cancelCode').value.trim(),target=document.getElementById('cancelResult');if(!code){target.innerHTML='<p class="error">Ingresa el código de reserva.</p>';return;}target.innerHTML='Buscando…';google.script.run.withSuccessHandler(showPaidReservation).withFailureHandler(err=>{target.innerHTML='<p class="error">'+esc(err.message||err)+'</p>';}).cashierLookupPaidReservation(code);}
+  function showPaidReservation(x){const target=document.getElementById('cancelResult');if(!x.ok){target.innerHTML='<p class="error">'+esc(x.message)+'</p>';return;}const r=x.reservation;currentCancelCode=r.reservationCode;const items=(r.items||[]).map((item,i)=>'<div class="item"><b>'+(r.items.length===1?'Horario':'Horario '+(i+1))+'</b><br>'+esc(formatDateTime(item.startDateTime))+' a '+esc(new Date(item.endDateTime).toLocaleTimeString('es-PE',{hour:'numeric',minute:'2-digit'}))+'<br>'+money(item.subtotal)+'</div>').join('');target.innerHTML='<div class="card"><b>'+esc(r.venueName)+'</b> <span class="status-pill paid">PAGADO</span><div class="items">'+items+'</div><p>Total: <b>'+money(r.total)+'</b><br>Cliente: '+esc(r.firstName+' '+r.lastName)+'<br>DNI: '+esc(r.dni)+'<br>Comprobante: '+esc(r.receiptNumber||'Sin número')+'</p><label>Motivo de la anulación y devolución</label><textarea id="cancelReason"></textarea><label>Referencia de devolución (opcional)</label><input id="refundReference"><button id="cancelReservationButton" class="btn warning" onclick="cancelPaidReservation()">Anular y liberar horarios</button></div>';}
+  function cancelPaidReservation(){if(!canCancelReservations||!currentCancelCode)return;const reason=document.getElementById('cancelReason').value.trim(),refund=document.getElementById('refundReference').value.trim();if(reason.length<5){alert('Indica el motivo de la anulación.');return;}if(!confirm('¿Confirmas que deseas anular esta reserva pagada?'))return;const button=document.getElementById('cancelReservationButton');button.disabled=true;button.classList.add('busy');setProcessing(true,'Anulando reserva','Estamos registrando la anulación y enviando la notificación.');google.script.run.withSuccessHandler(x=>{setProcessing(false);showSuccess('Reserva anulada',x.message||'La reserva fue anulada.');}).withFailureHandler(err=>{setProcessing(false);button.disabled=false;button.classList.remove('busy');document.getElementById('cancelResult').insertAdjacentHTML('beforeend','<p class="error">'+esc(err.message||err)+'</p>');}).cashierCancelPaidReservation(currentCancelCode,reason,refund);}
 
+  function loadWorkshopDashboard(){if(!canManageWorkshops)return;const filters={workshopId:document.getElementById('workshopFilter').value,status:document.getElementById('workshopStatusFilter').value};document.getElementById('workshopDashboardMessage').innerHTML='Cargando…';google.script.run.withSuccessHandler(renderWorkshopDashboard).withFailureHandler(err=>{document.getElementById('workshopDashboardMessage').innerHTML='<p class="error">'+esc(err.message||err)+'</p>';}).cashierGetWorkshopDashboard(filters);}
+  function renderWorkshopDashboard(x){document.getElementById('workshopDashboardMessage').innerHTML='';workshopDashboardRows=x.enrollments||[];const s=x.summary||{};document.getElementById('workshopSummary').innerHTML='<div class="summary-card"><strong>'+Number(s.total||0)+'</strong><span>Matrículas</span></div><div class="summary-card"><strong>'+Number(s.active||0)+'</strong><span>Activas</span></div><div class="summary-card"><strong>'+Number(s.pending||0)+'</strong><span>Pendientes</span></div><div class="summary-card"><strong>'+Number(s.cancelled||0)+'</strong><span>Bajas</span></div>';const select=document.getElementById('workshopFilter'),current=select.value;select.innerHTML='<option value="">Todos</option>'+(x.workshops||[]).map(w=>'<option value="'+esc(w.workshopId)+'">'+esc(w.name)+'</option>').join('');select.value=current;renderWorkshopDashboardRows();}
+  function renderWorkshopDashboardRows(){const q=norm(document.getElementById('workshopSearch').value),body=document.getElementById('workshopDashboardBody');const rows=workshopDashboardRows.filter(r=>!q||norm([r.studentFullName,r.studentDni,r.guardianFullName,r.guardianDni,r.enrollmentCode,r.workshopName].join(' ')).includes(q));if(!rows.length){body.innerHTML='<tr><td colspan="7" class="muted">No hay matrículas para mostrar.</td></tr>';return;}body.innerHTML=rows.map(r=>{const isLow=norm(r.status).includes('BAJA');return '<tr><td><b>'+esc(r.studentFullName)+'</b><br>DNI: '+esc(r.studentDni)+' · '+Number(r.ageAtEnrollment||0)+' años<br>'+esc(r.residenceDistrict)+'</td><td>'+esc(r.workshopName)+'<br><b>'+esc(r.enrollmentCode)+'</b><br>Cuota: '+money(r.monthlyFee)+'</td><td>'+esc(r.guardianFullName)+'<br>DNI: '+esc(r.guardianDni)+'<br>'+esc(r.guardianPhone)+'<br>'+esc(r.guardianEmail)+'</td><td><span class="status-pill '+statusClass(r.status)+'">'+esc(r.status)+'</span><br><span class="muted">Registro: '+esc(formatDate(r.createdAt))+'</span></td><td>'+Number(r.paidCount||0)+' cuota(s)<br><b>'+money(r.paidTotal)+'</b></td><td>'+Number(r.pendingCount||0)+' cuota(s) · '+Number(r.overdueCount||0)+' vencida(s)<br><b>'+money(r.pendingTotal)+'</b></td><td><div class="row-actions"><button class="btn '+(isLow?'pay':'warning')+'" onclick="changeWorkshopStatus(\''+esc(r.enrollmentCode)+'\',\''+(isLow?'ACTIVO':'BAJA_ADMINISTRATIVA')+'\')">'+(isLow?'Reactivar':'Dar de baja')+'</button></div></td></tr>';}).join('');}
+  document.getElementById('workshopSearch').addEventListener('input',renderWorkshopDashboardRows);document.getElementById('workshopFilter').addEventListener('change',loadWorkshopDashboard);document.getElementById('workshopStatusFilter').addEventListener('change',loadWorkshopDashboard);
+  function changeWorkshopStatus(code,status){const action=status==='ACTIVO'?'reactivar':'dar de baja';const reason=prompt('Motivo para '+action+' la matrícula:');if(reason===null)return;if(!confirm('¿Confirmas '+action+' la matrícula '+code+'?'))return;setProcessing(true,'Actualizando matrícula','Estamos guardando el nuevo estado.');google.script.run.withSuccessHandler(x=>{setProcessing(false);showSuccess('Matrícula actualizada',x.message||'Estado actualizado.');}).withFailureHandler(err=>{setProcessing(false);alert(err.message||err);}).cashierSetWorkshopEnrollmentStatus(code,status,reason);}
 </script>
 </body>
 </html>

@@ -273,6 +273,12 @@
   }
 
   document.addEventListener('DOMContentLoaded', async ()=>{
+    const workshopsAdminLink = document.querySelector('#workshopsAdminLink');
+    if(workshopsAdminLink){
+      const base = window.APP_CONFIG?.CASHIER_APP_URL || '';
+      workshopsAdminLink.href = base ? `${base.replace(/\?.*$/, '')}?view=cashier` : '#';
+      if(!base){ workshopsAdminLink.classList.add('btn-disabled'); workshopsAdminLink.title = 'Configura CASHIER_APP_URL en assets/js/config.js'; }
+    }
     const user = Store.getUser();
     if(!user || lower(user.role) !== 'admin'){ location.href='login.html'; return; }
     bindTabs(); bindFilters();
