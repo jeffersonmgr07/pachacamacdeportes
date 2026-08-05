@@ -6,9 +6,7 @@
   const DATA_KEY = 'pachaWorkshopAccountData';
 
   function normalizeEnrollmentCode(value) {
-    let code = String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
-    if (code && !code.startsWith('PE')) code = `PE${code}`;
-    return code.slice(0, 24);
+    return String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 24);
   }
 
   async function submitLookup(event) {
@@ -21,7 +19,7 @@
     values.enrollmentCode = normalizeEnrollmentCode(values.enrollmentCode);
     values.studentSurname = String(values.studentSurname || '').trim();
     if (values.enrollmentCode.length < 6) {
-      W.showMessage('#accountMessage', 'error', 'Ingresa un código de matrícula válido, por ejemplo PE41097621.');
+      W.showMessage('#accountMessage', 'error', 'Ingresa el código de matrícula completo que aparece en la orden de pago o en el correo.');
       return;
     }
     if (values.studentSurname.length < 2) {
