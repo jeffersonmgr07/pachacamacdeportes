@@ -4,7 +4,7 @@
   const login=C.$('#delegateLogin'), dashboard=C.$('#delegateDashboard'), playerModal=C.$('#playerModal');
   let state={dashboard:null,activeCategory:''};
   function alertAt(selector,type,text){const node=C.$(selector);if(node)node.innerHTML=text?`<div class="form-alert ${type}">${C.safe(text)}</div>`:'';}
-  function statusClass(status){const value=String(status||'').toUpperCase();if(value==='ACTIVA')return 'status-active';if(value.includes('INHABIL'))return 'status-disabled';if(value.includes('GRACIA'))return 'status-grace';return 'status-pending';}
+  function statusClass(status){const value=String(status||'').toUpperCase();if(value==='ACTIVA')return 'status-active';if(value.includes('INHABIL'))return 'status-disabled';return 'status-pending';}
   function labelCategory(id){const c=(state.dashboard?.categories||[]).find(row=>row.categoryId===id);return c?.label||c?.name||id;}
   function validYear(categoryId,birthDate){const year=new Date(`${birthDate}T12:00:00`).getFullYear();const c=(state.dashboard?.categories||[]).find(row=>row.categoryId===categoryId);return c&&year>=Number(c.minBirthYear)&&year<=Number(c.maxBirthYear);}
   async function loadDashboard(){
@@ -18,9 +18,9 @@
     login.style.display='none';dashboard.classList.add('open');
     C.$('#dashboardTeamName').textContent=registration.teamName;C.$('#dashboardRepresentative').textContent=`${registration.representativeName} · ${registration.registrationId}`;
     C.$('#teamStatus').innerHTML=`<span class="status-pill ${statusClass(registration.status)}">${C.safe(data.statusLabel||registration.status)}</span><p style="color:#65758c">${C.safe(data.statusMessage||'')}</p>`;
-    C.$('#teamOrderSummary').innerHTML=`<div class="order-details"><div class="order-detail-row"><span>Código de pago</span><strong>${C.safe(order.orderCode)}</strong></div><div class="order-detail-row"><span>Total</span><strong>${C.money(order.amount)}</strong></div><div class="order-detail-row"><span>Vence</span><strong>${C.safe(C.date(order.graceDeadline))}</strong></div></div>`;
+    C.$('#teamOrderSummary').innerHTML=`<div class="order-details"><div class="order-detail-row"><span>Código de inscripción</span><strong>${C.safe(registration.registrationId||order.orderCode)}</strong></div><div class="order-detail-row"><span>Total</span><strong>${C.money(order.amount)}</strong></div><div class="order-detail-row"><span>Fecha límite de pago</span><strong>${C.safe(C.dateTime(order.paymentDeadline))}</strong></div></div>`;
     const active=String(registration.status).toUpperCase()==='ACTIVA';
-    C.$('#panelLocked').innerHTML=active?'':`<div class="cl-lock"><h3 style="margin-top:0">Registro de jugadores bloqueado</h3><p>Tu cuenta ya existe y puedes consultar la inscripción, pero la nómina se habilitará cuando el pago sea confirmado.</p><a class="btn btn-primary" href="estado.html?codigo=${encodeURIComponent(order.orderCode)}">Ver estado y opciones de pago</a></div>`;
+    C.$('#panelLocked').innerHTML=active?'':`<div class="cl-lock"><h3 style="margin-top:0">Registro de jugadores bloqueado</h3><p>Tu cuenta ya existe y puedes consultar la inscripción; sin embargo, la nómina se habilitará cuando el pago sea confirmado.</p><a class="btn btn-primary" href="estado.html?codigo=${encodeURIComponent(registration.registrationId||order.orderCode)}">Ver estado y opciones de pago</a><a class="btn btn-secondary" href="pago-online.html?codigo=${encodeURIComponent(registration.registrationId||order.orderCode)}" style="margin-left:8px;background:#fff;color:#741b14;border-color:#d8b2a7">Pagar online</a></div>`;
     C.$('#activePanel').hidden=!active;if(!active)return;
     const teamCategories=data.categories||[];if(!state.activeCategory||!teamCategories.some(c=>c.categoryId===state.activeCategory))state.activeCategory=teamCategories[0]?.categoryId||'';
     C.$('#categoryTabs').innerHTML=teamCategories.map(c=>`<button class="cl-tab ${c.categoryId===state.activeCategory?'active':''}" type="button" data-category="${C.safe(c.categoryId)}">${C.safe(c.label||c.name)}</button>`).join('');

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Pago online de la inscripción al Campeonato Clausura de Menores 2026.">
+  <title>Pago online | Clausura 2026</title>
+  <link rel="stylesheet" href="../assets/css/styles.css?v=20260805-clausura-v4">
+  <link rel="stylesheet" href="assets/clausura.css?v=20260805-clausura-v4">
+</head>
+<body>
+<div data-clausura-header data-active="estado"></div>
+
+<section class="cl-form-hero">
+  <div class="container">
+    <a class="cl-back" href="index.html">← Volver al campeonato</a>
+    <span class="kicker clausura-kicker">Pago seguro</span>
+    <h1>Paga tu inscripción online</h1>
+    <p>Busca la orden con tu código de inscripción y continúa al entorno seguro de Mercado Pago.</p>
+  </div>
+</section>
+
+<main class="section cl-form-section">
+  <div class="container">
+    <div id="paymentReturnMessage"></div>
+    <div class="cl-payment-shell">
+      <section class="cl-payment-card">
+        <h2>1. Buscar recibos</h2>
+        <p style="color:#687990">Ingresa el mismo código que recibiste al registrar el equipo.</p>
+        <form id="onlinePaymentSearchForm">
+          <label for="onlinePaymentCode">Código de inscripción</label>
+          <input class="input" id="onlinePaymentCode" name="code" required autocomplete="off" placeholder="CL26-1234" maxlength="20">
+          <button class="btn btn-primary" id="onlinePaymentSearchButton" type="submit" style="width:100%;margin-top:14px">Buscar recibos</button>
+        </form>
+        <div id="onlinePaymentMessage"></div>
+
+        <ol class="cl-payment-steps">
+          <li>Coloca tu código de inscripción y busca el recibo.</li>
+          <li>Revisa el equipo, las categorías y el monto total.</li>
+          <li>Haz clic en continuar y elige Yape, tarjeta de débito o tarjeta de crédito.</li>
+          <li>Confirma el pago en Mercado Pago.</li>
+          <li>Espera el correo de confirmación y habilitación del registro de jugadores.</li>
+        </ol>
+      </section>
+
+      <section class="cl-payment-card" id="onlinePaymentCart">
+        <h2>2. Resumen de pago</h2>
+        <div class="cl-payment-empty">Busca tu código para cargar la orden de inscripción.</div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<div data-clausura-footer></div>
+<script src="assets/clausura-layout.js?v=20260805-clausura-v4"></script>
+<script src="assets/clausura-config.js?v=20260805-clausura-v4"></script>
+<script src="assets/clausura-api.js?v=20260805-clausura-v4"></script>
+<script src="assets/pago-online.js?v=20260805-clausura-v4"></script>
+</body>
+</html>

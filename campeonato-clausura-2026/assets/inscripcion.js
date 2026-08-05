@@ -216,23 +216,40 @@
 
       localStorage.setItem('cl26_last_registration', JSON.stringify({
         registrationId: response.order.registrationId,
-        orderCode: response.order.orderCode,
+        orderCode: response.order.registrationId,
         email: payload.email,
         documentNumber: payload.documentNumber
       }));
 
       C.$('#registrationOrderContent').innerHTML = C.orderHtml(response.order, {
         title: 'Equipo registrado correctamente',
-        subtitle: 'La cuenta fue creada. El registro de jugadores se habilitará después de confirmar el pago.'
+        subtitle: 'La cuenta fue creada; sin embargo, el registro de jugadores se habilitará después de confirmar el pago.'
       });
       modal.classList.add('open');
       modal.setAttribute('aria-hidden', 'false');
+
+      C.$$('[data-copy-code]', modal).forEach(copyButton => {
+        copyButton.addEventListener('click', async () => {
+          try {
+            await C.copyText(copyButton.dataset.copyCode);
+            const previous = copyButton.textContent;
+            copyButton.textContent = 'Código copiado';
+            copyButton.classList.add('copied');
+            setTimeout(() => {
+              copyButton.textContent = previous;
+              copyButton.classList.remove('copied');
+            }, 1800);
+          } catch (_) {
+            C.toast('No se pudo copiar el código. Selecciónalo manualmente.', 'error');
+          }
+        });
+      });
 
       form.reset();
       toggleBusiness();
       updateTotal();
       resetPasswordUI();
-      message('ok', 'La inscripción fue registrada. Revisa y conserva los códigos generados.');
+      message('ok', 'La inscripción fue registrada. Conserva tu código de inscripción para pagar y consultar el estado.');
     } catch (error) {
       message('error', error.message || String(error));
     } finally {
