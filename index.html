@@ -1,0 +1,555 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Portal de deportes Pachacamac</title><link rel="stylesheet" href="assets/css/styles.css?v=20260805-clausura-v1">
+<style>
+
+/* Slider promocional principal: todo queda contenido en index.html */
+.home-hero-slider{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  background:#071225!important;
+}
+.home-hero-slider:before{display:none!important;}
+.home-hero-slides{display:grid;}
+.home-hero-slide{
+  grid-area:1/1;
+  position:relative;
+  min-width:0;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .85s ease,visibility .85s ease;
+  background-position:center;
+  background-size:cover;
+  background-repeat:no-repeat;
+}
+.home-hero-slide.is-active{opacity:1;visibility:visible;pointer-events:auto;z-index:2;}
+.home-hero-slide:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:url('assets/img/bg-portal-deportivo.svg') center/cover no-repeat;
+  opacity:.12;
+}
+.home-hero-slide .hero-content{min-height:610px;}
+.home-hero-slide--portal{
+  background-image:
+    radial-gradient(circle at 80% 5%,rgba(182,223,42,.28),transparent 28%),
+    radial-gradient(circle at 12% 20%,rgba(248,196,73,.18),transparent 20%),
+    linear-gradient(135deg,rgba(7,18,37,.91),rgba(11,27,54,.85) 48%,rgba(27,42,5,.82)),
+    url('assets/img/backgrounds/bg-index-deportivo.jpg');
+}
+.home-hero-slide--clausura{
+  background-image:
+    linear-gradient(90deg,rgba(7,18,37,.12) 0%,rgba(72,13,8,.34) 38%,rgba(81,13,7,.91) 68%,rgba(81,13,7,.98) 100%),
+    url('assets/img/backgrounds/bg-clausura-menores-2026.png');
+}
+.home-hero-slide--clausura:before{background:none;}
+.home-hero-slide--clausura .hero-content{grid-template-columns:.83fr 1.17fr;}
+.home-hero-slide--clausura .home-hero-copy{grid-column:2;}
+.home-hero-slide--clausura h1{font-size:clamp(42px,6.2vw,74px);}
+.home-hero-slide--clausura p{color:#fff4ef;}
+.home-hero-slide--rental{
+  background-image:
+    radial-gradient(circle at 82% 8%,rgba(182,223,42,.22),transparent 28%),
+    linear-gradient(90deg,rgba(7,18,37,.96) 0%,rgba(7,18,37,.88) 43%,rgba(7,18,37,.38) 72%,rgba(7,18,37,.18) 100%),
+    url('assets/img/backgrounds/bg-futbol-menores-real.jpg');
+  background-position:center 42%;
+}
+.home-hero-slide--rental:before{background:url('assets/img/bg-stadium.svg') center/cover no-repeat;opacity:.11;}
+.home-hero-slide--rental h1{font-size:clamp(42px,6.4vw,76px);}
+.home-hero-copy{min-width:0;}
+.home-hero-copy h1{max-width:850px;}
+.home-hero-copy p{max-width:720px;}
+.home-hero-slider .stat-card{backdrop-filter:blur(8px);}
+.home-hero-slider-controls{
+  position:absolute;
+  inset:0;
+  z-index:5;
+  pointer-events:none;
+}
+.home-hero-arrow{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  width:50px;
+  height:50px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.25);
+  background:rgba(7,18,37,.48);
+  color:#fff;
+  font-size:34px;
+  line-height:1;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  pointer-events:auto;
+  backdrop-filter:blur(12px);
+  box-shadow:0 14px 35px rgba(0,0,0,.22);
+  transition:transform .18s ease,background .18s ease,color .18s ease;
+}
+.home-hero-arrow:hover,.home-hero-arrow:focus-visible{
+  background:#b6df2a;
+  color:#071225;
+  transform:translateY(-50%) scale(1.06);
+  outline:none;
+}
+.home-hero-prev{left:max(14px,calc((100vw - 1280px)/2));}
+.home-hero-next{right:max(14px,calc((100vw - 1280px)/2));}
+.home-hero-dots{
+  position:absolute;
+  left:50%;
+  bottom:22px;
+  transform:translateX(-50%);
+  display:flex;
+  gap:9px;
+  padding:8px 11px;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:999px;
+  background:rgba(7,18,37,.46);
+  backdrop-filter:blur(12px);
+  pointer-events:auto;
+}
+.home-hero-dot{
+  width:10px;
+  height:10px;
+  padding:0;
+  border:0;
+  border-radius:999px;
+  background:rgba(255,255,255,.46);
+  cursor:pointer;
+  transition:width .22s ease,background .22s ease;
+}
+.home-hero-dot.is-active{width:30px;background:#b6df2a;}
+.home-hero-dot:focus-visible{outline:2px solid #fff;outline-offset:3px;}
+.home-hero-slider-progress{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:3px;
+  overflow:hidden;
+  background:rgba(255,255,255,.08);
+  pointer-events:none;
+}
+.home-hero-slider-progress span{
+  display:block;
+  width:100%;
+  height:100%;
+  background:linear-gradient(90deg,#b6df2a,#f8c449);
+  transform-origin:left center;
+  animation:homeHeroProgress 7s linear forwards;
+}
+.home-hero-slider.is-paused .home-hero-slider-progress span{animation-play-state:paused;}
+@keyframes homeHeroProgress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(max-width:1100px){
+  .home-hero-arrow{width:44px;height:44px;font-size:30px;}
+  .home-hero-prev{left:10px}.home-hero-next{right:10px}
+  .home-hero-slide .hero-content{padding-left:44px;padding-right:44px;}
+}
+@media(max-width:860px){
+  .home-hero-slide .hero-content{min-height:690px;padding:68px 34px 88px;grid-template-columns:1fr;align-content:end;}
+  .home-hero-slide--portal .hero-content{align-content:center;}
+  .home-hero-slide--clausura{background-position:31% center;}
+  .home-hero-slide--clausura .hero-content{grid-template-columns:1fr;align-content:end;}
+  .home-hero-slide--clausura .home-hero-copy{grid-column:1;background:linear-gradient(180deg,transparent,rgba(81,13,7,.82) 18%,rgba(81,13,7,.96));padding:95px 18px 18px;margin:0 -18px -18px;border-radius:0 0 24px 24px;}
+  .home-hero-slide--rental{background-position:58% center;}
+  .home-hero-slide--rental .hero-content{align-content:end;}
+  .home-hero-slide--rental .home-hero-copy{background:linear-gradient(180deg,transparent,rgba(7,18,37,.84) 22%,rgba(7,18,37,.96));padding:90px 18px 18px;margin:0 -18px -18px;border-radius:0 0 24px 24px;}
+  .home-hero-slide .stat-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:620px){
+  .home-hero-slide .hero-content{min-height:675px;padding:46px 18px 82px;}
+  .home-hero-slide--portal .hero-content{align-content:center;}
+  .home-hero-slide--portal h1{font-size:clamp(37px,13vw,56px);}
+  .home-hero-slide--clausura h1,.home-hero-slide--rental h1{font-size:clamp(36px,11.5vw,52px);}
+  .home-hero-slide p{font-size:16px;line-height:1.48;}
+  .home-hero-slide .actions{margin-top:21px;}
+  .home-hero-slide .actions .btn{width:100%;}
+  .home-hero-slide .stat-grid{gap:9px;}
+  .home-hero-slide .stat-card{padding:13px;border-radius:16px;}
+  .home-hero-slide .stat-number{font-size:26px;}
+  .home-hero-slide .stat-label{font-size:11px;line-height:1.25;}
+  .home-hero-arrow{top:auto;bottom:18px;transform:none;width:42px;height:42px;font-size:28px;}
+  .home-hero-arrow:hover,.home-hero-arrow:focus-visible{transform:scale(1.05);}
+  .home-hero-prev{left:14px}.home-hero-next{right:14px}
+  .home-hero-dots{bottom:21px;}
+}
+@media(prefers-reduced-motion:reduce){
+  .home-hero-slide{transition:none;}
+  .home-hero-slider-progress{display:none;}
+}
+
+.latest-dates-section{padding-top:0;background:linear-gradient(180deg,rgba(255,255,255,.015),rgba(255,255,255,.03));}
+.latest-dates-head{margin-bottom:18px;}
+.latest-dates-carousel{position:relative;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;}
+.latest-dates-track{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding:8px 4px 16px;scrollbar-width:thin;}
+.latest-date-slide{flex:0 0 clamp(170px,24vw,280px);aspect-ratio:4/3;border:1px solid rgba(255,255,255,.16);border-radius:22px;overflow:hidden;background:rgba(255,255,255,.06);padding:0;cursor:pointer;scroll-snap-align:start;box-shadow:0 16px 38px rgba(0,0,0,.22);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;}
+.latest-date-slide:hover,.latest-date-slide:focus-visible{transform:translateY(-3px);border-color:rgba(182,223,42,.72);box-shadow:0 20px 48px rgba(0,0,0,.30);outline:none;}
+.latest-date-slide img{width:100%;height:100%;display:block;object-fit:cover;}
+.latest-dates-arrow{width:46px;height:46px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:linear-gradient(135deg,rgba(182,223,42,.95),rgba(248,196,73,.95));color:#071225;font-size:34px;font-weight:1000;line-height:1;display:grid;place-items:center;cursor:pointer;box-shadow:0 12px 28px rgba(0,0,0,.22);transition:transform .18s ease,filter .18s ease;}
+.latest-dates-arrow:hover,.latest-dates-arrow:focus-visible{transform:scale(1.06);filter:brightness(1.05);outline:none;}
+.latest-dates-lightbox{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:rgba(2,8,23,.92);padding:70px 76px;}
+.latest-dates-lightbox.is-open{display:flex;}
+.latest-dates-lightbox-img{max-width:min(100%,1100px);max-height:82vh;border-radius:22px;object-fit:contain;box-shadow:0 30px 80px rgba(0,0,0,.55);background:#071225;}
+.latest-dates-lightbox-close,.latest-dates-lightbox-nav{position:absolute;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.10);color:#fff;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(10px);transition:background .18s ease,transform .18s ease;}
+.latest-dates-lightbox-close{top:22px;right:24px;width:48px;height:48px;border-radius:999px;font-size:34px;line-height:1;}
+.latest-dates-lightbox-nav{top:50%;width:54px;height:54px;border-radius:999px;font-size:42px;line-height:1;transform:translateY(-50%);}
+.latest-dates-lightbox-prev{left:22px;}
+.latest-dates-lightbox-next{right:22px;}
+.latest-dates-lightbox-close:hover,.latest-dates-lightbox-nav:hover,.latest-dates-lightbox-close:focus-visible,.latest-dates-lightbox-nav:focus-visible{background:rgba(182,223,42,.92);color:#071225;outline:none;}
+.latest-dates-lightbox-nav:hover{transform:translateY(-50%) scale(1.06);}
+.latest-dates-lightbox-count{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);border-radius:999px;padding:8px 14px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);color:#e5eefb;font-weight:900;font-size:14px;}
+body.latest-dates-no-scroll{overflow:hidden;}
+@media(max-width:760px){.latest-dates-carousel{grid-template-columns:1fr;}.latest-dates-arrow{position:absolute;z-index:2;top:50%;transform:translateY(-50%);width:42px;height:42px;font-size:30px;}.latest-dates-prev{left:6px;}.latest-dates-next{right:6px;}.latest-date-slide{flex-basis:78%;border-radius:18px;}.latest-dates-track{padding-left:0;padding-right:0;}.latest-dates-lightbox{padding:72px 14px 76px;}.latest-dates-lightbox-img{max-height:74vh;border-radius:16px;}.latest-dates-lightbox-nav{top:auto;bottom:18px;transform:none;width:48px;height:48px;font-size:36px;}.latest-dates-lightbox-nav:hover{transform:scale(1.04);}.latest-dates-lightbox-prev{left:18px;}.latest-dates-lightbox-next{right:18px;}.latest-dates-lightbox-count{bottom:28px;}.latest-dates-lightbox-close{top:16px;right:16px;}}
+</style>
+</head>
+<body>
+<div data-header data-active="deportes"></div>
+<section class="hero home-hero-slider" id="homeHeroSlider" aria-roledescription="carrusel" aria-label="Promociones principales de Pacha Deportes">
+  <div class="home-hero-slides">
+    <article class="home-hero-slide home-hero-slide--portal is-active" data-home-hero-slide role="group" aria-roledescription="diapositiva" aria-label="1 de 3" aria-hidden="false">
+      <div class="container hero-content">
+        <div class="home-hero-copy">
+          <span class="kicker">Portal deportivo</span>
+          <h1>Portal de deportes Pachacamac</h1>
+          <p>Plataforma para organizar campeonatos, talleres y actividades deportivas del distrito.</p>
+          <div class="actions"><a class="btn btn-primary" href="campeonatos.html">Ver campeonatos</a><a class="btn btn-secondary" href="talleres.html">Talleres deportivos</a></div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-number">🏆</div><div class="stat-label">Revisa campeonatos locales</div></div>
+          <div class="stat-card"><div class="stat-number">📅</div><div class="stat-label">Consulta fixture y resultados</div></div>
+          <div class="stat-card"><div class="stat-number">📊</div><div class="stat-label">Sigue tablas de posiciones</div></div>
+          <div class="stat-card"><div class="stat-number">⚽</div><div class="stat-label">Únete a la comunidad deportiva</div></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="home-hero-slide home-hero-slide--clausura" data-home-hero-slide role="group" aria-roledescription="diapositiva" aria-label="2 de 3" aria-hidden="true">
+      <div class="container hero-content">
+        <div aria-hidden="true"></div>
+        <div class="home-hero-copy">
+          <span class="badge badge-gold">Inscripciones abiertas</span>
+          <h1>Campeonato Clausura de Menores 2026</h1>
+          <p>Fútbol 7 y Fútbol 9 para las categorías Sub 6, Sub 8, Sub 10 y Sub 12. Inscripción: S/ 50.00 por categoría.</p>
+          <div class="actions"><a class="btn btn-primary" href="campeonato-clausura-2026/index.html">Ver campeonato</a></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="home-hero-slide home-hero-slide--rental" data-home-hero-slide role="group" aria-roledescription="diapositiva" aria-label="3 de 3" aria-hidden="true">
+      <div class="container hero-content">
+        <div class="home-hero-copy">
+          <span class="kicker">Reserva en línea</span>
+          <h1>Alquila los espacios deportivos del distrito</h1>
+          <p>Consulta la agenda semanal del Coliseo Deportivo Pachacámac, revisa los horarios disponibles y solicita tu reserva de manera rápida.</p>
+          <div class="actions"><a class="btn btn-primary" href="campos-deportivos.html">Alquilar espacio deportivo</a></div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-number">🏟️</div><div class="stat-label">Espacios deportivos municipales</div></div>
+          <div class="stat-card"><div class="stat-number">🗓️</div><div class="stat-label">Disponibilidad semanal</div></div>
+          <div class="stat-card"><div class="stat-number">⏱️</div><div class="stat-label">Elige fecha y horario</div></div>
+          <div class="stat-card"><div class="stat-number">✅</div><div class="stat-label">Solicita tu reserva en línea</div></div>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <div class="home-hero-slider-controls" aria-label="Controles del carrusel">
+    <button class="home-hero-arrow home-hero-prev" type="button" aria-label="Ver promoción anterior">‹</button>
+    <button class="home-hero-arrow home-hero-next" type="button" aria-label="Ver siguiente promoción">›</button>
+    <div class="home-hero-dots" role="tablist" aria-label="Seleccionar promoción">
+      <button class="home-hero-dot is-active" type="button" role="tab" aria-label="Portal de deportes" aria-selected="true" data-home-hero-dot="0"></button>
+      <button class="home-hero-dot" type="button" role="tab" aria-label="Campeonato Clausura de Menores 2026" aria-selected="false" data-home-hero-dot="1"></button>
+      <button class="home-hero-dot" type="button" role="tab" aria-label="Alquiler de espacios deportivos" aria-selected="false" data-home-hero-dot="2"></button>
+    </div>
+    <div class="home-hero-slider-progress" aria-hidden="true"><span></span></div>
+  </div>
+</section>
+
+<section class="section home-live-events" id="homeLiveEventsSection" hidden>
+  <div class="container">
+    <div class="home-events-panel">
+      <div class="section-head">
+        <div>
+          <span class="kicker">Agenda deportiva</span>
+          <h2 class="section-title">En vivo y próximos partidos</h2>
+          <p class="section-subtitle">Se muestran solo los partidos en juego con arbitraje iniciado y la programación cercana de hoy hasta los próximos 2 días.</p>
+        </div>
+        <a class="btn btn-secondary" href="fixture.html">Ver fixture completo</a>
+      </div>
+      <div class="home-event-group" id="homeLiveWrap" hidden>
+        <div class="home-event-group-title"><span class="badge badge-red">Marcador en vivo</span></div>
+        <div class="home-events-grid" id="homeLiveMatches"></div>
+      </div>
+      <div class="home-event-group" id="homeUpcomingWrap" hidden>
+        <div class="home-event-group-title"><span class="badge badge-gold">Próximos eventos</span></div>
+        <div class="home-events-grid" id="homeUpcomingMatches"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"><div class="container"><div class="section-head"><div><h2 class="section-title">Deportes</h2><p class="section-subtitle">Revisa nuestros campeonatos, talleres y actividades deportivas municipales.</p></div></div>
+<div class="grid grid-3"><article class="card"><span class="badge badge-green">Campeonatos</span><h3>Calendarios y resultados</h3><p>Consulta fixture, resultados, tablas y equipos participantes.</p></article><article class="card"><span class="badge badge-gold">Talleres</span><h3>Escuelas deportivas</h3><p>Inscripciones abiertas para vóley, fútbol y básquet de 6 a 17 años.</p><div class="actions"><a class="btn btn-primary btn-small" href="talleres.html">Ver talleres e inscribirme</a></div></article><article class="card"><span class="badge badge-blue">Eventos</span><h3>Próximos eventos deportivos</h3><p>Mantente informado sobre actividades, comunicados y nuevas convocatorias.</p></article></div></div></section>
+
+<section class="section latest-dates-section" id="ultimasFechas">
+  <div class="container">
+    <div class="section-head latest-dates-head">
+      <div>
+        <h2 class="section-title">Últimas Fechas</h2>
+        <p class="section-subtitle">Estas son algunas fotos de las últimas fechas de nuestros eventos deportivos.</p>
+      </div>
+    </div>
+
+    <div class="latest-dates-carousel" aria-label="Carrusel de fotos de las últimas fechas">
+      <button class="latest-dates-arrow latest-dates-prev" type="button" aria-label="Ver fotos anteriores">‹</button>
+      <div class="latest-dates-track" tabindex="0">
+          <button class="latest-date-slide" type="button" data-latest-index="0" aria-label="Ver foto 1 de las últimas fechas">
+            <img src="assets/img/campeonato-menores-2026/WhatsApp Image 2026-06-30 at 4.44.44 PM (1).jpeg" alt="Foto 1 de las últimas fechas deportivas" loading="lazy">
+          </button>
+          <button class="latest-date-slide" type="button" data-latest-index="2" aria-label="Ver foto 3 de las últimas fechas">
+            <img src="assets/img/campeonato-menores-2026/WhatsApp Image 2026-06-30 at 4.44.44 PM (3).jpeg" alt="Foto 3 de las últimas fechas deportivas" loading="lazy">
+          </button>
+          <button class="latest-date-slide" type="button" data-latest-index="3" aria-label="Ver foto 4 de las últimas fechas">
+            <img src="assets/img/campeonato-menores-2026/WhatsApp Image 2026-06-30 at 4.44.44 PM (4).jpeg" alt="Foto 4 de las últimas fechas deportivas" loading="lazy">
+          </button>
+          <button class="latest-date-slide" type="button" data-latest-index="4" aria-label="Ver foto 5 de las últimas fechas">
+            <img src="assets/img/campeonato-menores-2026/WhatsApp Image 2026-06-30 at 4.44.44 PM.jpeg" alt="Foto 5 de las últimas fechas deportivas" loading="lazy">
+          </button>
+          <button class="latest-date-slide" type="button" data-latest-index="5" aria-label="Ver foto 6 de las últimas fechas">
+            <img src="assets/img/campeonato-menores-2026/WhatsApp Image 2026-06-30 at 4.44.45 PM (1).jpeg" alt="Foto 6 de las últimas fechas deportivas" loading="lazy">
+          </button>
+          <button class="latest-date-slide" type="button" data-latest-index="6" aria-label="Ver foto 7 de las últimas fechas">
+            <img src="assets/img/campeonato-menores-2026/WhatsApp Image 2026-06-30 at 4.44.45 PM (2).jpeg" alt="Foto 7 de las últimas fechas deportivas" loading="lazy">
+          </button>
+          <button class="latest-date-slide" type="button" data-latest-index="7" aria-label="Ver foto 8 de las últimas fechas">
+            <img src="assets/img/campeonato-menores-2026/WhatsApp Image 2026-06-30 at 4.44.45 PM (3).jpeg" alt="Foto 8 de las últimas fechas deportivas" loading="lazy">
+          </button>
+          <button class="latest-date-slide" type="button" data-latest-index="8" aria-label="Ver foto 9 de las últimas fechas">
+            <img src="assets/img/campeonato-menores-2026/WhatsApp Image 2026-06-30 at 4.44.45 PM (4).jpeg" alt="Foto 9 de las últimas fechas deportivas" loading="lazy">
+          </button>
+          <button class="latest-date-slide" type="button" data-latest-index="9" aria-label="Ver foto 10 de las últimas fechas">
+            <img src="assets/img/campeonato-menores-2026/WhatsApp Image 2026-06-30 at 4.44.45 PM.jpeg" alt="Foto 10 de las últimas fechas deportivas" loading="lazy">
+          </button>
+          <button class="latest-date-slide" type="button" data-latest-index="10" aria-label="Ver foto 11 de las últimas fechas">
+            <img src="assets/img/campeonato-menores-2026/WhatsApp Image 2026-06-30 at 4.44.46 PM (1).jpeg" alt="Foto 11 de las últimas fechas deportivas" loading="lazy">
+          </button>
+          <button class="latest-date-slide" type="button" data-latest-index="11" aria-label="Ver foto 12 de las últimas fechas">
+            <img src="assets/img/campeonato-menores-2026/WhatsApp Image 2026-06-30 at 4.44.46 PM (2).jpeg" alt="Foto 12 de las últimas fechas deportivas" loading="lazy">
+          </button>
+          <button class="latest-date-slide" type="button" data-latest-index="12" aria-label="Ver foto 13 de las últimas fechas">
+            <img src="assets/img/campeonato-menores-2026/WhatsApp Image 2026-06-30 at 4.44.46 PM (3).jpeg" alt="Foto 13 de las últimas fechas deportivas" loading="lazy">
+          </button>
+          <button class="latest-date-slide" type="button" data-latest-index="13" aria-label="Ver foto 14 de las últimas fechas">
+            <img src="assets/img/campeonato-menores-2026/WhatsApp Image 2026-06-30 at 4.44.46 PM.jpeg" alt="Foto 14 de las últimas fechas deportivas" loading="lazy">
+          </button>
+          <button class="latest-date-slide" type="button" data-latest-index="14" aria-label="Ver foto 15 de las últimas fechas">
+            <img src="assets/img/campeonato-menores-2026/WhatsApp Image 2026-06-30 at 4.44.47 PM (1).jpeg" alt="Foto 15 de las últimas fechas deportivas" loading="lazy">
+          </button>
+          <button class="latest-date-slide" type="button" data-latest-index="15" aria-label="Ver foto 16 de las últimas fechas">
+            <img src="assets/img/campeonato-menores-2026/WhatsApp Image 2026-06-30 at 4.44.47 PM (2).jpeg" alt="Foto 16 de las últimas fechas deportivas" loading="lazy">
+          </button>
+          <button class="latest-date-slide" type="button" data-latest-index="16" aria-label="Ver foto 17 de las últimas fechas">
+            <img src="assets/img/campeonato-menores-2026/WhatsApp Image 2026-06-30 at 4.44.47 PM.jpeg" alt="Foto 17 de las últimas fechas deportivas" loading="lazy">
+          </button>
+      </div>
+      <button class="latest-dates-arrow latest-dates-next" type="button" aria-label="Ver siguientes fotos">›</button>
+    </div>
+  </div>
+</section>
+
+<div class="latest-dates-lightbox" id="latestDatesLightbox" aria-hidden="true" role="dialog" aria-label="Galería de fotos ampliada">
+  <button class="latest-dates-lightbox-close" type="button" aria-label="Cerrar galería">×</button>
+  <button class="latest-dates-lightbox-nav latest-dates-lightbox-prev" type="button" aria-label="Foto anterior">‹</button>
+  <img class="latest-dates-lightbox-img" src="" alt="Foto ampliada de las últimas fechas deportivas">
+  <button class="latest-dates-lightbox-nav latest-dates-lightbox-next" type="button" aria-label="Siguiente foto">›</button>
+  <div class="latest-dates-lightbox-count" aria-live="polite"></div>
+</div>
+
+<div class="modal" id="loginModal">
+  <div class="modal-dialog" style="width:min(520px,100%)">
+    <div class="modal-header">
+      <h3>Iniciar sesión</h3>
+      <button class="modal-close" data-close-modal="loginModal">×</button>
+    </div>
+    <div class="modal-body">
+      <form data-login-form>
+        <div style="margin-bottom:14px"><label>Correo, usuario o DNI</label><input class="input" name="email" type="text" autocomplete="username" required placeholder="correo@ejemplo.com"></div>
+        <div style="margin-bottom:14px"><label>Contraseña</label><input class="input" name="password" type="password" autocomplete="current-password" required placeholder="Ingresa tu contraseña"></div>
+        <button class="btn btn-primary" style="width:100%">Iniciar sesión</button>
+      </form>
+      <p style="color:#9fb1ca;margin-top:16px">Regístrate como delegado o entrenador si tienes algún equipo a tu cargo.</p>
+      <a class="btn btn-secondary" style="width:100%" href="registro.html">Registrarte</a>
+    </div>
+  </div>
+</div>
+<div data-footer></div>
+<script src="assets/components/header.js?v=20260601-loader-fechas"></script><script src="assets/components/footer.js"></script><script src="assets/js/config.js"></script><script src="assets/js/api.js?v=20260606-home-live"></script><script src="assets/js/login.js?v=20260601-loader-fechas"></script>
+<script src="assets/js/mock-data.js"></script><script src="assets/js/home.js?v=20260606-home-live"></script>
+
+<script>
+(function(){
+  const slider = document.getElementById('homeHeroSlider');
+  if(!slider) return;
+
+  const slides = Array.from(slider.querySelectorAll('[data-home-hero-slide]'));
+  const dots = Array.from(slider.querySelectorAll('[data-home-hero-dot]'));
+  const prev = slider.querySelector('.home-hero-prev');
+  const next = slider.querySelector('.home-hero-next');
+  const progress = slider.querySelector('.home-hero-slider-progress span');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const intervalMs = 7000;
+  let current = 0;
+  let timer = null;
+  let paused = false;
+  let touchStartX = null;
+
+  const restartProgress = () => {
+    if(!progress || reduceMotion) return;
+    progress.style.animation = 'none';
+    void progress.offsetWidth;
+    progress.style.animation = '';
+  };
+
+  const updateFocusableElements = (slide, active) => {
+    slide.querySelectorAll('a,button,input,select,textarea,[tabindex]').forEach((element) => {
+      if(active){
+        if(element.dataset.homeHeroOriginalTabindex !== undefined){
+          const original = element.dataset.homeHeroOriginalTabindex;
+          if(original === '') element.removeAttribute('tabindex');
+          else element.setAttribute('tabindex', original);
+          delete element.dataset.homeHeroOriginalTabindex;
+        } else if(element.getAttribute('tabindex') === '-1') {
+          element.removeAttribute('tabindex');
+        }
+      } else {
+        if(element.dataset.homeHeroOriginalTabindex === undefined){
+          element.dataset.homeHeroOriginalTabindex = element.getAttribute('tabindex') || '';
+        }
+        element.setAttribute('tabindex','-1');
+      }
+    });
+  };
+
+  const showSlide = (index, restartTimer = true) => {
+    current = (index + slides.length) % slides.length;
+    slides.forEach((slide, slideIndex) => {
+      const active = slideIndex === current;
+      slide.classList.toggle('is-active', active);
+      slide.setAttribute('aria-hidden', active ? 'false' : 'true');
+      updateFocusableElements(slide, active);
+    });
+    dots.forEach((dot, dotIndex) => {
+      const active = dotIndex === current;
+      dot.classList.toggle('is-active', active);
+      dot.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    restartProgress();
+    if(restartTimer) startTimer();
+  };
+
+  const startTimer = () => {
+    window.clearInterval(timer);
+    if(paused || reduceMotion || slides.length < 2) return;
+    timer = window.setInterval(() => showSlide(current + 1, false), intervalMs);
+  };
+
+  const setPaused = (value) => {
+    paused = value;
+    slider.classList.toggle('is-paused', paused);
+    if(paused) window.clearInterval(timer);
+    else { restartProgress(); startTimer(); }
+  };
+
+  prev && prev.addEventListener('click', () => showSlide(current - 1));
+  next && next.addEventListener('click', () => showSlide(current + 1));
+  dots.forEach((dot, index) => dot.addEventListener('click', () => showSlide(index)));
+
+  slider.addEventListener('mouseenter', () => setPaused(true));
+  slider.addEventListener('mouseleave', () => setPaused(false));
+  slider.addEventListener('focusin', () => setPaused(true));
+  slider.addEventListener('focusout', (event) => {
+    if(!slider.contains(event.relatedTarget)) setPaused(false);
+  });
+  slider.addEventListener('keydown', (event) => {
+    if(event.key === 'ArrowLeft'){ event.preventDefault(); showSlide(current - 1); }
+    if(event.key === 'ArrowRight'){ event.preventDefault(); showSlide(current + 1); }
+  });
+  slider.addEventListener('touchstart', (event) => {
+    touchStartX = event.changedTouches[0] ? event.changedTouches[0].clientX : null;
+  }, {passive:true});
+  slider.addEventListener('touchend', (event) => {
+    if(touchStartX === null || !event.changedTouches[0]) return;
+    const distance = event.changedTouches[0].clientX - touchStartX;
+    touchStartX = null;
+    if(Math.abs(distance) < 45) return;
+    showSlide(distance > 0 ? current - 1 : current + 1);
+  }, {passive:true});
+  document.addEventListener('visibilitychange', () => setPaused(document.hidden));
+
+  showSlide(0);
+})();
+</script>
+
+<script>
+(function(){
+  const track = document.querySelector('.latest-dates-track');
+  const slides = Array.from(document.querySelectorAll('.latest-date-slide'));
+  const prevBtn = document.querySelector('.latest-dates-prev');
+  const nextBtn = document.querySelector('.latest-dates-next');
+  const lightbox = document.getElementById('latestDatesLightbox');
+  const lightboxImg = lightbox ? lightbox.querySelector('.latest-dates-lightbox-img') : null;
+  const closeBtn = lightbox ? lightbox.querySelector('.latest-dates-lightbox-close') : null;
+  const lightboxPrev = lightbox ? lightbox.querySelector('.latest-dates-lightbox-prev') : null;
+  const lightboxNext = lightbox ? lightbox.querySelector('.latest-dates-lightbox-next') : null;
+  const counter = lightbox ? lightbox.querySelector('.latest-dates-lightbox-count') : null;
+  let currentIndex = 0;
+
+  if(!track || !slides.length || !lightbox || !lightboxImg) return;
+
+  const scrollCarousel = (direction) => {
+    const amount = Math.max(track.clientWidth * 0.82, 240);
+    track.scrollBy({ left: direction * amount, behavior: 'smooth' });
+  };
+
+  const showImage = (index) => {
+    currentIndex = (index + slides.length) % slides.length;
+    const img = slides[currentIndex].querySelector('img');
+    lightboxImg.src = img.src;
+    lightboxImg.alt = img.alt || 'Foto ampliada de las últimas fechas deportivas';
+    if(counter) counter.textContent = `${currentIndex + 1} / ${slides.length}`;
+  };
+
+  const openLightbox = (index) => {
+    showImage(index);
+    lightbox.classList.add('is-open');
+    lightbox.setAttribute('aria-hidden','false');
+    document.body.classList.add('latest-dates-no-scroll');
+    closeBtn && closeBtn.focus();
+  };
+
+  const closeLightbox = () => {
+    lightbox.classList.remove('is-open');
+    lightbox.setAttribute('aria-hidden','true');
+    document.body.classList.remove('latest-dates-no-scroll');
+  };
+
+  prevBtn && prevBtn.addEventListener('click', () => scrollCarousel(-1));
+  nextBtn && nextBtn.addEventListener('click', () => scrollCarousel(1));
+  slides.forEach((slide, index) => slide.addEventListener('click', () => openLightbox(index)));
+  closeBtn && closeBtn.addEventListener('click', closeLightbox);
+  lightboxPrev && lightboxPrev.addEventListener('click', () => showImage(currentIndex - 1));
+  lightboxNext && lightboxNext.addEventListener('click', () => showImage(currentIndex + 1));
+  lightbox.addEventListener('click', (event) => { if(event.target === lightbox) closeLightbox(); });
+
+  document.addEventListener('keydown', (event) => {
+    if(!lightbox.classList.contains('is-open')) return;
+    if(event.key === 'Escape') closeLightbox();
+    if(event.key === 'ArrowLeft') showImage(currentIndex - 1);
+    if(event.key === 'ArrowRight') showImage(currentIndex + 1);
+  });
+})();
+</script>
+</body></html>
