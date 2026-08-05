@@ -3,6 +3,7 @@
 
   const W = window.PachaWorkshops;
   const STORAGE_KEY = 'pachaWorkshopAccountCredentials';
+  const DATA_KEY = 'pachaWorkshopAccountData';
 
   async function submitLookup(event) {
     event.preventDefault();
@@ -23,6 +24,7 @@
       const response = await W.request('lookupWorkshopAccount', values);
       if (!response?.ok) throw new Error(response?.message || 'No se pudo consultar la cuenta.');
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify(values));
+      sessionStorage.setItem(DATA_KEY, JSON.stringify(response));
       location.href = 'taller-estado.html';
     } catch (error) {
       W.showMessage('#accountMessage', 'error', error.message || String(error));

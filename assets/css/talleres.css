@@ -1,3 +1,4 @@
+[hidden]{display:none!important}
 .workshops-hero{position:relative;overflow:hidden;border-bottom:1px solid rgba(255,255,255,.12);background:radial-gradient(circle at 82% 10%,rgba(182,223,42,.28),transparent 30%),linear-gradient(135deg,#071225 0%,#0b1b36 58%,#223509 100%)}
 .workshops-hero:before{content:"";position:absolute;inset:0;background:url('../img/bg-portal-deportivo.svg') center/cover no-repeat;opacity:.13}
 .workshops-hero-inner{position:relative;z-index:1;display:grid;grid-template-columns:1fr 340px;gap:36px;align-items:center;padding:68px 0}

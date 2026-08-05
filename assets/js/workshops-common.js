@@ -18,10 +18,17 @@
 
       const callback = 'workshop_cb_' + Math.random().toString(36).slice(2);
       const script = document.createElement('script');
-      const timeout = setTimeout(
-        () => cleanup(new Error('El servidor demoró demasiado en responder. Intenta nuevamente.')),
-        Number(window.APP_CONFIG?.API_TIMEOUT_MS || 15000)
-      );
+      const writeActions = new Set(['createWorkshopEnrollment', 'createWorkshopPaymentOrder']);
+      const timeoutMs = writeActions.has(action)
+        ? Number(window.APP_CONFIG?.WORKSHOPS_WRITE_TIMEOUT_MS || 120000)
+        : Number(window.APP_CONFIG?.WORKSHOPS_READ_TIMEOUT_MS || 60000);
+      const timeout = setTimeout(() => {
+        const error = new Error(writeActions.has(action)
+          ? 'La operación está tardando más de lo habitual. No vuelvas a enviarla todavía: espera unos segundos y consulta el estado de la matrícula para evitar duplicados.'
+          : 'No se recibió respuesta del servidor. Pulsa Actualizar una vez; la consulta está optimizada para reintentarse sin duplicar información.');
+        error.code = 'WORKSHOP_TIMEOUT';
+        cleanup(error);
+      }, timeoutMs);
 
       function cleanup(error) {
         clearTimeout(timeout);
@@ -38,7 +45,8 @@
       const params = new URLSearchParams({
         action,
         callback,
-        payload: JSON.stringify(payload)
+        payload: JSON.stringify(payload),
+        _ts: String(Date.now())
       });
       script.src = `${url}?${params.toString()}`;
       script.async = true;
