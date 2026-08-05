@@ -1,0 +1,10 @@
+Pacha Deportes - URLs configuradas
+
+Implementación pública:
+https://script.google.com/macros/s/AKfycbzCDb6Ea86s8w-bKv8pJdBsWWng7m4VFo0GzRWe0kPPtMclbg7HDtttM6VugbJZpQ9_Fw/exec
+
+Implementación privada:
+https://script.google.com/macros/s/AKfycbweuAw40WtHmKZQqUBRyCazJGq3Emi9oWv5eGOcNMxzMmzzXd3zr3Rz_3VTJTSDmgw2/exec
+
+El archivo assets/js/config.js ya contiene ambas URLs.
+El panel privado se abre agregando automáticamente ?view=cashier.

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Consulta de matrícula y pagos de talleres deportivos municipales de Pachacámac.">
+  <title>Consultar matrícula y pagos | Pacha Deportes</title>
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260804-talleres-v14">
+  <link rel="stylesheet" href="assets/css/talleres.css?v=20260804-talleres-v14">
+</head>
+<body>
+<div data-header data-active="talleres"></div>
+
+<section class="workshops-subhero workshops-subhero-compact">
+  <div class="container workshops-subhero-inner">
+    <div>
+      <a class="workshop-back-link" href="talleres.html">← Volver a talleres</a>
+      <span class="kicker">Portal del apoderado</span>
+      <h1>Consultar matrícula y pagos</h1>
+      <p>Ingresa los datos del padre, madre o apoderado registrados en la ficha de inscripción.</p>
+    </div>
+    <a class="btn btn-secondary" href="taller-inscripcion.html">Iniciar inscripción</a>
+  </div>
+</section>
+
+<main>
+  <section class="section workshop-account-section workshop-page-section">
+    <div class="container workshop-narrow-container">
+      <div class="workshop-account-shell workshop-login-shell">
+        <div class="workshop-account-intro">
+          <span class="kicker">Acceso sin contraseña</span>
+          <h2>Identifica al apoderado</h2>
+          <p>Usaremos el DNI y uno de los apellidos registrados para mostrar las matrículas, pagos efectuados y cuotas pendientes.</p>
+        </div>
+        <form id="workshopAccountForm" class="account-login-form account-login-form-stacked" novalidate>
+          <div class="field"><label for="accountGuardianDni">DNI del apoderado</label><input class="input" id="accountGuardianDni" name="guardianDni" inputmode="numeric" maxlength="8" pattern="\d{8}" required placeholder="8 dígitos"></div>
+          <div class="field"><label for="accountGuardianSurname">Apellido del apoderado</label><input class="input" id="accountGuardianSurname" name="guardianSurname" maxlength="60" required placeholder="Apellido paterno o materno"></div>
+          <button id="accountSubmit" class="btn btn-primary" type="submit">Consultar estado de matrícula</button>
+        </form>
+        <div id="accountMessage" class="form-message" aria-live="assertive"></div>
+        <p class="account-security-note">Los datos se usan únicamente para localizar las matrículas vinculadas al apoderado.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div data-footer></div>
+<script src="assets/components/header.js?v=20260804-talleres-v14"></script>
+<script src="assets/components/footer.js?v=20260804-talleres-v14"></script>
+<script src="assets/js/config.js?v=20260804-talleres-v14"></script>
+<script src="assets/js/workshops-common.js?v=20260804-talleres-v14"></script>
+<script src="assets/js/taller-consulta.js?v=20260804-talleres-v14"></script>
+<script src="assets/js/login.js?v=20260804-talleres-v14"></script>
+</body>
+</html>

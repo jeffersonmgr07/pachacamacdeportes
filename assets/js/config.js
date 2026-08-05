@@ -10,5 +10,5 @@ window.APP_CONFIG = {
   WORKSHOPS_API_URL: "https://script.google.com/macros/s/AKfycbzCDb6Ea86s8w-bKv8pJdBsWWng7m4VFo0GzRWe0kPPtMclbg7HDtttM6VugbJZpQ9_Fw/exec",
   // URL de la implementación PRIVADA (ejecutar como usuario que accede).
   // Se usa para abrir caja y administración desde admin.html.
-  CASHIER_APP_URL: ""
+  CASHIER_APP_URL: "https://script.google.com/macros/s/AKfycbweuAw40WtHmKZQqUBRyCazJGq3Emi9oWv5eGOcNMxzMmzzXd3zr3Rz_3VTJTSDmgw2/exec"
 };

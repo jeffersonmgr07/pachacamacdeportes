@@ -10,3 +10,48 @@
 .workshop-modal{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(2,8,23,.78)}.workshop-modal.open{display:flex}.workshop-modal-dialog{position:relative;width:min(650px,100%);max-height:92vh;overflow:auto;background:#fff;color:#102033;border-radius:28px;padding:28px;box-shadow:0 35px 100px rgba(0,0,0,.48)}.workshop-modal-close{position:absolute;right:15px;top:15px;width:40px;height:40px;border:0;border-radius:12px;background:#eef2f7;color:#102033;font-size:25px;cursor:pointer}.order-success-icon{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:#dcfce7;color:#15803d;font-size:35px;font-weight:1000;margin-bottom:14px}.order-title{font-size:27px;margin:0 45px 7px 0}.order-subtitle{color:#64748b;line-height:1.55}.order-code-box{display:grid;grid-template-columns:1fr 165px;gap:18px;align-items:center;margin:19px 0;padding:18px;border-radius:20px;background:#f4f7fa}.order-code-box small{display:block;color:#64748b;text-transform:uppercase;font-weight:900;letter-spacing:.06em}.order-code-box strong{display:block;margin-top:7px;font-size:25px;letter-spacing:.06em}.order-code-box img{width:155px;height:155px;background:#fff;border:7px solid #fff;border-radius:13px}.order-deadline{padding:14px;border-radius:14px;background:#fff7dc;border:1px solid #f2cf67;color:#6b4b00;text-align:center;font-weight:900}.order-details{display:grid;gap:9px;margin:18px 0}.order-detail-row{display:flex;justify-content:space-between;gap:18px;padding-bottom:9px;border-bottom:1px solid #e7edf3}.order-detail-row span{color:#64748b}.order-detail-row strong{text-align:right}.order-note{padding:13px 15px;background:#f8fafc;border-radius:13px;color:#5b6879;font-size:13px;line-height:1.5}.order-actions{display:flex;gap:10px;margin-top:18px}.order-actions .btn{flex:1}
 @media(max-width:900px){.workshops-hero-inner{grid-template-columns:1fr}.workshops-hero-note{max-width:520px}.workshop-grid{grid-template-columns:1fr}.workshop-card{min-height:auto}.workshop-form-heading{grid-template-columns:1fr}.workshop-form-grid-3,.workshop-form-grid-2{grid-template-columns:1fr}.field-span-2,.field-span-3{grid-column:auto}.account-login-form{grid-template-columns:1fr 1fr}.account-login-form .btn{grid-column:1/-1}.invoice-row{grid-template-columns:auto 1fr auto}.invoice-status{grid-column:2/4;justify-self:start}.order-code-box{grid-template-columns:1fr;text-align:center}.order-code-box img{margin:auto}}
 @media(max-width:560px){.workshops-hero-inner{padding:48px 0}.workshops-hero h1{font-size:43px}.workshop-form-shell,.workshop-account-shell{padding:18px;border-radius:23px}.account-login-form{grid-template-columns:1fr}.account-login-form .btn{grid-column:auto}.account-enrollment-head{display:block}.account-enrollment-head .status-chip{margin-top:10px}.invoice-row{grid-template-columns:auto 1fr auto}.account-actions,.order-actions{display:grid}.workshop-modal-dialog{padding:22px 17px}.order-code-box strong{font-size:21px}.declaration-preview{text-align:left}}
+
+/* Páginas separadas del flujo de talleres v14 */
+.workshops-subhero{position:relative;overflow:hidden;border-bottom:1px solid rgba(255,255,255,.12);background:radial-gradient(circle at 85% 5%,rgba(182,223,42,.22),transparent 30%),linear-gradient(135deg,#071225 0%,#0b1b36 68%,#1d3009 100%)}
+.workshops-subhero:before{content:"";position:absolute;inset:0;background:url('../img/bg-portal-deportivo.svg') center/cover no-repeat;opacity:.10}
+.workshops-subhero-inner{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:28px;padding:54px 0}
+.workshops-subhero h1{font-size:clamp(38px,6vw,62px);margin:10px 0 12px}
+.workshops-subhero p{max-width:760px;margin:0;color:#cbd8ec;font-size:17px;line-height:1.6}
+.workshops-subhero-compact .workshops-subhero-inner{padding:43px 0}
+.workshop-back-link{display:inline-flex;margin-bottom:13px;color:#d7ff63;font-weight:850;text-decoration:none}
+.workshop-back-link:hover{text-decoration:underline}
+.workshop-page-section{padding-top:42px}
+.workshop-selector-field{margin-top:22px}
+.selected-workshop-summary>span{display:block;margin-bottom:6px;color:#6c8a3c;font-size:11px;font-weight:1000;letter-spacing:.08em;text-transform:uppercase}
+.selected-workshop-summary small{line-height:1.5}
+.workshop-quick-actions-section{padding-top:18px}
+.workshop-quick-actions{display:flex;align-items:center;justify-content:space-between;gap:28px;padding:28px;border:1px solid rgba(255,255,255,.13);border-radius:26px;background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(182,223,42,.07))}
+.workshop-quick-actions h2{margin:9px 0 8px;font-size:clamp(26px,4vw,38px)}
+.workshop-quick-actions p{margin:0;color:#b8c8de}
+.workshop-quick-actions .btn{flex:0 0 auto}
+.workshop-narrow-container{max-width:820px}
+.workshop-login-shell{padding:36px}
+.account-login-form-stacked{grid-template-columns:1fr 1fr}
+.account-login-form-stacked .btn{grid-column:1/-1;height:auto;padding:14px}
+.account-security-note{margin:0;padding:13px 15px;border-radius:14px;background:#f8fafc;color:#64748b;font-size:12px;line-height:1.5}
+.workshop-account-top-actions{display:flex;gap:10px;flex-wrap:wrap}
+.workshop-account-top-actions .btn{min-width:135px}
+.account-fee-line{margin-top:8px!important}
+.account-missing-box{padding:34px}
+.account-missing-box h2{margin:0 0 8px;color:#102033}
+.account-missing-box p{margin:0 0 18px}
+.account-missing-box .btn{display:inline-flex}
+
+@media(max-width:900px){
+  .workshops-subhero-inner,.workshop-quick-actions{align-items:flex-start;flex-direction:column}
+  .workshop-account-top-actions{width:100%}
+  .workshop-account-top-actions .btn{flex:1}
+}
+@media(max-width:560px){
+  .workshops-subhero-inner{padding:38px 0}
+  .workshops-subhero h1{font-size:39px}
+  .workshop-quick-actions{padding:21px}
+  .workshop-quick-actions .btn{width:100%}
+  .account-login-form-stacked{grid-template-columns:1fr}
+  .account-login-form-stacked .btn{grid-column:auto}
+}

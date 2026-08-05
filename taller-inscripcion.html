@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Formulario de inscripción para talleres deportivos municipales de Pachacámac.">
+  <title>Inscripción a talleres | Pacha Deportes</title>
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260804-talleres-v14">
+  <link rel="stylesheet" href="assets/css/talleres.css?v=20260804-talleres-v14">
+</head>
+<body>
+<div data-header data-active="talleres"></div>
+
+<section class="workshops-subhero">
+  <div class="container workshops-subhero-inner">
+    <div>
+      <a class="workshop-back-link" href="talleres.html">← Volver a talleres</a>
+      <span class="kicker">Ficha digital 2026</span>
+      <h1>Iniciar inscripción</h1>
+      <p>Completa los datos del menor y del padre, madre o apoderado. La edad y la cuota mensual se calculan automáticamente.</p>
+    </div>
+    <a class="btn btn-secondary" href="taller-consulta.html">Consultar matrícula y pagos</a>
+  </div>
+</section>
+
+<main>
+  <section class="section workshop-form-section workshop-page-section">
+    <div class="container">
+      <div class="workshop-form-shell">
+        <div class="workshop-form-heading">
+          <div>
+            <span class="kicker">Taller y horario</span>
+            <h2>Selecciona el deporte</h2>
+            <p>El taller elegido desde la página anterior aparecerá seleccionado. Puedes cambiarlo antes de enviar la ficha.</p>
+            <div class="field workshop-selector-field">
+              <label for="workshopSelector">Taller deportivo</label>
+              <select class="input" id="workshopSelector" aria-describedby="selectedWorkshopSummary">
+                <option value="">Cargando talleres…</option>
+              </select>
+            </div>
+          </div>
+          <div id="selectedWorkshopSummary" class="selected-workshop-summary">Cargando información del taller…</div>
+        </div>
+
+        <form id="workshopEnrollmentForm" novalidate>
+          <input type="hidden" name="workshopId" id="workshopId">
+
+          <fieldset>
+            <legend>1. Datos del menor</legend>
+            <div class="workshop-form-grid workshop-form-grid-3">
+              <div class="field"><label for="childPaternalSurname">Apellido paterno</label><input class="input" id="childPaternalSurname" name="childPaternalSurname" autocomplete="family-name" required maxlength="60"></div>
+              <div class="field"><label for="childMaternalSurname">Apellido materno</label><input class="input" id="childMaternalSurname" name="childMaternalSurname" required maxlength="60"></div>
+              <div class="field"><label for="childNames">Nombres</label><input class="input" id="childNames" name="childNames" autocomplete="given-name" required maxlength="90"></div>
+              <div class="field"><label for="childDni">DNI del menor</label><input class="input" id="childDni" name="childDni" inputmode="numeric" autocomplete="off" required minlength="8" maxlength="8" pattern="\d{8}" placeholder="8 dígitos"></div>
+              <div class="field"><label for="birthDate">Fecha de nacimiento</label><input class="input" id="birthDate" name="birthDate" type="date" required></div>
+              <div class="field"><label for="childAge">Edad</label><input class="input calculated-input" id="childAge" name="childAge" readonly placeholder="Se calcula automáticamente"><small id="ageHelp">Solo se admiten menores de 6 a 17 años.</small></div>
+              <div class="field"><label for="sex">Sexo</label><select class="input" id="sex" name="sex" required><option value="">Seleccionar</option><option value="M">Masculino</option><option value="F">Femenino</option></select></div>
+              <div class="field field-span-2"><label for="schoolName">Institución educativa</label><input class="input" id="schoolName" name="schoolName" required maxlength="140" placeholder="Nombre del colegio o institución"></div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>2. Domicilio</legend>
+            <div class="workshop-form-grid workshop-form-grid-3">
+              <div class="field field-span-3"><label for="address">Dirección</label><input class="input" id="address" name="address" autocomplete="street-address" required maxlength="180" placeholder="Avenida, calle, asociación, Mz., lote, etc."></div>
+              <div class="field"><label for="residenceDepartment">Departamento</label><select class="input" id="residenceDepartment" name="residenceDepartment" required></select></div>
+              <div class="field"><label for="residenceProvince">Provincia</label><input class="input" id="residenceProvince" name="residenceProvince" value="Lima" required maxlength="70"></div>
+              <div class="field">
+                <label for="residenceDistrict">Distrito</label>
+                <select class="input" id="residenceDistrict" name="residenceDistrict" required></select>
+                <input class="input" id="residenceDistrictOther" name="residenceDistrictOther" maxlength="70" placeholder="Escribe el distrito" hidden disabled>
+                <small>En Lima se muestran los 43 distritos de la provincia de Lima.</small>
+              </div>
+            </div>
+            <div id="monthlyFeePreview" class="fee-preview">Cuota mensual: <strong>S/ 25.00</strong></div>
+          </fieldset>
+
+          <fieldset>
+            <legend>3. Padre, madre o apoderado</legend>
+            <div class="workshop-form-grid workshop-form-grid-2">
+              <div class="field field-span-2"><label for="guardianFullName">Nombres y apellidos completos</label><input class="input" id="guardianFullName" name="guardianFullName" autocomplete="name" required maxlength="140"></div>
+              <div class="field"><label for="guardianDni">DNI del apoderado</label><input class="input" id="guardianDni" name="guardianDni" inputmode="numeric" required minlength="8" maxlength="8" pattern="\d{8}" placeholder="8 dígitos"></div>
+              <div class="field"><label for="guardianPhone">Celular del apoderado</label><input class="input" id="guardianPhone" name="guardianPhone" inputmode="tel" autocomplete="tel" required minlength="9" maxlength="15" placeholder="Ej.: 999 999 999"></div>
+              <div class="field field-span-2"><label for="guardianEmail">Correo del apoderado</label><input class="input" id="guardianEmail" name="guardianEmail" type="email" autocomplete="email" required maxlength="140" placeholder="correo@ejemplo.com"></div>
+            </div>
+          </fieldset>
+
+          <fieldset class="declaration-fieldset">
+            <legend>4. Declaración jurada</legend>
+            <div id="declarationPreview" class="declaration-preview">
+              Por intermedio de la presente, yo <strong>[nombre del apoderado]</strong>, identificado(a) con DNI <strong>[DNI]</strong>, AUTORIZO bajo mi responsabilidad a mi menor hijo(a) <strong>[nombre del menor]</strong> a participar de las escuelas y/o talleres municipales, dejando constancia de que se encuentra en perfectas condiciones físicas y psicológicas; asimismo, me comprometo a cumplir y respetar las indicaciones, reglas y disposiciones que se determinen dentro de los mismos. EXONERO DE TODA RESPONSABILIDAD A LA MUNICIPALIDAD DISTRITAL DE PACHACÁMAC.
+            </div>
+            <label class="declaration-check"><input id="declarationAccepted" name="declarationAccepted" type="checkbox" value="true" required><span>Declaro que la información es verdadera y acepto la declaración jurada y las condiciones del taller.</span></label>
+          </fieldset>
+
+          <div id="enrollmentMessage" class="form-message" aria-live="assertive"></div>
+          <button id="enrollmentSubmit" class="btn btn-primary workshop-submit" type="submit">Generar inscripción y orden de pago</button>
+          <p class="form-footnote">La matrícula queda pendiente hasta que la caja municipal registre el primer pago. Si no se paga dentro de tres días hábiles, la inscripción se dará de baja.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="workshopOrderModal" class="workshop-modal" aria-hidden="true">
+  <div class="workshop-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
+    <button class="workshop-modal-close" type="button" data-close-workshop-modal aria-label="Cerrar">×</button>
+    <div id="workshopOrderContent"></div>
+  </div>
+</div>
+
+<div data-footer></div>
+<script src="assets/components/header.js?v=20260804-talleres-v14"></script>
+<script src="assets/components/footer.js?v=20260804-talleres-v14"></script>
+<script src="assets/js/config.js?v=20260804-talleres-v14"></script>
+<script src="assets/js/workshops-common.js?v=20260804-talleres-v14"></script>
+<script src="assets/js/taller-inscripcion.js?v=20260804-talleres-v14"></script>
+<script src="assets/js/login.js?v=20260804-talleres-v14"></script>
+</body>
+</html>

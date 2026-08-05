@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Estado de matrícula, recibos y cuotas de talleres deportivos municipales de Pachacámac.">
+  <title>Estado de matrícula | Pacha Deportes</title>
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260804-talleres-v14">
+  <link rel="stylesheet" href="assets/css/talleres.css?v=20260804-talleres-v14">
+</head>
+<body>
+<div data-header data-active="talleres"></div>
+
+<section class="workshops-subhero workshops-subhero-compact">
+  <div class="container workshops-subhero-inner">
+    <div>
+      <a class="workshop-back-link" href="talleres.html">← Volver a talleres</a>
+      <span class="kicker">Portal del apoderado</span>
+      <h1>Estado de matrícula y pagos</h1>
+      <p>Revisa las matrículas vinculadas, las cuotas pagadas y los recibos pendientes.</p>
+    </div>
+    <div class="workshop-account-top-actions">
+      <button id="refreshAccountButton" class="btn btn-secondary" type="button">Actualizar</button>
+      <button id="changeAccountButton" class="btn btn-secondary" type="button">Cambiar datos</button>
+    </div>
+  </div>
+</section>
+
+<main>
+  <section class="section workshop-account-section workshop-page-section">
+    <div class="container">
+      <div id="accountAccessMissing" class="workshop-account-shell" hidden>
+        <div class="empty-account account-missing-box">
+          <h2>Primero debes identificarte</h2>
+          <p>Ingresa el DNI y un apellido del apoderado para consultar la información.</p>
+          <a class="btn btn-primary" href="taller-consulta.html">Ir a la consulta</a>
+        </div>
+      </div>
+
+      <div id="accountContent" class="workshop-account-shell">
+        <div class="workshop-account-intro">
+          <span class="kicker">Resumen de la cuenta</span>
+          <h2>Matrículas registradas</h2>
+          <p>Puedes seleccionar una o varias cuotas pendientes y generar una nueva orden de pago para presentarla en caja.</p>
+        </div>
+        <div id="accountMessage" class="form-message" aria-live="assertive"></div>
+        <div id="workshopAccountResults"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="workshopOrderModal" class="workshop-modal" aria-hidden="true">
+  <div class="workshop-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
+    <button class="workshop-modal-close" type="button" data-close-workshop-modal aria-label="Cerrar">×</button>
+    <div id="workshopOrderContent"></div>
+  </div>
+</div>
+
+<div data-footer></div>
+<script src="assets/components/header.js?v=20260804-talleres-v14"></script>
+<script src="assets/components/footer.js?v=20260804-talleres-v14"></script>
+<script src="assets/js/config.js?v=20260804-talleres-v14"></script>
+<script src="assets/js/workshops-common.js?v=20260804-talleres-v14"></script>
+<script src="assets/js/taller-estado.js?v=20260804-talleres-v14"></script>
+<script src="assets/js/login.js?v=20260804-talleres-v14"></script>
+</body>
+</html>

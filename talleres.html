@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Inscripciones en talleres deportivos municipales de vóley, fútbol y básquet de Pachacámac.">
+  <meta name="description" content="Talleres deportivos municipales de vóley, fútbol y básquet para niñas, niños y adolescentes de Pachacámac.">
   <title>Talleres deportivos | Pacha Deportes</title>
-  <link rel="stylesheet" href="assets/css/styles.css?v=20260804-talleres">
-  <link rel="stylesheet" href="assets/css/talleres.css?v=20260804-talleres">
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260804-talleres-v14">
+  <link rel="stylesheet" href="assets/css/talleres.css?v=20260804-talleres-v14">
 </head>
 <body>
 <div data-header data-active="talleres"></div>
@@ -16,10 +16,10 @@
     <div>
       <span class="kicker">Escuelas deportivas municipales 2026</span>
       <h1>Talleres deportivos</h1>
-      <p>Inscribe a niñas, niños y adolescentes de 6 a 17 años en los talleres municipales de vóley, fútbol y básquet.</p>
+      <p>Conoce los talleres municipales de vóley, fútbol y básquet disponibles para niñas, niños y adolescentes de 6 a 17 años.</p>
       <div class="workshops-hero-actions">
-        <a class="btn btn-primary" href="#inscripcion">Inscribir a un menor</a>
-        <a class="btn btn-secondary" href="#mis-pagos">Consultar pagos</a>
+        <a class="btn btn-primary" href="taller-inscripcion.html">Iniciar inscripción</a>
+        <a class="btn btn-secondary" href="taller-consulta.html">Consultar matrícula y pagos</a>
       </div>
     </div>
     <aside class="workshops-hero-note">
@@ -37,7 +37,7 @@
       <div class="section-head">
         <div>
           <h2 class="section-title">Talleres disponibles</h2>
-          <p class="section-subtitle">Selecciona el deporte para completar la inscripción.</p>
+          <p class="section-subtitle">Selecciona un deporte para abrir su ficha de inscripción.</p>
         </div>
       </div>
       <div id="workshopCatalog" class="workshop-grid" aria-live="polite">
@@ -46,110 +46,26 @@
     </div>
   </section>
 
-  <section id="inscripcion" class="section workshop-form-section">
+  <section class="section workshop-quick-actions-section">
     <div class="container">
-      <div class="workshop-form-shell">
-        <div class="workshop-form-heading">
-          <div>
-            <span class="kicker">Ficha digital</span>
-            <h2>Inscripción al taller</h2>
-            <p>Completa los datos del menor y del padre, madre o apoderado. La edad se valida automáticamente.</p>
-          </div>
-          <div id="selectedWorkshopSummary" class="selected-workshop-summary">Selecciona un taller arriba.</div>
+      <div class="workshop-quick-actions">
+        <div>
+          <span class="kicker">¿Ya registraste a un menor?</span>
+          <h2>Revisa el estado de la matrícula y sus cuotas</h2>
+          <p>Accede con el DNI y un apellido del padre, madre o apoderado registrado.</p>
         </div>
-
-        <form id="workshopEnrollmentForm" novalidate>
-          <input type="hidden" name="workshopId" id="workshopId">
-
-          <fieldset>
-            <legend>1. Datos del menor</legend>
-            <div class="workshop-form-grid workshop-form-grid-3">
-              <div class="field"><label for="childPaternalSurname">Apellido paterno</label><input class="input" id="childPaternalSurname" name="childPaternalSurname" autocomplete="family-name" required maxlength="60"></div>
-              <div class="field"><label for="childMaternalSurname">Apellido materno</label><input class="input" id="childMaternalSurname" name="childMaternalSurname" required maxlength="60"></div>
-              <div class="field"><label for="childNames">Nombres</label><input class="input" id="childNames" name="childNames" autocomplete="given-name" required maxlength="90"></div>
-              <div class="field"><label for="childDni">DNI del menor</label><input class="input" id="childDni" name="childDni" inputmode="numeric" autocomplete="off" required minlength="8" maxlength="8" pattern="\d{8}" placeholder="8 dígitos"></div>
-              <div class="field"><label for="birthDate">Fecha de nacimiento</label><input class="input" id="birthDate" name="birthDate" type="date" required></div>
-              <div class="field"><label for="childAge">Edad</label><input class="input calculated-input" id="childAge" name="childAge" readonly placeholder="Se calcula automáticamente"><small id="ageHelp">Solo se admiten menores de 6 a 17 años.</small></div>
-              <div class="field"><label for="sex">Sexo</label><select class="input" id="sex" name="sex" required><option value="">Seleccionar</option><option value="M">Masculino</option><option value="F">Femenino</option></select></div>
-              <div class="field field-span-2"><label for="schoolName">Institución educativa</label><input class="input" id="schoolName" name="schoolName" required maxlength="140" placeholder="Nombre del colegio o institución"></div>
-            </div>
-          </fieldset>
-
-          <fieldset>
-            <legend>2. Domicilio</legend>
-            <div class="workshop-form-grid workshop-form-grid-3">
-              <div class="field field-span-3"><label for="address">Dirección</label><input class="input" id="address" name="address" autocomplete="street-address" required maxlength="180" placeholder="Avenida, calle, asociación, Mz., lote, etc."></div>
-              <div class="field"><label for="residenceDepartment">Departamento</label><select class="input" id="residenceDepartment" name="residenceDepartment" required></select></div>
-              <div class="field"><label for="residenceProvince">Provincia</label><input class="input" id="residenceProvince" name="residenceProvince" value="Lima" required maxlength="70"></div>
-              <div class="field">
-                <label for="residenceDistrict">Distrito</label>
-                <select class="input" id="residenceDistrict" name="residenceDistrict" required></select>
-                <input class="input" id="residenceDistrictOther" name="residenceDistrictOther" maxlength="70" placeholder="Escribe el distrito" hidden disabled>
-                <small>En Lima se muestran los 43 distritos de la provincia de Lima.</small>
-              </div>
-            </div>
-            <div id="monthlyFeePreview" class="fee-preview">Cuota mensual: <strong>S/ 25.00</strong></div>
-          </fieldset>
-
-          <fieldset>
-            <legend>3. Padre, madre o apoderado</legend>
-            <div class="workshop-form-grid workshop-form-grid-2">
-              <div class="field field-span-2"><label for="guardianFullName">Nombres y apellidos completos</label><input class="input" id="guardianFullName" name="guardianFullName" autocomplete="name" required maxlength="140"></div>
-              <div class="field"><label for="guardianDni">DNI del apoderado</label><input class="input" id="guardianDni" name="guardianDni" inputmode="numeric" required minlength="8" maxlength="8" pattern="\d{8}" placeholder="8 dígitos"></div>
-              <div class="field"><label for="guardianPhone">Celular del apoderado</label><input class="input" id="guardianPhone" name="guardianPhone" inputmode="tel" autocomplete="tel" required minlength="9" maxlength="15" placeholder="Ej.: 999 999 999"></div>
-              <div class="field field-span-2"><label for="guardianEmail">Correo del apoderado</label><input class="input" id="guardianEmail" name="guardianEmail" type="email" autocomplete="email" required maxlength="140" placeholder="correo@ejemplo.com"></div>
-            </div>
-          </fieldset>
-
-          <fieldset class="declaration-fieldset">
-            <legend>4. Declaración jurada</legend>
-            <div id="declarationPreview" class="declaration-preview">
-              Por intermedio de la presente, yo <strong>[nombre del apoderado]</strong>, identificado(a) con DNI <strong>[DNI]</strong>, AUTORIZO bajo mi responsabilidad a mi menor hijo(a) <strong>[nombre del menor]</strong> a participar de las escuelas y/o talleres municipales, dejando constancia de que se encuentra en perfectas condiciones físicas y psicológicas; asimismo, me comprometo a cumplir y respetar las indicaciones, reglas y disposiciones que se determinen dentro de los mismos. EXONERO DE TODA RESPONSABILIDAD A LA MUNICIPALIDAD DISTRITAL DE PACHACÁMAC.
-            </div>
-            <label class="declaration-check"><input id="declarationAccepted" name="declarationAccepted" type="checkbox" value="true" required><span>Declaro que la información es verdadera y acepto la declaración jurada y las condiciones del taller.</span></label>
-          </fieldset>
-
-          <div id="enrollmentMessage" class="form-message" aria-live="assertive"></div>
-          <button id="enrollmentSubmit" class="btn btn-primary workshop-submit" type="submit">Generar inscripción y orden de pago</button>
-          <p class="form-footnote">La matrícula queda pendiente hasta que la caja municipal registre el primer pago. Si no se paga dentro de tres días hábiles, la inscripción se dará de baja.</p>
-        </form>
-      </div>
-    </div>
-  </section>
-
-  <section id="mis-pagos" class="section workshop-account-section">
-    <div class="container">
-      <div class="workshop-account-shell">
-        <div class="workshop-account-intro">
-          <span class="kicker">Portal del apoderado</span>
-          <h2>Consulta tus cuotas</h2>
-          <p>Ingresa el DNI del apoderado y uno de sus apellidos para revisar matrículas, pagos realizados y cuotas pendientes.</p>
-        </div>
-        <form id="workshopAccountForm" class="account-login-form" novalidate>
-          <div class="field"><label for="accountGuardianDni">DNI del apoderado</label><input class="input" id="accountGuardianDni" name="guardianDni" inputmode="numeric" maxlength="8" pattern="\d{8}" required></div>
-          <div class="field"><label for="accountGuardianSurname">Apellido del apoderado</label><input class="input" id="accountGuardianSurname" name="guardianSurname" maxlength="60" required></div>
-          <button id="accountSubmit" class="btn btn-primary" type="submit">Consultar matrículas</button>
-        </form>
-        <div id="accountMessage" class="form-message" aria-live="assertive"></div>
-        <div id="workshopAccountResults"></div>
+        <a class="btn btn-primary" href="taller-consulta.html">Consultar matrícula y pagos</a>
       </div>
     </div>
   </section>
 </main>
 
-<div id="workshopOrderModal" class="workshop-modal" aria-hidden="true">
-  <div class="workshop-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
-    <button class="workshop-modal-close" type="button" data-close-workshop-modal aria-label="Cerrar">×</button>
-    <div id="workshopOrderContent"></div>
-  </div>
-</div>
-
 <div data-footer></div>
-<script src="assets/components/header.js?v=20260804-talleres"></script>
-<script src="assets/components/footer.js?v=20260804-talleres"></script>
-<script src="assets/js/config.js?v=20260804-talleres"></script>
-<script src="assets/js/api.js?v=20260804-talleres"></script>
-<script src="assets/js/talleres.js?v=20260804-talleres"></script>
-<script src="assets/js/login.js?v=20260804-talleres"></script>
+<script src="assets/components/header.js?v=20260804-talleres-v14"></script>
+<script src="assets/components/footer.js?v=20260804-talleres-v14"></script>
+<script src="assets/js/config.js?v=20260804-talleres-v14"></script>
+<script src="assets/js/workshops-common.js?v=20260804-talleres-v14"></script>
+<script src="assets/js/talleres.js?v=20260804-talleres-v14"></script>
+<script src="assets/js/login.js?v=20260804-talleres-v14"></script>
 </body>
 </html>
