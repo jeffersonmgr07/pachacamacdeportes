@@ -225,12 +225,15 @@ function registerTeam_(p) {
   const lock = LockService.getScriptLock(); lock.waitLock(30000);
   try {
     const role=upper_(p.representativeRole), first=clean_(p.firstName), last=clean_(p.lastName), docType=upper_(p.documentType||'DNI'), doc=clean_(p.documentNumber), phone=digits_(p.whatsapp), email=lower_(p.email), teamName=clean_(p.teamName);
-    const hasBusiness=!!p.hasBusinessData, legalName=clean_(p.legalName), ruc=digits_(p.ruc), password=String(p.password||''), selected=[...new Set((p.categories||[]).map(String))];
+    const hasBusiness=!!p.hasBusinessData, legalName=clean_(p.legalName), ruc=digits_(p.ruc), password=String(p.password||''), confirmPassword=String(p.confirmPassword||''), selected=[...new Set((p.categories||[]).map(String))];
     if (['DELEGADO','PROFESOR','REPRESENTANTE'].indexOf(role) < 0) throw new Error('Selecciona un rol válido para el representante.');
     if (!first || !last || !doc || !email || !teamName) throw new Error('Completa los datos obligatorios de la ficha.');
     if (!/^\S+@\S+\.\S+$/.test(email)) throw new Error('El correo electrónico no es válido.');
     if (phone.length < 9) throw new Error('El número de WhatsApp no es válido.');
     if (password.length < 8) throw new Error('La contraseña debe tener al menos 8 caracteres.');
+    if (!/[A-ZÁÉÍÓÚÑ]/.test(password)) throw new Error('La contraseña debe incluir al menos una letra mayúscula.');
+    if (!/[0-9]/.test(password)) throw new Error('La contraseña debe incluir al menos un número.');
+    if (password !== confirmPassword) throw new Error('Las contraseñas no coinciden.');
     if (hasBusiness && ruc.length !== 11) throw new Error('El RUC debe tener 11 dígitos.');
     const map=categoriesMap_(); if (!selected.length || selected.some(id=>!map[id])) throw new Error('Selecciona al menos una categoría válida.');
 

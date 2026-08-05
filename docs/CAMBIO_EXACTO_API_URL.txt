@@ -1,0 +1,12 @@
+ARCHIVO A EDITAR:
+campeonato-clausura-2026/assets/clausura-config.js
+
+ANTES:
+API_URL: "",
+
+DESPUÉS:
+API_URL: "https://script.google.com/macros/s/ID_DE_TU_IMPLEMENTACION/exec",
+
+Usa la URL pública del Apps Script NUEVO del Campeonato Clausura 2026.
+No uses la URL privada de la caja.
+No uses una URL terminada en /dev.

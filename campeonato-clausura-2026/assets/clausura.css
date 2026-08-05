@@ -16,3 +16,26 @@
 .cl-panel-shell{min-height:calc(100vh - 120px);background:#eef2f7;color:#142238;padding:38px 0}.cl-login-card{width:min(480px,calc(100% - 28px));margin:auto;background:#fff;border:1px solid #dce4ee;border-radius:28px;padding:28px;box-shadow:0 24px 60px rgba(15,23,42,.12)}.cl-login-card label{color:#33445c}.cl-login-card .input{background:#f8fafc;border-color:#cfd9e6;color:#142238}.cl-dashboard{display:none}.cl-dashboard.open{display:block}.cl-dashboard-head{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:20px}.cl-dashboard-head h1{font-size:34px;text-transform:none;margin:0}.cl-dashboard-grid{display:grid;grid-template-columns:280px 1fr;gap:20px}.cl-team-sidebar,.cl-panel-content{background:#fff;border:1px solid #dce4ee;border-radius:25px;padding:22px}.cl-team-sidebar h3{color:#7c1e15}.cl-panel-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.cl-tab{border:1px solid #d5dee9;background:#f8fafc;border-radius:999px;padding:10px 14px;font-weight:900;color:#40516a;cursor:pointer}.cl-tab.active{background:#7c1e15;color:#fff;border-color:#7c1e15}.cl-roster-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.cl-roster-card{border:1px solid #dce4ee;border-radius:20px;padding:16px;background:#fbfcfe}.cl-roster-card strong{color:#7c1e15}.cl-progress{height:9px;background:#e5eaf1;border-radius:999px;overflow:hidden;margin:12px 0}.cl-progress span{display:block;height:100%;background:linear-gradient(90deg,#f0b429,#39a85a)}.cl-player-list{display:grid;gap:10px;margin-top:18px}.cl-player{display:grid;grid-template-columns:58px 1fr auto;gap:12px;align-items:center;border:1px solid #dce4ee;border-radius:18px;padding:12px}.cl-player img{width:58px;height:58px;border-radius:16px;object-fit:cover;background:#edf1f5}.cl-player small{display:block;color:#6c7b90;margin-top:3px}.cl-lock{background:#fff4d9;border:1px solid #f0ce75;border-radius:20px;padding:20px;color:#6f3d02}.cl-file-help{font-size:12px;color:#6c7c91;margin-top:5px}.clausura-toast.ok{border-color:#22c55e}.clausura-toast.error{border-color:#ef4444}
 @media(max-width:900px){.clausura-hero{background-position:38% center}.clausura-hero .hero-content{grid-template-columns:1fr;align-items:end}.clausura-hero-copy{grid-column:auto;margin-top:220px}.clausura-summary-grid{grid-template-columns:repeat(2,1fr)}.cl-grid-3{grid-template-columns:1fr}.field-span-3,.field-span-2{grid-column:auto}.cl-status-shell,.cl-dashboard-grid{grid-template-columns:1fr}.cl-roster-grid{grid-template-columns:1fr}}
 @media(max-width:620px){.clausura-hero{min-height:650px;background-position:31% center}.clausura-hero .hero-content{min-height:650px;padding:25px 0}.clausura-hero-copy{padding:22px;margin-top:250px}.clausura-summary-grid,.cl-grid-2,.cl-category-options{grid-template-columns:1fr}.cl-form-shell{padding:16px}.cl-form-shell fieldset{padding:16px}.cl-order-code{grid-template-columns:1fr;text-align:center}.cl-order-code img{margin:auto}.cl-player{grid-template-columns:50px 1fr}.cl-player>button{grid-column:1/-1}.cl-dashboard-head{align-items:flex-start;flex-direction:column}}
+
+/* Validación visual y control de visibilidad de contraseñas */
+.cl-password-input{position:relative}
+.cl-password-input .input{padding-right:50px}
+.cl-password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:38px;height:38px;border:0;border-radius:10px;background:transparent;color:#64748b;cursor:pointer;transition:background .18s ease,color .18s ease}
+.cl-password-toggle:hover,.cl-password-toggle:focus-visible{background:#e9eef5;color:#7c1e15;outline:2px solid transparent}
+.cl-password-toggle svg{width:21px;height:21px;fill:currentColor}
+.cl-password-toggle .cl-eye-closed{display:none}
+.cl-password-toggle.is-visible .cl-eye-open{display:none}
+.cl-password-toggle.is-visible .cl-eye-closed{display:block}
+.cl-password-requirements{display:grid;gap:7px;margin:10px 0 0;padding:0;list-style:none;font-size:13px;color:#687990}
+.cl-password-requirements li{display:flex;align-items:center;gap:8px;transition:color .18s ease}
+.cl-password-requirements li:before{content:"○";display:grid;place-items:center;flex:0 0 18px;width:18px;height:18px;border-radius:999px;border:1px solid #b8c3d1;color:transparent;font-size:12px;font-weight:1000;line-height:1}
+.cl-password-requirements li.is-valid{color:#166534;font-weight:800}
+.cl-password-requirements li.is-valid:before{content:"✓";border-color:#22c55e;background:#dcfce7;color:#166534}
+.cl-password-requirements li.is-invalid{color:#991b1b}
+.cl-password-requirements li.is-invalid:before{content:"×";border-color:#ef4444;background:#fee2e2;color:#991b1b}
+.cl-password-match{display:flex;align-items:center;gap:7px;margin-top:10px;min-height:20px}
+.cl-password-match:before{content:"○";display:grid;place-items:center;flex:0 0 18px;width:18px;height:18px;border-radius:999px;border:1px solid #b8c3d1;color:transparent;font-size:12px;font-weight:1000;line-height:1}
+.cl-password-match.is-valid{color:#166534!important;font-weight:800}
+.cl-password-match.is-valid:before{content:"✓";border-color:#22c55e;background:#dcfce7;color:#166534}
+.cl-password-match.is-invalid{color:#991b1b!important;font-weight:800}
+.cl-password-match.is-invalid:before{content:"×";border-color:#ef4444;background:#fee2e2;color:#991b1b}
