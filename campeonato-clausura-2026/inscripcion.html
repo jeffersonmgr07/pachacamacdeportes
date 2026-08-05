@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Ficha de inscripción de equipos al Campeonato Clausura de Menores 2026.">
+  <title>Inscripción de equipo | Clausura 2026</title>
+  <link rel="stylesheet" href="../assets/css/styles.css?v=20260805-clausura-v1"><link rel="stylesheet" href="assets/clausura.css?v=20260805-clausura-v1">
+</head>
+<body>
+<div data-clausura-header data-active="inscripcion"></div>
+<section class="cl-form-hero"><div class="container"><a class="cl-back" href="index.html">← Volver a la información del campeonato</a><span class="kicker clausura-kicker">Ficha digital</span><h1>Inscripción de equipo</h1><p>Registra los datos del delegado o profesor autorizado, selecciona las categorías y genera la orden de pago del Campeonato Clausura de Menores 2026.</p></div></section>
+<main class="section cl-form-section"><div class="container"><div class="cl-form-shell">
+<form id="clausuraRegistrationForm" novalidate>
+  <fieldset><legend>1. Representante autorizado</legend><div class="cl-grid-3">
+    <div><label for="representativeRole">Rol</label><select class="input" id="representativeRole" name="representativeRole" required><option value="">Seleccionar</option><option value="DELEGADO">Delegado</option><option value="PROFESOR">Profesor / entrenador</option><option value="REPRESENTANTE">Representante autorizado</option></select></div>
+    <div><label for="firstName">Nombres</label><input class="input" id="firstName" name="firstName" required maxlength="80" autocomplete="given-name"></div>
+    <div><label for="lastName">Apellidos</label><input class="input" id="lastName" name="lastName" required maxlength="100" autocomplete="family-name"></div>
+    <div><label for="documentType">Tipo de documento</label><select class="input" id="documentType" name="documentType" required><option value="DNI">DNI</option><option value="CE">Carné de extranjería</option><option value="PASSPORT">Pasaporte</option><option value="OTHER">Otro</option></select></div>
+    <div><label for="documentNumber">Número de documento</label><input class="input" id="documentNumber" name="documentNumber" required maxlength="20" autocomplete="off"></div>
+    <div><label for="whatsapp">WhatsApp / celular</label><input class="input" id="whatsapp" name="whatsapp" required inputmode="tel" minlength="9" maxlength="15" placeholder="999 999 999"></div>
+    <div class="field-span-2"><label for="email">Correo electrónico</label><input class="input" id="email" name="email" type="email" required maxlength="140" autocomplete="email"></div>
+  </div></fieldset>
+
+  <fieldset><legend>2. Equipo, club o escuela</legend><div class="cl-grid-2">
+    <div class="field-span-2"><label for="teamName">Nombre del equipo, club o escuela</label><input class="input" id="teamName" name="teamName" required maxlength="150"></div>
+    <div class="field-span-2"><label class="cl-check"><input type="checkbox" id="hasBusinessData" name="hasBusinessData"><span>El club o escuela cuenta con razón social y RUC</span></label></div>
+    <div data-business-field hidden><label for="legalName">Razón social</label><input class="input" id="legalName" name="legalName" maxlength="180"></div>
+    <div data-business-field hidden><label for="ruc">RUC</label><input class="input" id="ruc" name="ruc" inputmode="numeric" maxlength="11"></div>
+  </div></fieldset>
+
+  <fieldset><legend>3. Categorías participantes</legend><p style="margin-top:0;color:#65758c">Puedes inscribir al mismo equipo en varias categorías. Se cobrará S/ 50.00 por cada categoría seleccionada.</p>
+    <div class="cl-category-options">
+      <label class="cl-category-option"><input type="checkbox" name="categories" value="SUB6"><span><strong>Sub 6 - Fútbol 7</strong><span>Nacidos 2020 - 2021</span></span></label>
+      <label class="cl-category-option"><input type="checkbox" name="categories" value="SUB8"><span><strong>Sub 8 - Fútbol 7</strong><span>Nacidos 2018 - 2019</span></span></label>
+      <label class="cl-category-option"><input type="checkbox" name="categories" value="SUB10"><span><strong>Sub 10 - Fútbol 9</strong><span>Nacidos 2016 - 2017</span></span></label>
+      <label class="cl-category-option"><input type="checkbox" name="categories" value="SUB12"><span><strong>Sub 12 - Fútbol 9</strong><span>Nacidos 2014 - 2015</span></span></label>
+    </div>
+    <div class="cl-price-box"><span><strong id="selectedCategoryCount">0 categorías</strong><br><small>Cuota: S/ 50.00 por categoría</small></span><strong id="registrationTotal">S/ 0.00</strong></div>
+  </fieldset>
+
+  <fieldset><legend>4. Acceso al panel del delegado</legend><div class="cl-grid-2">
+    <div><label for="password">Crear contraseña</label><input class="input" id="password" name="password" type="password" required minlength="8" autocomplete="new-password"><small>Mínimo 8 caracteres.</small></div>
+    <div><label for="confirmPassword">Confirmar contraseña</label><input class="input" id="confirmPassword" name="confirmPassword" type="password" required minlength="8" autocomplete="new-password"></div>
+  </div><p style="color:#65758c">La cuenta se crea al enviar la ficha. Podrás entrar para consultar el pago; el registro de jugadores se habilitará después de que caja o el sistema online confirme el abono.</p></fieldset>
+
+  <fieldset><legend>5. Declaraciones</legend>
+    <label class="cl-check"><input type="checkbox" id="authorizedDeclaration" required><span>Declaro que soy delegado, profesor o representante autorizado del equipo y que la información ingresada es verdadera.</span></label>
+    <label class="cl-check" style="margin-top:12px"><input type="checkbox" id="rulesDeclaration" required><span>Declaro haber revisado y aceptar las <a href="bases-torneo-municipal-menores-2026.pdf" target="_blank" rel="noopener" style="color:#8d2419;text-decoration:underline">bases del torneo</a>, incluyendo la documentación y autorización exigida para cada menor.</span></label>
+  </fieldset>
+  <div id="registrationMessage" aria-live="assertive"></div>
+  <button class="btn btn-primary" id="registrationSubmit" type="submit" style="width:100%;font-size:16px">Registrar equipo y generar orden de pago</button>
+  <p style="text-align:center;color:#65758c;font-size:13px">El plazo principal para pagar es de 3 días. Luego se concede un periodo de gracia de 2 días; después la inscripción queda inhabilitada.</p>
+</form></div></div></main>
+
+<div id="registrationOrderModal" class="cl-modal" aria-hidden="true"><div class="cl-modal-dialog"><button class="cl-modal-close" type="button" data-close-order aria-label="Cerrar">×</button><div id="registrationOrderContent"></div></div></div>
+<div data-clausura-footer></div>
+<script src="assets/clausura-layout.js?v=20260805-clausura-v1"></script><script src="assets/clausura-config.js?v=20260805-clausura-v1"></script><script src="assets/clausura-api.js?v=20260805-clausura-v1"></script><script src="assets/inscripcion.js?v=20260805-clausura-v1"></script>
+</body></html>
