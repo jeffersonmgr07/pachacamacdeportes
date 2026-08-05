@@ -54,13 +54,12 @@
   }
   function orderHtml(order,options={}){
     const categories=(order.categories||[]).map(c=>typeof c==='string'?c:(c.label||c.name||c.categoryId)).join(', ');
-    const online=order.onlinePaymentUrl?`<a class="btn btn-primary" href="${safe(order.onlinePaymentUrl)}" target="_blank" rel="noopener">Pagar online</a>`:'';
     return `<div class="order-success-icon">✓</div><h2>${safe(options.title||'Orden de pago generada')}</h2><p>${safe(options.subtitle||'La inscripción fue registrada y queda pendiente de pago.')}</p>
       <div class="order-deadline">Plazo principal: ${safe(dateTime(order.paymentDeadline))}<br><small>Periodo de gracia hasta ${safe(dateTime(order.graceDeadline))}</small></div>
       <div class="cl-order-code"><div><small>Código de inscripción</small><strong>${safe(order.registrationId)}</strong><small>Código de pago</small><strong>${safe(order.orderCode)}</strong></div><img src="${qrUrl(order)}" alt="QR para consultar la inscripción"></div>
       <div class="order-details"><div class="order-detail-row"><span>Equipo</span><strong>${safe(order.teamName)}</strong></div><div class="order-detail-row"><span>Categorías</span><strong>${safe(categories)}</strong></div><div class="order-detail-row"><span>Total</span><strong>${money(order.amount||order.total)}</strong></div><div class="order-detail-row"><span>Estado</span><strong>${safe(order.statusLabel||order.status||'Pendiente')}</strong></div></div>
-      <div class="order-instructions"><strong>Opciones de pago</strong><ol><li>Pago en caja municipal: presenta el código <b>${safe(order.orderCode)}</b>.</li><li>La cuenta se habilita para registrar jugadores cuando el pago sea confirmado.</li><li>Recibirás recordatorios diarios mientras el pago esté pendiente.</li></ol></div>
-      <div class="order-actions">${online}<a class="btn btn-secondary" href="estado.html?codigo=${encodeURIComponent(order.orderCode||'')}">Consultar estado</a><a class="btn btn-secondary" href="panel.html">Ir al panel</a></div>`;
+      <div class="order-instructions"><strong>Pago en caja municipal</strong><ol><li>Presenta el código <b>${safe(order.orderCode)}</b> en la caja de Pacha Deportes.</li><li>El cajero registrará el pago en la misma plataforma utilizada para campos deportivos y talleres.</li><li>La cuenta se habilitará automáticamente para registrar jugadores y recibirás un correo de confirmación.</li></ol></div>
+      <div class="order-actions"><a class="btn btn-secondary" href="estado.html?codigo=${encodeURIComponent(order.orderCode||'')}">Consultar estado</a><a class="btn btn-secondary" href="panel.html">Ir al panel</a></div>`;
   }
   window.Clausura={$, $$, safe, digits, money, date, dateTime, toast, setBusy, request, post, session, setSession, clearSession, orderHtml};
 })();

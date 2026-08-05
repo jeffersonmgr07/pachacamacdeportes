@@ -1,6 +1,7 @@
 /**
  * Campeonato Municipal Clausura de Fútbol de Menores 2026
- * Backend independiente para inscripciones, pagos, panel del delegado y jugadores.
+ * Backend independiente para inscripciones, órdenes, panel del delegado y jugadores.
+ * La confirmación de pagos se realiza desde la caja general mediante un puente seguro.
  * Vincular este proyecto a una hoja de cálculo NUEVA.
  */
 
@@ -170,7 +171,17 @@ function statusLabel_(status) {
 function doGet(e) {
   try {
     const p = e && e.parameter ? e.parameter : {};
-    if (p.view === 'cashier') return HtmlService.createTemplateFromFile('Cashier').evaluate().setTitle('Caja - Clausura 2026').setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    if (p.view === 'cashier') {
+      return HtmlService.createHtmlOutput(
+        '<div style="font-family:Arial,sans-serif;max-width:620px;margin:50px auto;padding:24px;border:1px solid #dce4ee;border-radius:18px">' +
+        '<h2 style="margin-top:0">Caja general de Pacha Deportes</h2>' +
+        '<p>Los pagos del Campeonato Clausura 2026 se registran desde la misma caja utilizada para campos deportivos y talleres.</p>' +
+        '</div>'
+      ).setTitle('Caja general de Pacha Deportes');
+    }
+    if (/^cashierBridge/.test(String(p.action || ''))) {
+      throw new Error('Esta acción de caja solo está disponible mediante la conexión interna segura.');
+    }
     const payload = parsePayload_(p.payload);
     const result = route_(p.action || 'ping', payload);
     return jsonp_(result, p.callback);
@@ -198,6 +209,8 @@ function route_(action, payload) {
     case 'getDelegateDashboard': return getDelegateDashboard_(payload);
     case 'savePlayer': return savePlayer_(payload);
     case 'confirmOnlinePayment': return confirmOnlinePayment_(payload);
+    case 'cashierBridgeLookup': return cashierBridgeLookup_(payload);
+    case 'cashierBridgeConfirmPayment': return cashierBridgeConfirmPayment_(payload);
     default: return {ok:false,message:'Acción no reconocida: ' + action};
   }
 }
@@ -403,6 +416,46 @@ function updateRegistrationCategory_(row,status) {
   for(let i=1;i<values.length;i++) if(String(values[i][rid])===String(row.registrationId)&&String(values[i][cid])===String(row.categoryId)){sh.getRange(i+1,st+1).setValue(status);return;}
 }
 
+/**
+ * Genera el secreto que enlaza la caja general con este proyecto.
+ * Ejecútala una vez y copia el valor devuelto para configurar la caja antigua.
+ */
+function generateCashierBridgeToken() {
+  const token = Utilities.getUuid().replace(/-/g,'') + Utilities.getUuid().replace(/-/g,'');
+  PropertiesService.getScriptProperties().setProperty('CASHIER_BRIDGE_TOKEN', token);
+  console.log('CASHIER_BRIDGE_TOKEN=' + token);
+  return token;
+}
+
+function requireCashierBridge_(payload) {
+  const expected = String(PropertiesService.getScriptProperties().getProperty('CASHIER_BRIDGE_TOKEN') || '');
+  const received = String(payload && payload.bridgeToken || '');
+  if (!expected) throw new Error('El puente con la caja general todavía no ha sido configurado.');
+  if (!received || received !== expected) throw new Error('Conexión de caja no autorizada.');
+  return clean_(payload.confirmedBy || 'CAJA_GENERAL');
+}
+
+function cashierBridgeLookup_(payload) {
+  requireCashierBridge_(payload);
+  const code = clean_(payload.code);
+  if (!code) return {ok:false,message:'Ingresa el código de pago o de inscripción.'};
+  const registration = findRegistrationByCode_(code);
+  if (!registration) return {ok:false,message:'No se encontró una inscripción del Clausura 2026 con ese código.'};
+  const result = publicStatusResponse_(registration);
+  result.source = 'CLAUSURA_2026';
+  return result;
+}
+
+function cashierBridgeConfirmPayment_(payload) {
+  const cashier = requireCashierBridge_(payload);
+  const orderCode = upper_(payload.orderCode);
+  const receiptNumber = clean_(payload.receiptNumber);
+  if (!orderCode) throw new Error('Falta el código de pago.');
+  const order = readTable_(CL26.SHEETS.ORDERS).find(o => upper_(o.orderCode) === orderCode);
+  if (!order) throw new Error('No se encontró la orden de pago.');
+  return activatePayment_(order, 'CAJA_MUNICIPAL', receiptNumber, cashier, '');
+}
+
 function cashierGetContext() {
   const email=requireCashier_();
   return {ok:true,email,championshipName:config_().CHAMPIONSHIP_NAME};
@@ -455,7 +508,7 @@ function mailShell_(title,preheader,body) {
 function sendMail_(to,subject,html,body) { const cfg=config_(); MailApp.sendEmail({to,cc:clean_(cfg.ADMIN_EMAIL),subject,htmlBody:html,body:body||subject,name:'Pacha Deportes'}); }
 function orderRowsHtml_(rows) { return '<div style="border:1px solid #dce4ee;border-radius:16px;overflow:hidden;margin:18px 0">'+rows.map(r=>'<div style="display:flex;justify-content:space-between;gap:15px;padding:12px 14px;border-top:1px solid #e7ecf2"><span style="color:#687990">'+r[0]+'</span><strong style="text-align:right">'+r[1]+'</strong></div>').join('')+'</div>'; }
 function sendRegistrationEmail_(data) {
-  const cfg=config_(), link=cfg.PUBLIC_BASE_URL+'/estado.html?codigo='+encodeURIComponent(data.orderCode), body='<p>Hola <strong>'+data.representativeName+'</strong>,</p><p>Registramos la inscripción del equipo <strong>'+data.teamName+'</strong>. La cuenta ya fue creada, pero el registro de jugadores se habilitará al confirmar el pago.</p>'+orderRowsHtml_([['Código de inscripción',data.registrationId],['Código de pago',data.orderCode],['Categorías',data.categoryLabels.join(', ')],['Total','S/ '+Number(data.total).toFixed(2)],['Plazo principal',fmtDateTime_(data.paymentDeadline)],['Fin de gracia',fmtDateTime_(data.graceDeadline)]])+'<p><strong>Pago en caja:</strong> presenta el código de pago. '+(data.onlineUrl?'<br><strong>Pago online:</strong> <a href="'+data.onlineUrl+'">abrir checkout</a>.':'El botón de pago online se mostrará cuando se configure el proveedor.')+'</p><p><a href="'+link+'" style="display:inline-block;background:#b7db2a;color:#071225;padding:13px 18px;border-radius:12px;text-decoration:none;font-weight:bold">Consultar inscripción</a></p><p>Recibirás recordatorios diarios al mediodía mientras el pago esté pendiente.</p>';
+  const cfg=config_(), link=cfg.PUBLIC_BASE_URL+'/estado.html?codigo='+encodeURIComponent(data.orderCode), body='<p>Hola <strong>'+data.representativeName+'</strong>,</p><p>Registramos la inscripción del equipo <strong>'+data.teamName+'</strong>. La cuenta ya fue creada, pero el registro de jugadores se habilitará al confirmar el pago.</p>'+orderRowsHtml_([['Código de inscripción',data.registrationId],['Código de pago',data.orderCode],['Categorías',data.categoryLabels.join(', ')],['Total','S/ '+Number(data.total).toFixed(2)],['Plazo principal',fmtDateTime_(data.paymentDeadline)],['Fin de gracia',fmtDateTime_(data.graceDeadline)]])+'<p><strong>Pago en caja municipal:</strong> presenta el código <strong>'+data.orderCode+'</strong>. El cajero registrará el pago en la misma plataforma utilizada para campos deportivos y talleres.</p><p><a href="'+link+'" style="display:inline-block;background:#b7db2a;color:#071225;padding:13px 18px;border-radius:12px;text-decoration:none;font-weight:bold">Consultar inscripción</a></p><p>Recibirás recordatorios diarios al mediodía mientras el pago esté pendiente.</p>';
   sendMail_(data.email,'Orden de pago '+data.orderCode,mailShell_('Inscripción registrada','Tu orden de pago fue generada.',body),'Orden '+data.orderCode+' por S/ '+Number(data.total).toFixed(2));
 }
 function sendReminderEmail_(reg,order,days,status) {
