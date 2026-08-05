@@ -1,5 +1,5 @@
 window.CLAUSURA_CONFIG = {
-  API_URL: "",
+  API_URL: "https://script.google.com/macros/s/AKfycbwrZSScOlLVBkYBKZats35ZX_oGY--1Yt7HNoed34OsS4psmZfV5OeO5Jm3sTNuo33hTA/exec",
   CHAMPIONSHIP_ID: "CHAMP_FUT_MEN_CLAUSURA_2026",
   FEE_PER_CATEGORY: 50,
   START_DATE: "2026-08-23",

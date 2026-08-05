@@ -1,98 +1,68 @@
-# Corrección API_URL y contraseña — Clausura de Menores 2026
+# Clausura 2026 — archivos configurados con la URL pública del Apps Script
 
-Este paquete corrige dos puntos:
-
-1. Mejora la contraseña del formulario de inscripción:
-   - mínimo 8 caracteres;
-   - al menos una letra mayúscula;
-   - al menos un número;
-   - validación visual en tiempo real;
-   - validación de coincidencia;
-   - botón para mostrar u ocultar cada contraseña;
-   - validación repetida en el backend de Apps Script.
-
-2. Cambia la versión de los archivos estáticos de `v1` a `v2` para evitar que el navegador siga usando archivos antiguos guardados en caché.
-
-## Archivos para GitHub
-
-Copia o reemplaza respetando las rutas:
-
-- `campeonato-clausura-2026/inscripcion.html`
-- `campeonato-clausura-2026/estado.html`
-- `campeonato-clausura-2026/panel.html`
-- `campeonato-clausura-2026/assets/inscripcion.js`
-- `campeonato-clausura-2026/assets/clausura.css`
-- `campeonato-clausura-2026/assets/clausura-api.js`
-
-## Archivo para el Apps Script del Clausura
-
-Reemplaza en el proyecto nuevo asociado a la Google Sheet del Clausura:
-
-- `apps-script-campeonato-clausura-2026/Code.gs`
-
-Después actualiza la implementación pública del Apps Script.
-
-## Corrección obligatoria de API_URL
-
-El mensaje de error aparece porque el archivo existente contiene:
-
-```javascript
-API_URL: "",
-```
-
-Abre en GitHub:
+La URL pública configurada es:
 
 ```text
+https://script.google.com/macros/s/AKfycbwrZSScOlLVBkYBKZats35ZX_oGY--1Yt7HNoed34OsS4psmZfV5OeO5Jm3sTNuo33hTA/exec
+```
+
+## 1. Archivos que debes subir a GitHub
+
+Copia o reemplaza dentro de tu repositorio, respetando exactamente las rutas:
+
+```text
+campeonato-clausura-2026/inscripcion.html
+campeonato-clausura-2026/estado.html
+campeonato-clausura-2026/panel.html
 campeonato-clausura-2026/assets/clausura-config.js
+campeonato-clausura-2026/assets/clausura-api.js
+campeonato-clausura-2026/assets/inscripcion.js
+campeonato-clausura-2026/assets/clausura.css
 ```
 
-Cambia únicamente esa línea por la URL pública `/exec` del Apps Script nuevo del Clausura:
+`clausura-config.js` ya contiene la URL indicada por el usuario. Las páginas usan la versión de caché `v3` para que el navegador no conserve el archivo anterior con `API_URL` vacío.
 
-```javascript
-API_URL: "https://script.google.com/macros/s/ID_DE_TU_IMPLEMENTACION/exec",
-```
+## 2. Archivo del Apps Script del Clausura
 
-No coloques la URL de la caja privada ni una URL terminada en `/dev`.
-
-El archivo completo debe mantener una estructura como esta:
-
-```javascript
-window.CLAUSURA_CONFIG = {
-  API_URL: "https://script.google.com/macros/s/ID_DE_TU_IMPLEMENTACION/exec",
-  CHAMPIONSHIP_ID: "CHAMP_FUT_MEN_CLAUSURA_2026",
-  FEE_PER_CATEGORY: 50,
-  START_DATE: "2026-08-23",
-  CONTACT_PHONE: "992211457",
-  REQUEST_TIMEOUT_MS: 60000,
-  UPLOAD_TIMEOUT_MS: 180000
-};
-```
-
-## Prueba rápida
-
-Abre en el navegador:
+El paquete también incluye:
 
 ```text
-TU_URL_EXEC?action=ping
+apps-script-campeonato-clausura-2026/Code.gs
 ```
 
-Debe aparecer:
+Este archivo no se sube a GitHub. Debes copiarlo al proyecto de Apps Script vinculado a la Google Sheet del Clausura únicamente si todavía no instalaste la corrección de validación de contraseñas.
 
-```json
-{"ok":true,"message":"API Clausura 2026 activa"}
+Después de cambiar `Code.gs`, ve a:
+
+```text
+Implementar → Administrar implementaciones → Editar → Nueva versión → Implementar
 ```
 
-Luego abre nuevamente la ficha de inscripción y fuerza una recarga:
+Mantén la misma URL `/exec`.
 
-- macOS: `Cmd + Shift + R`
+## 3. Prueba
+
+Después de subir los archivos, espera la publicación de GitHub Pages y recarga:
+
+- Mac: `Cmd + Shift + R`
 - Windows: `Ctrl + Shift + R`
 
-## Orden recomendado
+El aviso rojo de `Falta configurar API_URL` debe desaparecer.
 
-1. Reemplazar `Code.gs` en Apps Script.
-2. Guardar y actualizar la implementación pública.
-3. Copiar la URL `/exec`.
-4. Colocarla en `clausura-config.js`.
-5. Subir a GitHub los archivos del paquete.
-6. Esperar la publicación de GitHub Pages.
-7. Probar `?action=ping` y luego el formulario.
+Puedes probar el endpoint con:
+
+```text
+https://script.google.com/macros/s/AKfycbwrZSScOlLVBkYBKZats35ZX_oGY--1Yt7HNoed34OsS4psmZfV5OeO5Jm3sTNuo33hTA/exec?action=ping
+```
+
+La respuesta esperada es un JSON que indique que la API está activa.
+
+## 4. Contraseña
+
+El formulario ahora valida en tiempo real:
+
+- mínimo 8 caracteres;
+- al menos una letra mayúscula;
+- al menos un número;
+- coincidencia entre contraseña y confirmación;
+- mostrar u ocultar cada contraseña mediante el icono del ojo.

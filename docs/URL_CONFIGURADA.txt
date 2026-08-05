@@ -1,0 +1,8 @@
+ARCHIVO:
+campeonato-clausura-2026/assets/clausura-config.js
+
+API_URL CONFIGURADA:
+https://script.google.com/macros/s/AKfycbwrZSScOlLVBkYBKZats35ZX_oGY--1Yt7HNoed34OsS4psmZfV5OeO5Jm3sTNuo33hTA/exec
+
+PRUEBA PING:
+https://script.google.com/macros/s/AKfycbwrZSScOlLVBkYBKZats35ZX_oGY--1Yt7HNoed34OsS4psmZfV5OeO5Jm3sTNuo33hTA/exec?action=ping
