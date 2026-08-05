@@ -142,7 +142,7 @@
 
     return `<div class="order-success-icon">✓</div>
       <h2 id="orderModalTitle" class="order-title">${safe(options.title || 'Orden de pago generada')}</h2>
-      <p class="order-subtitle">${safe(options.subtitle || 'Presenta el código o el QR en la caja de la Municipalidad de Pachacámac.')}</p>
+      <p class="order-subtitle">${safe(options.subtitle || 'Presenta esta orden en la caja de la Municipalidad de Pachacámac.')}</p>
       <div class="order-deadline">Válida hasta ${safe(formatDateTime(order.paymentDeadline))}</div>
       <div class="order-code-box">
         <div>
@@ -159,7 +159,17 @@
         <div class="order-detail-row"><span>Cuota(s)</span><strong>${safe(invoiceText || 'Matrícula inicial')}</strong></div>
         <div class="order-detail-row"><span>Total</span><strong>${formatMoney(order.total)}</strong></div>
       </div>
-      <div class="order-note">La orden de pago no confirma la matrícula. La inscripción se activa cuando la cajera registra el pago. Conserva ambos códigos.</div>
+      <div class="order-instructions">
+        <strong>Instrucciones para realizar el pago</strong>
+        <ol>
+          <li>Acércate a la caja de la Municipalidad de Pachacámac con esta orden de pago.</li>
+          <li>Indica el <b>código de pago ${safe(order.orderCode)}</b>. Para pagar no necesitas indicar el código de matrícula.</li>
+          <li>Paga en caja el monto de <b>${formatMoney(order.total)}</b> dentro del plazo señalado.</li>
+          <li>La inscripción del menor quedará activa cuando la cajera registre el pago.</li>
+        </ol>
+      </div>
+      <div class="order-account-link">Puedes <a href="${safe(accountHref)}">consultar aquí el estado de tu inscripción</a> y generar órdenes de pago para los meses siguientes usando el código de matrícula y el primer apellido del menor.</div>
+      <div class="order-note">Conserva el código de matrícula para revisar la inscripción. La orden de pago vence en la fecha indicada.</div>
       <div class="order-actions">
         <button class="btn btn-primary" type="button" data-close-workshop-modal>Aceptar</button>
         <a class="btn btn-secondary" href="${safe(accountHref)}">Consultar matrícula y pagos</a>

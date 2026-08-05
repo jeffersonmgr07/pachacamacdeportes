@@ -56,3 +56,14 @@
   .account-login-form-stacked{grid-template-columns:1fr}
   .account-login-form-stacked .btn{grid-column:auto}
 }
+
+/* Ajustes puntuales del formulario y consulta de talleres v17 */
+.workshop-dark-kicker{color:#31530e!important;border-color:#b9dc73!important;background:#eef8da!important}
+.residence-verification-alert{margin-top:15px;padding:13px 15px;border-radius:14px;background:#fff8e7;border:1px solid #efd38a;color:#684c05;line-height:1.45}
+.residence-verification-alert strong{color:#4f3900}
+.order-instructions{margin:18px 0;padding:16px 18px;border-radius:16px;background:#eef6df;border:1px solid #cfe8a2;color:#29480c;line-height:1.55}
+.order-instructions strong{display:block;margin-bottom:8px;color:#1f3c08}
+.order-instructions ol{margin:0;padding-left:21px}.order-instructions li+li{margin-top:6px}
+.order-account-link{margin-top:14px;padding:13px 15px;border-radius:14px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a5f;line-height:1.5}
+.order-account-link a{font-weight:900;color:#31530e;text-decoration:underline}
+@media(max-width:600px){.order-actions{flex-direction:column}.order-code-box{grid-template-columns:1fr}.order-code-box img{margin:auto}}

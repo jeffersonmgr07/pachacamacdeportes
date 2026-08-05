@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Formulario de inscripción para talleres deportivos municipales de Pachacámac.">
   <title>Inscripción a talleres | Pacha Deportes</title>
-  <link rel="stylesheet" href="assets/css/styles.css?v=20260804-talleres-v16">
-  <link rel="stylesheet" href="assets/css/talleres.css?v=20260804-talleres-v16">
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260804-talleres-v17">
+  <link rel="stylesheet" href="assets/css/talleres.css?v=20260804-talleres-v17">
 </head>
 <body>
 <div data-header data-active="talleres"></div>
@@ -29,7 +29,7 @@
       <div class="workshop-form-shell">
         <div class="workshop-form-heading">
           <div>
-            <span class="kicker">Taller y horario</span>
+            <span class="kicker workshop-dark-kicker">Formulario de inscripción</span>
             <h2>Selecciona el deporte</h2>
             <p>El taller elegido desde la página anterior aparecerá seleccionado. Puedes cambiarlo antes de enviar la ficha.</p>
             <div class="field workshop-selector-field">
@@ -51,9 +51,10 @@
               <div class="field"><label for="childPaternalSurname">Apellido paterno</label><input class="input" id="childPaternalSurname" name="childPaternalSurname" autocomplete="family-name" required maxlength="60"></div>
               <div class="field"><label for="childMaternalSurname">Apellido materno</label><input class="input" id="childMaternalSurname" name="childMaternalSurname" required maxlength="60"></div>
               <div class="field"><label for="childNames">Nombres</label><input class="input" id="childNames" name="childNames" autocomplete="given-name" required maxlength="90"></div>
-              <div class="field"><label for="childDni">DNI del menor</label><input class="input" id="childDni" name="childDni" inputmode="numeric" autocomplete="off" required minlength="8" maxlength="8" pattern="\d{8}" placeholder="8 dígitos"></div>
+              <div class="field"><label for="childDocumentType">Tipo de documento del menor</label><select class="input" id="childDocumentType" name="childDocumentType" required><option value="DNI">DNI</option><option value="PASSPORT">Pasaporte</option><option value="CE">Carné de extranjería</option><option value="PTP_CPP">PTP / CPP</option><option value="OTHER">Otro documento</option></select></div>
+              <div class="field"><label for="childDocumentNumber">Número de documento del menor</label><input class="input" id="childDocumentNumber" name="childDocumentNumber" autocomplete="off" required maxlength="20" placeholder="Número de documento"></div>
               <div class="field"><label for="birthDate">Fecha de nacimiento</label><input class="input" id="birthDate" name="birthDate" type="date" required></div>
-              <div class="field"><label for="childAge">Edad</label><input class="input calculated-input" id="childAge" name="childAge" readonly placeholder="Se calcula automáticamente"><small id="ageHelp">Solo se admiten menores de 6 a 17 años.</small></div>
+              <div class="field"><label for="childAge">Solo se admiten menores de 6 a 17 años</label><input class="input calculated-input" id="childAge" name="childAge" readonly placeholder="La edad se calcula automáticamente"><small id="ageHelp">La edad se calculará según la fecha de nacimiento.</small></div>
               <div class="field"><label for="sex">Sexo</label><select class="input" id="sex" name="sex" required><option value="">Seleccionar</option><option value="M">Masculino</option><option value="F">Femenino</option></select></div>
               <div class="field field-span-2"><label for="schoolName">Institución educativa</label><input class="input" id="schoolName" name="schoolName" required maxlength="140" placeholder="Nombre del colegio o institución"></div>
             </div>
@@ -64,14 +65,18 @@
             <div class="workshop-form-grid workshop-form-grid-3">
               <div class="field field-span-3"><label for="address">Dirección</label><input class="input" id="address" name="address" autocomplete="street-address" required maxlength="180" placeholder="Avenida, calle, asociación, Mz., lote, etc."></div>
               <div class="field"><label for="residenceDepartment">Departamento</label><select class="input" id="residenceDepartment" name="residenceDepartment" required></select></div>
-              <div class="field"><label for="residenceProvince">Provincia</label><input class="input" id="residenceProvince" name="residenceProvince" value="Lima" required maxlength="70"></div>
+              <div class="field">
+                <label for="residenceProvince">Provincia</label>
+                <select class="input" id="residenceProvince" name="residenceProvince" required></select>
+                <input class="input" id="residenceProvinceOther" name="residenceProvinceOther" maxlength="70" placeholder="Escribe la provincia" hidden disabled>
+              </div>
               <div class="field">
                 <label for="residenceDistrict">Distrito</label>
                 <select class="input" id="residenceDistrict" name="residenceDistrict" required></select>
                 <input class="input" id="residenceDistrictOther" name="residenceDistrictOther" maxlength="70" placeholder="Escribe el distrito" hidden disabled>
-                <small>En Lima se muestran los 43 distritos de la provincia de Lima.</small>
               </div>
             </div>
+            <div class="residence-verification-alert" role="note"><strong>Importante:</strong> Se verificará la residencia al momento de realizar el pago en caja.</div>
             <div id="monthlyFeePreview" class="fee-preview">Cuota mensual: <strong>S/ 25.00</strong></div>
           </fieldset>
 
@@ -79,16 +84,17 @@
             <legend>3. Padre, madre o apoderado</legend>
             <div class="workshop-form-grid workshop-form-grid-2">
               <div class="field field-span-2"><label for="guardianFullName">Nombres y apellidos completos</label><input class="input" id="guardianFullName" name="guardianFullName" autocomplete="name" required maxlength="140"></div>
-              <div class="field"><label for="guardianDni">DNI del apoderado</label><input class="input" id="guardianDni" name="guardianDni" inputmode="numeric" required minlength="8" maxlength="8" pattern="\d{8}" placeholder="8 dígitos"></div>
+              <div class="field"><label for="guardianDocumentType">Tipo de documento</label><select class="input" id="guardianDocumentType" name="guardianDocumentType" required><option value="DNI">DNI</option><option value="PASSPORT">Pasaporte</option><option value="CE">Carné de extranjería</option><option value="PTP_CPP">PTP / CPP</option><option value="OTHER">Otro documento</option></select></div>
+              <div class="field"><label for="guardianDocumentNumber">Número de documento</label><input class="input" id="guardianDocumentNumber" name="guardianDocumentNumber" autocomplete="off" required maxlength="20" placeholder="Número de documento"></div>
               <div class="field"><label for="guardianPhone">Celular del apoderado</label><input class="input" id="guardianPhone" name="guardianPhone" inputmode="tel" autocomplete="tel" required minlength="9" maxlength="15" placeholder="Ej.: 999 999 999"></div>
-              <div class="field field-span-2"><label for="guardianEmail">Correo del apoderado</label><input class="input" id="guardianEmail" name="guardianEmail" type="email" autocomplete="email" required maxlength="140" placeholder="correo@ejemplo.com"></div>
+              <div class="field"><label for="guardianEmail">Correo del apoderado</label><input class="input" id="guardianEmail" name="guardianEmail" type="email" autocomplete="email" required maxlength="140" placeholder="correo@ejemplo.com"></div>
             </div>
           </fieldset>
 
           <fieldset class="declaration-fieldset">
             <legend>4. Declaración jurada</legend>
             <div id="declarationPreview" class="declaration-preview">
-              Por intermedio de la presente, yo <strong>[nombre del apoderado]</strong>, identificado(a) con DNI <strong>[DNI]</strong>, AUTORIZO bajo mi responsabilidad a mi menor hijo(a) <strong>[nombre del menor]</strong> a participar de las escuelas y/o talleres municipales, dejando constancia de que se encuentra en perfectas condiciones físicas y psicológicas; asimismo, me comprometo a cumplir y respetar las indicaciones, reglas y disposiciones que se determinen dentro de los mismos. EXONERO DE TODA RESPONSABILIDAD A LA MUNICIPALIDAD DISTRITAL DE PACHACÁMAC.
+              Por intermedio de la presente, yo <strong>[nombre del apoderado]</strong>, identificado(a) con <strong>[tipo y número de documento]</strong>, AUTORIZO bajo mi responsabilidad a mi menor hijo(a) <strong>[nombre del menor]</strong> a participar de las escuelas y/o talleres municipales, dejando constancia de que se encuentra en perfectas condiciones físicas y psicológicas; asimismo, me comprometo a cumplir y respetar las indicaciones, reglas y disposiciones que se determinen dentro de los mismos. EXONERO DE TODA RESPONSABILIDAD A LA MUNICIPALIDAD DISTRITAL DE PACHACÁMAC.
             </div>
             <label class="declaration-check"><input id="declarationAccepted" name="declarationAccepted" type="checkbox" value="true" required><span>Declaro que la información es verdadera y acepto la declaración jurada y las condiciones del taller.</span></label>
           </fieldset>
@@ -110,11 +116,11 @@
 </div>
 
 <div data-footer></div>
-<script src="assets/components/header.js?v=20260804-talleres-v16"></script>
-<script src="assets/components/footer.js?v=20260804-talleres-v16"></script>
-<script src="assets/js/config.js?v=20260804-talleres-v16"></script>
-<script src="assets/js/workshops-common.js?v=20260804-talleres-v16"></script>
-<script src="assets/js/taller-inscripcion.js?v=20260804-talleres-v16"></script>
-<script src="assets/js/login.js?v=20260804-talleres-v16"></script>
+<script src="assets/components/header.js?v=20260804-talleres-v17"></script>
+<script src="assets/components/footer.js?v=20260804-talleres-v17"></script>
+<script src="assets/js/config.js?v=20260804-talleres-v17"></script>
+<script src="assets/js/workshops-common.js?v=20260804-talleres-v17"></script>
+<script src="assets/js/taller-inscripcion.js?v=20260804-talleres-v17"></script>
+<script src="assets/js/login.js?v=20260804-talleres-v17"></script>
 </body>
 </html>

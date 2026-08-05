@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Consulta de matrícula y pagos de talleres deportivos municipales de Pachacámac.">
   <title>Consultar matrícula y pagos | Pacha Deportes</title>
-  <link rel="stylesheet" href="assets/css/styles.css?v=20260804-talleres-v16">
-  <link rel="stylesheet" href="assets/css/talleres.css?v=20260804-talleres-v16">
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260804-talleres-v17">
+  <link rel="stylesheet" href="assets/css/talleres.css?v=20260804-talleres-v17">
 </head>
 <body>
 <div data-header data-active="talleres"></div>
@@ -17,7 +17,7 @@
       <a class="workshop-back-link" href="talleres.html">← Volver a talleres</a>
       <span class="kicker">Portal del apoderado</span>
       <h1>Consultar matrícula y pagos</h1>
-      <p>Ingresa los datos del padre, madre o apoderado registrados en la ficha de inscripción.</p>
+      <p>Consulta una inscripción específica con el código de matrícula del menor y su primer apellido.</p>
     </div>
     <a class="btn btn-secondary" href="taller-inscripcion.html">Iniciar inscripción</a>
   </div>
@@ -28,28 +28,28 @@
     <div class="container workshop-narrow-container">
       <div class="workshop-account-shell workshop-login-shell">
         <div class="workshop-account-intro">
-          <span class="kicker">Acceso sin contraseña</span>
-          <h2>Identifica al apoderado</h2>
-          <p>Usaremos el DNI y uno de los apellidos registrados para mostrar las matrículas, pagos efectuados y cuotas pendientes.</p>
+          <span class="kicker workshop-dark-kicker">Revisa el estado de tu inscripción</span>
+          <h2>Identifica la matrícula del menor</h2>
+          <p>Ingresa el código de matrícula y el primer apellido del menor para ver sus pagos efectuados, cuotas pendientes y generar nuevas órdenes de pago.</p>
         </div>
         <form id="workshopAccountForm" class="account-login-form account-login-form-stacked" novalidate>
-          <div class="field"><label for="accountGuardianDni">DNI del apoderado</label><input class="input" id="accountGuardianDni" name="guardianDni" inputmode="numeric" maxlength="8" pattern="\d{8}" required placeholder="8 dígitos"></div>
-          <div class="field"><label for="accountGuardianSurname">Apellido del apoderado</label><input class="input" id="accountGuardianSurname" name="guardianSurname" maxlength="60" required placeholder="Apellido paterno o materno"></div>
+          <div class="field"><label for="accountEnrollmentCode">Código de matrícula</label><input class="input" id="accountEnrollmentCode" name="enrollmentCode" autocomplete="off" maxlength="24" required placeholder="Ej.: PE41097621"></div>
+          <div class="field"><label for="accountStudentSurname">Primer apellido del menor</label><input class="input" id="accountStudentSurname" name="studentSurname" maxlength="60" required placeholder="Apellido paterno"></div>
           <button id="accountSubmit" class="btn btn-primary" type="submit">Consultar estado de matrícula</button>
         </form>
         <div id="accountMessage" class="form-message" aria-live="assertive"></div>
-        <p class="account-security-note">Los datos se usan únicamente para localizar las matrículas vinculadas al apoderado.</p>
+        <p class="account-security-note">El código de matrícula aparece en la orden de pago y en el correo enviado después de registrar la inscripción.</p>
       </div>
     </div>
   </section>
 </main>
 
 <div data-footer></div>
-<script src="assets/components/header.js?v=20260804-talleres-v16"></script>
-<script src="assets/components/footer.js?v=20260804-talleres-v16"></script>
-<script src="assets/js/config.js?v=20260804-talleres-v16"></script>
-<script src="assets/js/workshops-common.js?v=20260804-talleres-v16"></script>
-<script src="assets/js/taller-consulta.js?v=20260804-talleres-v16"></script>
-<script src="assets/js/login.js?v=20260804-talleres-v16"></script>
+<script src="assets/components/header.js?v=20260804-talleres-v17"></script>
+<script src="assets/components/footer.js?v=20260804-talleres-v17"></script>
+<script src="assets/js/config.js?v=20260804-talleres-v17"></script>
+<script src="assets/js/workshops-common.js?v=20260804-talleres-v17"></script>
+<script src="assets/js/taller-consulta.js?v=20260804-talleres-v17"></script>
+<script src="assets/js/login.js?v=20260804-talleres-v17"></script>
 </body>
 </html>
