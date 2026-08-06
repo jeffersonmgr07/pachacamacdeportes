@@ -1,157 +1,178 @@
-# Clausura 2026 — mejora de confirmación, plazo hábil y pago online
+# Clausura 2026 – cobro online con Mercado Pago (v5)
 
-Este paquete actualiza el sistema existente sin crear otra Google Sheet. Conserva:
+Esta actualización mantiene la Google Sheet y el Apps Script actuales del Campeonato Clausura 2026, pero cambia el flujo público para que la orden se pague online con Checkout Pro de Mercado Pago.
 
-- La Google Sheet **Pacha Deportes Clausura Menores 2026**.
-- El Apps Script independiente del campeonato.
-- La caja general antigua de Pacha Deportes.
-- La URL pública actual del Apps Script del Clausura.
+## Resultado del flujo
 
-## Cambios incluidos
+1. El delegado registra el equipo.
+2. Se genera un único código `CL26-####` y una orden pendiente.
+3. El modal y el correo muestran solamente el pago online.
+4. El usuario abre `pago-online.html`, busca la orden y revisa el detalle.
+5. El total online se calcula así:
+   - Inscripción: S/ 50.00 por categoría.
+   - Comisión online: S/ 4.90 por operación.
+   - Ejemplo con una categoría: S/ 50.00 + S/ 4.90 = S/ 54.90.
+   - Ejemplo con dos categorías: S/ 100.00 + S/ 4.90 = S/ 104.90.
+6. Mercado Pago recibe dos conceptos: inscripción y comisión online.
+7. Al aprobarse el pago, el Apps Script consulta la operación directamente en Mercado Pago, valida la orden y habilita el registro de jugadores.
+8. Si el usuario tiene problemas o prefiere coordinar manualmente, se muestra el WhatsApp 992 211 457. No se muestran instrucciones de caja municipal.
 
-- Recuadro de confirmación de inscripción rediseñado.
-- Un solo código visible: `CL26-1234`.
-- Un solo campo: **Fecha límite de pago**.
-- Eliminación visual y funcional del periodo de gracia.
-- Cálculo de 3 días hábiles de atención de caja.
-- Cierre a las 5:00 p. m. de lunes a viernes y a las 12:00 p. m. los sábados.
-- Exclusión de domingos, feriados nacionales y días no laborables configurados para el sector público.
-- QR real de alta corrección para consultar la inscripción.
-- Botón **Pagar online** en la confirmación y en el correo.
-- Nueva página `pago-online.html`, con búsqueda del recibo y resumen tipo carrito.
-- Integración de Mercado Pago mediante Checkout Pro.
-- Verificación del pago contra la API de Mercado Pago antes de activar la cuenta.
-- Plantilla de correo rediseñada con logo, datos separados, instrucciones de caja y pago online.
-- Caja general adaptada para buscar únicamente por el código de inscripción.
+## Archivos de GitHub
 
-## Ejemplo de fecha límite
-
-Para una inscripción creada el miércoles 5 de agosto de 2026:
-
-1. Jueves 6 de agosto: feriado, no cuenta.
-2. Viernes 7 de agosto: primer día hábil.
-3. Sábado 8 de agosto: segundo día hábil.
-4. Lunes 10 de agosto: tercer día hábil.
-
-La fecha límite resultante es el **lunes 10 de agosto de 2026 a las 5:00 p. m.**
-
-## 1. Archivos para GitHub
-
-Sube o reemplaza, respetando exactamente las rutas:
+Reemplaza estos archivos respetando las rutas:
 
 ```text
 campeonato-clausura-2026/
 ├── inscripcion.html
 ├── estado.html
 ├── panel.html
-├── pago-online.html                 ← archivo nuevo
+├── pago-online.html
 └── assets/
     ├── clausura-config.js
     ├── clausura-api.js
-    ├── clausura-layout.js
     ├── clausura.css
-    ├── inscripcion.js
     ├── estado.js
-    ├── panel.js
-    └── pago-online.js               ← archivo nuevo
+    └── pago-online.js
 ```
 
-`clausura-config.js` ya contiene la URL actual:
+La URL actual del Apps Script ya está configurada en `assets/clausura-config.js`.
+
+## Archivos del Apps Script del Clausura
+
+Reemplaza en el proyecto asociado a la Google Sheet del Clausura:
 
 ```text
-https://script.google.com/macros/s/AKfycbwrZSScOlLVBkYBKZats35ZX_oGY--1Yt7HNoed34OsS4psmZfV5OeO5Jm3sTNuo33hTA/exec
+apps-script-campeonato-clausura-2026/
+├── Code.gs
+└── appsscript.json
 ```
 
-## 2. Apps Script del Clausura
+No ejecutes nuevamente `setupClausura2026()`, porque esa función es para una hoja nueva.
 
-En el proyecto vinculado a la Google Sheet del Clausura:
-
-1. Reemplaza todo `Code.gs` por:
-
-```text
-apps-script-campeonato-clausura-2026/Code.gs
-```
-
-2. Revisa o reemplaza `appsscript.json` con el archivo del paquete. Incluye el permiso `script.external_request`, necesario para comunicarse con Mercado Pago.
-3. Guarda el proyecto.
-4. Ejecuta **una sola vez**:
+Después de reemplazar los archivos, ejecuta una sola vez:
 
 ```javascript
-migrateClausuraV4()
+migrateClausuraV5()
 ```
 
-No ejecutes nuevamente `setupClausura2026()` sobre la hoja que ya está funcionando. La migración actualiza la configuración y conserva los registros.
+La migración agrega las columnas de comisión, total online, preferencia y estado del gateway sin borrar inscripciones, equipos ni jugadores.
 
-5. En **Implementar → Administrar implementaciones**, edita la implementación web existente y publica una versión nueva. Esto conserva la misma URL `/exec`.
+## Dónde colocar la credencial de Mercado Pago
 
-### Registros existentes
+En el Apps Script entra a:
 
-- Las inscripciones nuevas utilizarán un único código corto `CL26-####`.
-- Los registros de prueba creados antes de esta actualización conservarán su identificador interno anterior, pero la interfaz mostrará solamente el código de inscripción.
-- La migración recalcula las fechas límite de inscripciones pendientes con la regla de 3 días hábiles y elimina el periodo de gracia.
-- Los pagos ya confirmados no se modifican.
+```text
+Configuración del proyecto → Propiedades del script
+```
 
-## 3. Configurar Mercado Pago
-
-El Access Token es privado y **no debe colocarse en GitHub, HTML, JavaScript ni en la hoja Config**.
-
-1. Obtén el Access Token de producción de tu aplicación de Mercado Pago.
-2. En Apps Script, abre **Configuración del proyecto → Propiedades del script**.
-3. Crea esta propiedad:
+Agrega:
 
 ```text
 Propiedad: MERCADO_PAGO_ACCESS_TOKEN
-Valor: APP_USR-...tu_access_token...
+Valor:     APP_USR-...tu Access Token...
 ```
 
-4. Ejecuta:
+Usa el **Access Token**, no la Public Key. Para Checkout Pro, la preferencia se crea desde el servidor y la Public Key no necesita colocarse en GitHub.
+
+Nunca coloques el Access Token en:
+
+- `Code.gs`.
+- `clausura-config.js`.
+- GitHub.
+- Un HTML o JavaScript público.
+- Un mensaje de chat.
+
+## Verificar la cuenta conectada
+
+Ejecuta desde el editor del Apps Script:
 
 ```javascript
 testMercadoPagoConfiguration()
 ```
 
-La primera ejecución pedirá autorización para conectarse a un servicio externo.
+La función consulta la cuenta de Mercado Pago y guarda automáticamente `MERCADO_PAGO_COLLECTOR_ID`. Este identificador se usa para impedir que una operación de otra cuenta active una inscripción.
 
-5. Vuelve a actualizar la implementación web existente después de guardar todos los cambios.
+## Configurar el webhook
 
-Mientras no se configure esta propiedad, el formulario y el botón aparecerán, pero al continuar se mostrará que el pago online todavía no está habilitado. El pago por caja seguirá funcionando normalmente.
+Ejecuta:
 
-### Confirmación segura
-
-El retorno del navegador no activa por sí solo la inscripción. El Apps Script consulta el pago directamente en Mercado Pago, verifica:
-
-- Que el estado sea aprobado.
-- Que el código externo corresponda a la inscripción.
-- Que el monto sea exactamente igual al recibo pendiente.
-
-La notificación webhook y la verificación al volver de Mercado Pago utilizan la misma validación.
-
-## 4. Caja general antigua
-
-En el Apps Script antiguo donde ya funcionan campos deportivos y talleres:
-
-1. Reemplaza solamente:
-
-```text
-apps-script-alquiler-campos/Cashier.html
+```javascript
+getMercadoPagoWebhookUrl()
 ```
 
-2. `ClausuraBridge.gs` se incluye como referencia completa. Si ya instalaste el puente y funciona, no es obligatorio reemplazarlo.
-3. Actualiza la implementación privada existente de la caja para conservar su misma URL.
+Copia del registro de ejecución el valor que empieza por:
 
-La caja buscará únicamente por el código visible `CL26-####`.
+```text
+WEBHOOK_MERCADO_PAGO=https://script.google.com/macros/s/.../exec?mp_webhook=1&mp_token=...
+```
 
-## 5. Prueba recomendada
+En Mercado Pago, abre tu integración y configura esa URL en **Webhooks**, entorno de producción, evento **Pagos / Payments**.
 
-1. Realiza una inscripción nueva con un correo de prueba.
-2. Verifica que aparezca un único código corto.
-3. Comprueba la fecha límite calculada.
-4. Abre el QR con otro teléfono.
-5. Revisa el correo recibido.
-6. Busca el código desde la caja general.
-7. Antes de cobrar realmente, usa credenciales de prueba de Mercado Pago.
-8. Confirma que, después de un pago aprobado, la inscripción cambie a `ACTIVA` y el panel permita registrar jugadores.
+El token `mp_token` es generado automáticamente y se guarda como propiedad privada del Apps Script. No lo publiques.
 
-## Nota sobre Yape
+La notificación no se acepta como prueba del pago por sí sola. El backend vuelve a consultar el pago en la API oficial y valida:
 
-Checkout Pro muestra los medios que Mercado Pago tenga habilitados para la cuenta y la operación. El sistema solicita el cobro en soles y deriva al entorno de Mercado Pago; la disponibilidad final de Yape, débito o crédito depende de la configuración y elegibilidad de la cuenta del comercio.
+- Código externo `CL26-####`.
+- Estado `approved`.
+- Moneda PEN.
+- Total exacto, incluyendo S/ 4.90.
+- Cuenta receptora o collector.
+- Fecha de creación dentro del plazo.
+- Identificador de pago no usado en otra orden.
+
+## Actualizar la implementación web
+
+En Apps Script entra a:
+
+```text
+Implementar → Administrar implementaciones
+```
+
+Edita la implementación existente, selecciona una versión nueva y conserva la misma URL `/exec`.
+
+La aplicación debe ejecutarse como el propietario y permitir el acceso necesario para que el formulario público pueda comunicarse con ella.
+
+## Prueba recomendada
+
+1. Coloca primero un Access Token de prueba, cuando tu integración de Mercado Pago lo permita.
+2. Ejecuta `testMercadoPagoConfiguration()`.
+3. Actualiza la implementación.
+4. Registra un equipo nuevo para obtener un código nuevo.
+5. Abre la orden y paga desde el entorno de prueba.
+6. Revisa:
+   - `Ordenes_Pago`: estado `PAGADO`.
+   - `Pagos`: monto base, comisión y total.
+   - `Inscripciones`: estado `ACTIVA`.
+   - `Usuarios`: estado `ACTIVO`.
+   - `Equipos`: estado `ACTIVO`.
+   - Correo de confirmación recibido.
+7. Cambia al Access Token de producción.
+8. Ejecuta nuevamente `testMercadoPagoConfiguration()` y actualiza la implementación.
+
+Una preferencia creada con credenciales de prueba no debe reutilizarse en producción. Usa una inscripción nueva o ejecuta desde Apps Script:
+
+```javascript
+resetMercadoPagoPreference('CL26-1234')
+```
+
+La función solo reinicia una preferencia no pagada.
+
+## Archivos y comportamientos que no se modifican
+
+- Registro de equipos y entrenadores.
+- Panel del delegado.
+- Registro de jugadores y documentos.
+- Google Sheet independiente del Clausura.
+- Código corto de inscripción.
+- Plazo de tres días hábiles.
+- Recordatorios de pago.
+- Opción interna protegida para confirmar excepcionalmente un pago coordinado manualmente.
+
+## Después de subir los archivos
+
+Espera la publicación de GitHub Pages y recarga sin caché:
+
+```text
+Mac:     Cmd + Shift + R
+Windows: Ctrl + F5
+```

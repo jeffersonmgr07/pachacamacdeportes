@@ -22,9 +22,18 @@
     return 'status-pending';
   }
 
+  function supportBlock(code) {
+    return `<div class="manual-payment-help compact">
+      <h3>¿Necesitas ayuda?</h3>
+      <p>Si tienes problemas con el pago o prefieres coordinarlo manualmente, comunícate con el encargado de deportes al <strong>992 211 457</strong>.</p>
+      <a class="btn btn-whatsapp" href="${C.safe(C.manualHelpUrl(code))}" target="_blank" rel="noopener">Coordinar por WhatsApp</a>
+    </div>`;
+  }
+
   function renderOrder(response) {
     const registration = response.registration || {};
     const order = response.order || {};
+    const amounts = C.onlineAmounts(order);
     const code = registration.registrationId || order.orderCode || '';
     const categories = (response.categories || [])
       .map(item => item.label || item.name || item.categoryId)
@@ -36,13 +45,13 @@
 
     let action = '';
     if (paid) {
-      action = `<div class="form-alert ok">Este recibo ya fue pagado. La cuenta del delegado está habilitada.</div>
+      action = `<div class="form-alert ok">Este pago ya fue confirmado. La cuenta del delegado está habilitada.</div>
         <a class="btn btn-primary" href="panel.html" style="width:100%;justify-content:center">Ir al panel del delegado</a>`;
     } else if (expired) {
       action = '<div class="form-alert error">La fecha límite de pago venció. Debes realizar una nueva inscripción.</div>';
     } else {
-      action = `<button class="btn btn-primary" id="continueMercadoPago" type="button" style="width:100%;justify-content:center">Continuar al pago</button>
-        <div class="cl-mercado-note">El pago se completa en el entorno seguro de Mercado Pago. Los medios disponibles pueden incluir Yape, tarjeta de débito y tarjeta de crédito.</div>`;
+      action = `<button class="btn btn-primary" id="continueMercadoPago" type="button" style="width:100%;justify-content:center">Continuar a Mercado Pago</button>
+        <div class="cl-mercado-note">Serás redirigido al entorno seguro de Mercado Pago. Los medios visibles dependen de los que estén habilitados para tu cuenta y operación.</div>`;
     }
 
     cart.innerHTML = `<h2>2. Resumen de pago</h2>
@@ -54,9 +63,12 @@
         <div class="order-detail-row"><span>Equipo</span><strong>${C.safe(registration.teamName)}</strong></div>
         <div class="order-detail-row"><span>Categorías</span><strong>${C.safe(categories)}</strong></div>
         <div class="order-detail-row"><span>Fecha límite</span><strong>${C.safe(C.dateTime(order.paymentDeadline))}</strong></div>
-        <div class="cl-payment-cart-total"><span>Total a pagar</span><strong>${C.money(order.amount)}</strong></div>
+        <div class="order-detail-row"><span>Inscripción</span><strong>${C.money(amounts.baseAmount)}</strong></div>
+        <div class="order-detail-row"><span>Comisión por pago online</span><strong>${C.money(amounts.onlineFee)}</strong></div>
+        <div class="cl-payment-cart-total"><span>Total a pagar</span><strong>${C.money(amounts.onlineTotal)}</strong></div>
       </div>
-      <div style="margin-top:16px">${action}</div>`;
+      <div style="margin-top:16px">${action}</div>
+      ${supportBlock(code)}`;
 
     C.$('#continueMercadoPago')?.addEventListener('click', startPayment);
   }
@@ -101,12 +113,12 @@
     if (!result && !paymentId) return;
 
     if (result === 'failure') {
-      returnNode.innerHTML = '<div class="cl-payment-result-banner failure"><strong>El pago no se completó.</strong><br>Puedes intentarlo nuevamente o pagar en la caja municipal.</div>';
+      returnNode.innerHTML = `<div class="cl-payment-result-banner failure"><strong>El pago no se completó.</strong><br>Puedes intentarlo nuevamente. Si necesitas ayuda, coordina con el encargado de deportes al 992 211 457.</div>`;
       return;
     }
 
     if (result === 'pending' && !paymentId) {
-      returnNode.innerHTML = '<div class="cl-payment-result-banner pending"><strong>El pago está pendiente.</strong><br>Actualizaremos la inscripción cuando Mercado Pago confirme la operación.</div>';
+      returnNode.innerHTML = '<div class="cl-payment-result-banner pending"><strong>El pago está pendiente.</strong><br>La inscripción se habilitará cuando Mercado Pago confirme la operación.</div>';
       return;
     }
 

@@ -96,3 +96,15 @@
   .order-code-copy{align-items:center}
   .cl-order-code img{margin:auto}
 }
+
+
+/* Pago online exclusivo y coordinación manual v5 */
+.payment-method-grid-single{grid-template-columns:1fr}
+.order-detail-total{background:#fff8dc;border-top-color:#efcf72}
+.order-detail-total strong{color:#741b14;font-size:18px}
+.manual-payment-help{margin-top:16px;padding:18px;border:1px solid #cbd5e1;border-radius:20px;background:#f8fafc;color:#40516a}
+.manual-payment-help h3{margin:0 0 8px;color:#142238;font-size:18px}
+.manual-payment-help p{margin:0 0 13px;line-height:1.55}
+.manual-payment-help.compact{margin-top:18px;border-radius:17px;padding:16px}
+.btn-whatsapp{display:inline-flex;align-items:center;justify-content:center;background:#168a46!important;border-color:#168a46!important;color:#fff!important;text-decoration:none;font-weight:900}
+.btn-whatsapp:hover{background:#11743b!important;border-color:#11743b!important}

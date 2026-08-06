@@ -1,23 +1,43 @@
-INSTALACIÓN RÁPIDA — CLAUSURA 2026 V4
+CLAUSURA 2026 – MERCADO PAGO V5
 
 1. GITHUB
-   Reemplazar la carpeta campeonato-clausura-2026 con los archivos incluidos.
-   Agregar pago-online.html y assets/pago-online.js.
+   Reemplazar:
+   campeonato-clausura-2026/inscripcion.html
+   campeonato-clausura-2026/estado.html
+   campeonato-clausura-2026/panel.html
+   campeonato-clausura-2026/pago-online.html
+   campeonato-clausura-2026/assets/clausura-config.js
+   campeonato-clausura-2026/assets/clausura-api.js
+   campeonato-clausura-2026/assets/clausura.css
+   campeonato-clausura-2026/assets/estado.js
+   campeonato-clausura-2026/assets/pago-online.js
 
 2. APPS SCRIPT DEL CLAUSURA
    Reemplazar Code.gs y appsscript.json.
-   Ejecutar una vez: migrateClausuraV4()
-   Actualizar la implementación web existente.
+   NO ejecutar setupClausura2026().
+   Ejecutar una vez: migrateClausuraV5()
 
-3. MERCADO PAGO
-   Propiedad del script:
-   MERCADO_PAGO_ACCESS_TOKEN = APP_USR-...
+3. CREDENCIAL
+   Configuración del proyecto > Propiedades del script
+   Propiedad: MERCADO_PAGO_ACCESS_TOKEN
+   Valor: APP_USR-...Access Token...
+   No colocar la Public Key ni el Access Token en GitHub.
+
+4. VERIFICAR
    Ejecutar: testMercadoPagoConfiguration()
-   Actualizar otra vez la implementación existente.
 
-4. CAJA GENERAL
-   Reemplazar Cashier.html.
-   Actualizar la implementación privada existente.
+5. WEBHOOK
+   Ejecutar: getMercadoPagoWebhookUrl()
+   Copiar la URL completa mostrada en el registro.
+   Mercado Pago > Tu integración > Webhooks > Producción > Pagos/Payments.
 
-5. RECARGA
-   Esperar la publicación de GitHub Pages y usar Cmd + Shift + R.
+6. DESPLEGAR
+   Implementar > Administrar implementaciones > Editar > Nueva versión.
+   Mantener la misma URL /exec.
+
+7. PROBAR
+   Registrar un equipo nuevo, buscar CL26-####, revisar S/ 50.00 + S/ 4.90,
+   pagar y comprobar que la inscripción se active y llegue el correo.
+
+COMISIÓN
+   S/ 4.90 por operación online, no por categoría.

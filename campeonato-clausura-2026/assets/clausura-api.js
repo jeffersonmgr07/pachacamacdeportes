@@ -132,6 +132,19 @@
     return url.href;
   }
 
+  function onlineAmounts(order = {}) {
+    const baseAmount = Number(order.baseAmount ?? order.amount ?? order.total ?? 0);
+    const onlineFee = Number(order.onlineFee ?? config().ONLINE_PAYMENT_FEE ?? 4.90);
+    const onlineTotal = Number(order.onlineTotal ?? (baseAmount + onlineFee));
+    return {baseAmount, onlineFee, onlineTotal};
+  }
+
+  function manualHelpUrl(code) {
+    const phone = String(config().CONTACT_WHATSAPP || `51${digits(config().CONTACT_PHONE || '992211457')}`);
+    const text = `Hola, necesito ayuda con el pago de la inscripción ${code || ''} al Campeonato Clausura 2026.`;
+    return `https://wa.me/${encodeURIComponent(phone)}?text=${encodeURIComponent(text)}`;
+  }
+
   function qrUrl(order) {
     const code = order.registrationId || order.orderCode || '';
     return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=12&ecc=H&color=741B14&bgcolor=FFFFFF&data=${encodeURIComponent(statusPageUrl(code))}`;
@@ -140,10 +153,10 @@
   function onlineInstructions(code) {
     return `<ol>
       <li>Copia tu código de inscripción: <b>${safe(code)}</b>.</li>
-      <li>Haz clic en <b>Pagar online</b> y coloca el código en el campo solicitado.</li>
-      <li>Haz clic en <b>Buscar recibos</b> para visualizar el equipo, las categorías y el monto.</li>
-      <li>Selecciona <b>Continuar al pago</b> y elige Yape, tarjeta de débito o tarjeta de crédito en Mercado Pago.</li>
-      <li>Confirma el pago. Recibirás un correo cuando el sistema habilite el registro de jugadores.</li>
+      <li>Haz clic en <b>Pagar online</b> y busca la orden con ese código.</li>
+      <li>Revisa el monto de inscripción, la comisión online y el total.</li>
+      <li>Selecciona <b>Continuar al pago</b> y elige un medio habilitado en Mercado Pago, como Yape, tarjeta de débito o tarjeta de crédito.</li>
+      <li>Al finalizar, espera el correo de confirmación y habilitación del registro de jugadores.</li>
     </ol>`;
   }
 
@@ -153,6 +166,8 @@
       .map(category => typeof category === 'string' ? category : (category.label || category.name || category.categoryId))
       .join(', ');
     const onlineUrl = paymentPageUrl(code);
+    const amounts = onlineAmounts(order);
+    const supportUrl = manualHelpUrl(code);
 
     return `<section class="order-confirmation">
       <div class="order-success-icon" aria-hidden="true">✓</div>
@@ -163,7 +178,7 @@
       <div class="order-deadline">
         <span>Fecha límite de pago</span>
         <strong>${safe(dateTime(order.paymentDeadline))}</strong>
-        <small>La hora corresponde al cierre de la caja municipal del último día hábil.</small>
+        <small>Completa el pago antes de la fecha y hora indicadas para mantener activa la inscripción.</small>
       </div>
 
       <div class="cl-order-code">
@@ -171,7 +186,7 @@
           <span>Código de inscripción</span>
           <strong>${safe(code)}</strong>
           <button class="order-copy-button" type="button" data-copy-code="${safe(code)}">Copiar código</button>
-          <small>Utiliza este mismo código en caja, en la consulta de estado y en el pago online.</small>
+          <small>Utiliza este código para consultar la inscripción y realizar el pago online.</small>
         </div>
         <img src="${qrUrl(order)}" alt="Código QR para consultar la inscripción ${safe(code)}">
       </div>
@@ -179,26 +194,23 @@
       <div class="order-details">
         <div class="order-detail-row"><span>Equipo</span><strong>${safe(order.teamName)}</strong></div>
         <div class="order-detail-row"><span>Categorías</span><strong>${safe(categories)}</strong></div>
-        <div class="order-detail-row"><span>Total</span><strong>${money(order.amount || order.total)}</strong></div>
+        <div class="order-detail-row"><span>Inscripción</span><strong>${money(amounts.baseAmount)}</strong></div>
+        <div class="order-detail-row"><span>Comisión por pago online</span><strong>${money(amounts.onlineFee)}</strong></div>
+        <div class="order-detail-row order-detail-total"><span>Total online</span><strong>${money(amounts.onlineTotal)}</strong></div>
         <div class="order-detail-row"><span>Estado</span><strong>${safe(order.statusLabel || order.status || 'Pendiente de pago')}</strong></div>
       </div>
 
-      <div class="payment-method-grid">
-        <article class="payment-method-card">
-          <span class="payment-method-number">1</span>
-          <h3>Pago en caja municipal</h3>
-          <ol>
-            <li>Presenta el código <b>${safe(code)}</b> en la caja de Pacha Deportes.</li>
-            <li>El cajero buscará la inscripción y registrará el pago.</li>
-            <li>La cuenta quedará habilitada y recibirás el correo de confirmación.</li>
-          </ol>
-          <p class="payment-hours"><b>Horario:</b> lunes a viernes, de 8:00 a. m. a 5:00 p. m.; sábados, de 8:00 a. m. a 12:00 p. m. Domingos y feriados no hay atención.</p>
-        </article>
+      <div class="payment-method-grid payment-method-grid-single">
         <article class="payment-method-card payment-method-card-online">
-          <span class="payment-method-number">2</span>
-          <h3>Pago online</h3>
+          <span class="payment-method-number">1</span>
+          <h3>Pago online con Mercado Pago</h3>
           ${onlineInstructions(code)}
           <a class="btn btn-primary payment-online-button" href="${safe(onlineUrl)}">Pagar online</a>
+        </article>
+        <article class="manual-payment-help">
+          <h3>¿Tienes problemas con el pago?</h3>
+          <p>Si prefieres coordinar el pago de forma manual, comunícate con el encargado de deportes al <strong>992 211 457</strong>.</p>
+          <a class="btn btn-whatsapp" href="${safe(supportUrl)}" target="_blank" rel="noopener">Coordinar por WhatsApp</a>
         </article>
       </div>
 
@@ -208,6 +220,7 @@
       </div>
     </section>`;
   }
+
 
   async function copyText(value) {
     const text = String(value || '');
@@ -230,6 +243,6 @@
   window.Clausura = {
     $, $$, safe, digits, money, date, dateTime, toast, setBusy, request, post,
     session, setSession, clearSession, orderHtml, paymentPageUrl, statusPageUrl,
-    onlineInstructions, copyText
+    onlineInstructions, onlineAmounts, manualHelpUrl, copyText
   };
 })();

@@ -26,10 +26,12 @@
     const categories = (data.categories || [])
       .map(item => item.label || item.name || item.categoryId)
       .join(', ');
+    const amounts = C.onlineAmounts(order);
     const pending = !['ACTIVA', 'PAGADO'].includes(String(registration.status || order.status).toUpperCase());
     const online = pending
       ? `<a class="btn btn-primary" href="pago-online.html?codigo=${encodeURIComponent(code)}">Pagar online</a>`
       : '';
+    const support = pending ? `<div class="manual-payment-help compact"><h3>¿Necesitas ayuda con el pago?</h3><p>Coordina de forma manual con el encargado de deportes al <strong>992 211 457</strong>.</p><a class="btn btn-whatsapp" href="${C.safe(C.manualHelpUrl(code))}" target="_blank" rel="noopener">Coordinar por WhatsApp</a></div>` : '';
 
     result.innerHTML = `<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap">
         <div><h2 style="margin-top:0">${C.safe(registration.teamName)}</h2><p style="color:#687990">${C.safe(code)}</p></div>
@@ -39,12 +41,15 @@
         <div class="order-detail-row"><span>Representante</span><strong>${C.safe(registration.representativeName)}</strong></div>
         <div class="order-detail-row"><span>Categorías</span><strong>${C.safe(categories)}</strong></div>
         <div class="order-detail-row"><span>Código de inscripción</span><strong>${C.safe(code)}</strong></div>
-        <div class="order-detail-row"><span>Monto</span><strong>${C.money(order.amount)}</strong></div>
+        <div class="order-detail-row"><span>Inscripción</span><strong>${C.money(amounts.baseAmount)}</strong></div>
+        <div class="order-detail-row"><span>Comisión online</span><strong>${C.money(amounts.onlineFee)}</strong></div>
+        <div class="order-detail-row order-detail-total"><span>Total online</span><strong>${C.money(amounts.onlineTotal)}</strong></div>
         <div class="order-detail-row"><span>Fecha límite de pago</span><strong>${C.safe(C.dateTime(order.paymentDeadline))}</strong></div>
         <div class="order-detail-row"><span>Pago</span><strong>${C.safe(order.paymentMethodLabel || order.paymentMethod || 'Pendiente')}</strong></div>
       </div>
       <div class="order-actions">${online}<a class="btn btn-secondary" href="panel.html" style="background:#eef2f7;color:#142238;border-color:#d5dee9">Ir al panel del delegado</a></div>
-      ${data.message ? `<div class="form-alert info">${C.safe(data.message)}</div>` : ''}`;
+      ${data.message ? `<div class="form-alert info">${C.safe(data.message)}</div>` : ''}
+      ${support}`;
   }
 
   form.addEventListener('submit', async event => {
