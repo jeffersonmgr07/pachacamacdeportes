@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Suscríbete a las novedades deportivas de Pachacámac: campeonatos, talleres, alquiler de espacios y actividades municipales.">
+  <title>Suscríbete a novedades | Pacha Deportes</title>
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260807-suscripcion">
+  <style>
+    .subscribe-hero{position:relative;overflow:hidden;background:
+      radial-gradient(circle at 82% 8%,rgba(182,223,42,.22),transparent 30%),
+      linear-gradient(135deg,#071225,#10294c 58%,#223408);padding:72px 0 58px}
+    .subscribe-hero:after{content:"";position:absolute;inset:0;background:url('assets/img/bg-portal-deportivo.svg') center/cover no-repeat;opacity:.09;pointer-events:none}
+    .subscribe-hero .container{position:relative;z-index:1}
+    .subscribe-hero h1{max-width:760px;margin:10px 0 14px;font-size:clamp(38px,7vw,70px);line-height:.98;color:#fff}
+    .subscribe-hero p{max-width:680px;color:#cdd9ea;font-size:17px;line-height:1.55}
+    .subscribe-section{padding-top:38px}
+    .subscribe-layout{display:grid;grid-template-columns:.85fr 1.15fr;gap:24px;align-items:start}
+    .subscribe-info,.subscribe-card{border:1px solid rgba(255,255,255,.12);border-radius:22px;background:rgba(255,255,255,.045);box-shadow:0 18px 45px rgba(0,0,0,.18)}
+    .subscribe-info{padding:24px}
+    .subscribe-info h2{margin-top:0}
+    .subscribe-benefits{display:grid;gap:12px;margin-top:18px}
+    .subscribe-benefit{display:flex;gap:11px;align-items:flex-start;padding:12px;border-radius:14px;background:rgba(255,255,255,.035)}
+    .subscribe-benefit span{font-size:23px}
+    .subscribe-benefit strong{display:block;color:#fff;font-size:14px}
+    .subscribe-benefit small{display:block;color:#9fb1ca;margin-top:3px;line-height:1.4}
+    .subscribe-card{padding:26px}
+    .subscribe-form{display:grid;gap:16px}
+    .subscribe-field{display:grid;gap:7px}
+    .subscribe-field label{font-weight:800;color:#e8f1fd}
+    .subscribe-help{font-size:12px;color:#92a6c0}
+    .subscribe-consent{display:flex;gap:10px;align-items:flex-start;color:#afbed1;font-size:12px;line-height:1.45}
+    .subscribe-consent input{margin-top:3px}
+    .subscribe-submit{width:100%;justify-content:center}
+    .subscribe-status{display:none;margin-top:14px;padding:13px 15px;border-radius:12px;font-weight:700;font-size:13px}
+    .subscribe-status.show{display:block}
+    .subscribe-status.success{background:rgba(22,163,74,.15);border:1px solid rgba(22,163,74,.42);color:#bbf7d0}
+    .subscribe-status.error{background:rgba(220,38,38,.14);border:1px solid rgba(220,38,38,.38);color:#fecaca}
+    .subscribe-honeypot{position:absolute!important;left:-9999px!important;width:1px!important;height:1px!important;overflow:hidden!important}
+    @media(max-width:760px){
+      .subscribe-hero{padding:44px 0 38px}
+      .subscribe-hero h1{font-size:clamp(34px,11vw,48px)}
+      .subscribe-layout{grid-template-columns:1fr}
+      .subscribe-info,.subscribe-card{padding:20px}
+    }
+  </style>
+</head>
+<body>
+  <div data-header data-active="deportes"></div>
+
+  <section class="subscribe-hero">
+    <div class="container">
+      <span class="kicker">Comunidad Pacha Deportes</span>
+      <h1>Recibe nuestras novedades deportivas</h1>
+      <p>Déjanos tus datos para informarte sobre campeonatos, talleres, convocatorias, alquiler de espacios deportivos y nuevas actividades del distrito.</p>
+    </div>
+  </section>
+
+  <section class="section subscribe-section">
+    <div class="container subscribe-layout">
+      <aside class="subscribe-info">
+        <span class="badge badge-green">Mantente informado</span>
+        <h2>Todo el deporte de Pachacámac</h2>
+        <p class="section-subtitle">Te avisaremos cuando tengamos información relevante para la comunidad deportiva.</p>
+        <div class="subscribe-benefits">
+          <div class="subscribe-benefit"><span>🏆</span><div><strong>Campeonatos</strong><small>Inscripciones, fixture, resultados y nuevas ediciones.</small></div></div>
+          <div class="subscribe-benefit"><span>🏀</span><div><strong>Talleres</strong><small>Convocatorias para fútbol, vóley, básquet y nuevas disciplinas.</small></div></div>
+          <div class="subscribe-benefit"><span>🏟️</span><div><strong>Espacios deportivos</strong><small>Novedades sobre disponibilidad y servicios deportivos municipales.</small></div></div>
+          <div class="subscribe-benefit"><span>📣</span><div><strong>Actividades y eventos</strong><small>Comunicados y próximas actividades deportivas.</small></div></div>
+        </div>
+      </aside>
+
+      <div class="subscribe-card">
+        <span class="badge badge-gold">Suscripción gratuita</span>
+        <h2 style="margin-bottom:6px">Suscríbete para novedades</h2>
+        <p class="section-subtitle" style="margin-top:0">Completa tus datos. Puedes volver a registrarte si luego deseas actualizar tu correo o WhatsApp.</p>
+
+        <form class="subscribe-form" id="newsletterForm">
+          <div class="subscribe-field">
+            <label for="subscriberName">Nombre y apellido</label>
+            <input class="input" id="subscriberName" name="name" type="text" autocomplete="name" maxlength="100" required placeholder="Ej. María García">
+          </div>
+
+          <div class="subscribe-field">
+            <label for="subscriberEmail">Correo electrónico</label>
+            <input class="input" id="subscriberEmail" name="email" type="email" autocomplete="email" maxlength="120" required placeholder="correo@ejemplo.com">
+          </div>
+
+          <div class="subscribe-field">
+            <label for="subscriberPhone">WhatsApp</label>
+            <input class="input" id="subscriberPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" required placeholder="992 211 457">
+            <span class="subscribe-help">Puedes ingresar tu número peruano de 9 dígitos.</span>
+          </div>
+
+          <div class="subscribe-honeypot" aria-hidden="true">
+            <label for="subscriberWebsite">Sitio web</label>
+            <input id="subscriberWebsite" name="website" type="text" tabindex="-1" autocomplete="off">
+          </div>
+
+          <label class="subscribe-consent">
+            <input type="checkbox" required>
+            <span>Acepto recibir novedades y comunicaciones relacionadas con las actividades de Pacha Deportes en los datos proporcionados.</span>
+          </label>
+
+          <button class="btn btn-primary subscribe-submit" id="subscribeButton" type="submit">Suscribirme</button>
+        </form>
+
+        <div class="subscribe-status" id="subscribeStatus" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <div data-footer></div>
+
+  <script src="assets/components/header.js?v=20260601-loader-fechas"></script>
+  <script src="assets/components/footer.js"></script>
+  <script src="assets/js/config.js"></script>
+  <script>
+  (() => {
+    'use strict';
+
+    const FALLBACK_API_URL = 'https://script.google.com/macros/s/AKfycbzCDb6Ea86s8w-bKv8pJdBsWWng7m4VFo0GzRWe0kPPtMclbg7HDtttM6VugbJZpQ9_Fw/exec';
+    const API_URL =
+      (window.APP_CONFIG && (window.APP_CONFIG.RENTALS_API_URL || window.APP_CONFIG.WORKSHOPS_API_URL)) ||
+      FALLBACK_API_URL;
+
+    const form = document.getElementById('newsletterForm');
+    const button = document.getElementById('subscribeButton');
+    const status = document.getElementById('subscribeStatus');
+
+    function showStatus(message, type) {
+      status.textContent = message;
+      status.className = 'subscribe-status show ' + type;
+    }
+
+    function jsonp(action, payload) {
+      return new Promise((resolve, reject) => {
+        const callbackName = '__pachaNewsletter_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+        const script = document.createElement('script');
+        const timeout = window.setTimeout(() => {
+          cleanup();
+          reject(new Error('La solicitud tardó demasiado. Intenta nuevamente.'));
+        }, 25000);
+
+        function cleanup() {
+          window.clearTimeout(timeout);
+          try { delete window[callbackName]; } catch (_) { window[callbackName] = undefined; }
+          script.remove();
+        }
+
+        window[callbackName] = (response) => {
+          cleanup();
+          resolve(response || {});
+        };
+
+        script.onerror = () => {
+          cleanup();
+          reject(new Error('No fue posible conectar con el registro de novedades.'));
+        };
+
+        script.src =
+          API_URL +
+          '?action=' + encodeURIComponent(action) +
+          '&payload=' + encodeURIComponent(JSON.stringify(payload || {})) +
+          '&callback=' + encodeURIComponent(callbackName);
+
+        document.body.appendChild(script);
+      });
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+
+      const data = new FormData(form);
+      const payload = {
+        name: String(data.get('name') || '').trim(),
+        email: String(data.get('email') || '').trim(),
+        phone: String(data.get('phone') || '').trim(),
+        website: String(data.get('website') || '').trim(),
+        source: location.pathname
+      };
+
+      button.disabled = true;
+      button.textContent = 'Registrando...';
+      status.className = 'subscribe-status';
+
+      try {
+        const response = await jsonp('subscribeNewsletter', payload);
+        if (!response.ok) throw new Error(response.message || 'No fue posible completar la suscripción.');
+        showStatus(response.message || '¡Listo! Tu suscripción fue registrada.', 'success');
+        form.reset();
+      } catch (error) {
+        showStatus(error.message || 'No fue posible completar la suscripción.', 'error');
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Suscribirme';
+      }
+    });
+  })();
+  </script>
+</body>
+</html>

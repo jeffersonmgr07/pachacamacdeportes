@@ -1,5 +1,5 @@
 /**
- * Pacha Deportes - Reservas de espacios deportivos y talleres v13
+ * Pacha Deportes - Reservas de espacios deportivos y talleres v16
  * - Reserva pública de varios días y horarios bajo un solo código.
  * - Datos guardados en Google Sheets (no en GitHub).
  * - Panel de caja protegido por cuenta Google y lista blanca.
@@ -10,7 +10,7 @@ const RENTAL_CFG = {
   ADMIN_EMAIL: 'pachacamacdeportes@gmail.com',
   AUTHORIZED_CASHIERS: [
     'pachacamacdeportes@gmail.com',
-    'caja1.pachacamadeportes@gmail.com'
+    'caja1.pachacamacdeportes@gmail.com'
   ], // agrega aquí caja2, caja3, etc.
   EVENT_ADMIN_EMAILS: ['pachacamacdeportes@gmail.com'],
   RESERVATION_ADMIN_EMAILS: ['pachacamacdeportes@gmail.com'],
@@ -37,7 +37,8 @@ const RENTAL_CFG = {
     WORKSHOP_CATALOG: 'Talleres_Catalogo',
     WORKSHOP_ENROLLMENTS: 'Talleres_Matriculas',
     WORKSHOP_INVOICES: 'Talleres_Cuotas',
-    WORKSHOP_ORDERS: 'Talleres_Ordenes'
+    WORKSHOP_ORDERS: 'Talleres_Ordenes',
+    NEWSLETTER_SUBSCRIBERS: 'Suscriptores_Novedades'
   }
 };
 
@@ -82,6 +83,7 @@ function routePublicAction_(action, payload) {
     case 'createWorkshopEnrollment': return createWorkshopEnrollment_(payload);
     case 'lookupWorkshopAccount': return lookupWorkshopAccount_(payload);
     case 'createWorkshopPaymentOrder': return createWorkshopPaymentOrder_(payload);
+    case 'subscribeNewsletter': return createNewsletterSubscription_(payload);
     default: throw new Error('Acción pública no válida.');
   }
 }
@@ -89,9 +91,10 @@ function routePublicAction_(action, payload) {
 function setupRentalSystem() {
   ensureRentalSheets_();
   ensureWorkshopSheets_();
+  ensureNewsletterSheet_();
   installRentalTriggers_();
   bumpAvailabilityRevision_();
-  return {ok:true,message:'Sistema v13 configurado. Incluye reservas, caja, eventos e inscripciones de talleres.'};
+  return {ok:true,message:'Sistema v19 configurado. Conserva documentos y códigos como texto, recupera ceros iniciales y mantiene la consulta tolerante de matrículas.'};
 }
 
 function onOpen() {
@@ -101,6 +104,7 @@ function onOpen() {
       .addItem('Abrir panel de caja', 'showCashierSidebar')
       .addItem('Liberar reservas vencidas', 'expireReservationsManual')
       .addItem('Actualizar matrículas de talleres', 'expireWorkshopDataManual')
+      .addItem('Reparar códigos de documentos', 'repairWorkshopDocumentCodesV19')
       .addToUi();
   } catch (_) {}
 }
@@ -144,6 +148,86 @@ function cashierGetContext() {
       .filter(v => bool_(v.active))
       .map(v => ({venueId:v.venueId,name:v.name}))
   };
+}
+
+
+/**
+ * Suscripción pública a novedades de Pacha Deportes.
+ * Se guarda en la misma Google Sheet del proyecto general.
+ */
+function ensureNewsletterSheet_() {
+  return ensureSheet_(ss_(), RENTAL_CFG.SHEETS.NEWSLETTER_SUBSCRIBERS, [
+    'subscriberId','name','email','phone','status','source','createdAt','updatedAt'
+  ]);
+}
+
+function setupNewsletterSubscriptions() {
+  ensureNewsletterSheet_();
+  return {ok:true,message:'Hoja Suscriptores_Novedades creada o verificada correctamente.'};
+}
+
+function createNewsletterSubscription_(p) {
+  ensureNewsletterSheet_();
+
+  // Campo señuelo del formulario. Si un bot lo completa, se responde sin guardar.
+  if (clean_(p.website)) return {ok:true,message:'Suscripción registrada.'};
+
+  const name = clean_(p.name).replace(/\s+/g,' ');
+  const email = clean_(p.email).toLowerCase();
+  const phone = digits_(p.phone);
+  const source = clean_(p.source) || 'suscribete.html';
+
+  if (name.length < 2 || name.length > 100) throw new Error('Ingresa tu nombre.');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Correo electrónico inválido.');
+  if (phone.length < 9 || phone.length > 12) throw new Error('Número de WhatsApp inválido.');
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    const sheetName = RENTAL_CFG.SHEETS.NEWSLETTER_SUBSCRIBERS;
+    const rows = rowsObjects_(sheetName);
+    const existing = rows.find(r =>
+      String(r.email || '').trim().toLowerCase() === email ||
+      digits_(r.phone) === phone
+    );
+    const now = new Date();
+
+    if (existing) {
+      updateFields_(sheetName, existing._row, {
+        name:name,
+        email:email,
+        phone:phone,
+        status:'ACTIVO',
+        source:source,
+        updatedAt:now
+      });
+      return {ok:true,message:'Tus datos ya estaban registrados. Hemos actualizado tu suscripción.'};
+    }
+
+    const subscriberId =
+      'NEWS-' +
+      Utilities.formatDate(now, RENTAL_CFG.TIMEZONE, 'yyMMddHHmmss') +
+      '-' + String(Math.floor(Math.random()*900)+100);
+
+    appendObject_(sheetName, {
+      subscriberId:subscriberId,
+      name:name,
+      email:email,
+      phone:phone,
+      status:'ACTIVO',
+      source:source,
+      createdAt:now,
+      updatedAt:now
+    });
+
+    return {
+      ok:true,
+      subscriberId:subscriberId,
+      message:'¡Listo! Te suscribiste a las novedades de Pacha Deportes.'
+    };
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function getVenues_() {
@@ -691,6 +775,7 @@ function emailShell_(d) {
           '</tr></table>' +
           (d.schedulesHtml || '') +
           '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0">' + rows + '</table>' +
+          (d.afterRowsHtml || '') +
           '<p style="margin:18px 0 0;padding:13px 15px;background:#f8fafc;border-radius:10px;color:#5b6879;font-size:12px">' + html_(d.note || '') + '</p>' +
         '</td></tr>' +
       '</table>' +
