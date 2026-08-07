@@ -1,7 +1,7 @@
 /**
  * Campeonato Municipal Clausura de Fútbol de Menores 2026
  * Backend independiente para inscripciones, órdenes, panel del delegado y jugadores.
- * La confirmación de pagos se realiza desde la caja general mediante un puente seguro.
+ * Los pagos públicos se procesan con Checkout Pro de Mercado Pago. La coordinación manual queda como excepción interna.
  * Vincular este proyecto a una hoja de cálculo NUEVA.
  */
 
@@ -16,8 +16,8 @@ const CL26 = {
     Categorias: ['categoryId','name','label','birthYears','minBirthYear','maxBirthYear','mode','playersOnField','minPlayersOnField','minRoster','maxRoster','fee','active'],
     Inscripciones: ['registrationId','orderCode','createdAt','paymentDeadline','graceDeadline','status','representativeRole','firstName','lastName','representativeName','documentType','documentNumber','whatsapp','email','teamName','hasBusinessData','legalName','ruc','categories','categoryCount','total','lastReminderDate','activatedAt','disabledAt','notes'],
     Inscripcion_Categorias: ['registrationId','categoryId','categoryLabel','fee','status','createdAt'],
-    Ordenes_Pago: ['orderCode','registrationId','description','categories','amount','currency','status','paymentDeadline','graceDeadline','onlinePaymentUrl','createdAt','paidAt','paymentMethod','receiptNumber','confirmedBy','gatewayReference'],
-    Pagos: ['paymentId','orderCode','registrationId','amount','method','receiptNumber','status','paidAt','confirmedBy','gatewayReference','notes'],
+    Ordenes_Pago: ['orderCode','registrationId','description','categories','amount','onlineFee','onlineTotal','currency','status','paymentDeadline','graceDeadline','onlinePaymentUrl','preferenceId','preferenceCreatedAt','gatewayStatus','createdAt','paidAt','paymentMethod','receiptNumber','confirmedBy','gatewayReference'],
+    Pagos: ['paymentId','orderCode','registrationId','amount','baseAmount','onlineFee','grossAmount','currency','method','receiptNumber','status','gatewayStatus','paidAt','confirmedBy','gatewayReference','notes'],
     Usuarios: ['userId','registrationId','email','documentNumber','passwordHash','salt','role','status','createdAt','lastLoginAt'],
     Sesiones: ['token','userId','registrationId','createdAt','expiresAt','revokedAt'],
     Equipos: ['teamId','registrationId','teamName','legalName','ruc','representativeName','email','whatsapp','categories','status','createdAt','activatedAt'],
@@ -38,15 +38,17 @@ function setupClausura2026() {
     ['CHAMPIONSHIP_ID','CHAMP_FUT_MEN_CLAUSURA_2026','Identificador interno'],
     ['CHAMPIONSHIP_NAME','Campeonato Municipal Clausura de Fútbol de Menores 2026','Nombre para órdenes y correos'],
     ['REGISTRATION_FEE_PER_CATEGORY','50','Monto en soles por categoría'],
-    ['PAYMENT_DAYS','3','Días hábiles de atención de la caja municipal'],
+    ['ONLINE_PAYMENT_FEE','4.90','Comisión fija por operación pagada online'],
+    ['PAYMENT_MODE','ONLINE_ONLY','Pago público mediante Mercado Pago; coordinación manual solo por WhatsApp'],
+    ['PAYMENT_DAYS','3','Días hábiles para completar el pago'],
     ['PAYMENT_GRACE_DAYS','0','Campo heredado: no se usa periodo de gracia'],
-    ['PAYMENT_COUNT_START','NEXT_OPEN_DAY','El plazo comienza a contar desde el siguiente día de atención'],
+    ['PAYMENT_COUNT_START','NEXT_OPEN_DAY','El plazo comienza a contar desde el siguiente día hábil configurado'],
     ['HOLIDAYS_2026','2026-01-01,2026-04-02,2026-04-03,2026-05-01,2026-06-07,2026-06-29,2026-07-23,2026-07-28,2026-07-29,2026-08-06,2026-08-30,2026-10-08,2026-11-01,2026-12-08,2026-12-09,2026-12-25','Feriados nacionales del Perú 2026'],
     ['PUBLIC_NON_WORKING_DAYS_2026','2026-01-02,2026-07-27','Días no laborables nacionales del sector público 2026'],
     ['START_DATE','2026-08-23','Fecha de inicio'],
     ['REGISTRATION_HOURS','8:00 a. m. a 5:00 p. m.','Horario de inscripción'],
     ['VENUE','Estadio del Sector B - Huertos de Manchay','Sede principal'],
-    ['CONTACT_PHONE','992211457','Número de informes'],
+    ['CONTACT_PHONE','992211457','Número de informes y coordinación de pagos manuales'],
     ['MIN_ROSTER','9','Mínimo provisional: las bases dicen “mínimo de ocho (09)”'],
     ['MAX_ROSTER','12','Máximo de jugadores por categoría'],
     ['PUBLIC_BASE_URL','https://pachacamacdeportes.com/campeonato-clausura-2026','URL pública de las páginas'],
@@ -81,9 +83,9 @@ function setupClausura2026() {
  */
 function migrateClausuraV4() {
   const updates = [
-    ['PAYMENT_DAYS','3','Días hábiles de atención de la caja municipal'],
+    ['PAYMENT_DAYS','3','Días hábiles para completar el pago'],
     ['PAYMENT_GRACE_DAYS','0','Campo heredado: no se usa periodo de gracia'],
-    ['PAYMENT_COUNT_START','NEXT_OPEN_DAY','El plazo comienza a contar desde el siguiente día de atención'],
+    ['PAYMENT_COUNT_START','NEXT_OPEN_DAY','El plazo comienza a contar desde el siguiente día hábil configurado'],
     ['HOLIDAYS_2026','2026-01-01,2026-04-02,2026-04-03,2026-05-01,2026-06-07,2026-06-29,2026-07-23,2026-07-28,2026-07-29,2026-08-06,2026-08-30,2026-10-08,2026-11-01,2026-12-08,2026-12-09,2026-12-25','Feriados nacionales del Perú 2026'],
     ['PUBLIC_NON_WORKING_DAYS_2026','2026-01-02,2026-07-27','Días no laborables nacionales del sector público 2026'],
     ['WEB_APP_URL','https://script.google.com/macros/s/AKfycbwrZSScOlLVBkYBKZats35ZX_oGY--1Yt7HNoed34OsS4psmZfV5OeO5Jm3sTNuo33hTA/exec','URL pública /exec del Apps Script'],
@@ -97,6 +99,44 @@ function migrateClausuraV4() {
   return {ok:true,message:'Migración v4 completada.'};
 }
 
+
+function migrateClausuraV5() {
+  const updates = [
+    ['PAYMENT_DAYS','3','Días hábiles para completar el pago'],
+    ['PAYMENT_GRACE_DAYS','0','Campo heredado: no se usa periodo de gracia'],
+    ['PAYMENT_COUNT_START','NEXT_OPEN_DAY','El plazo comienza desde el siguiente día hábil configurado'],
+    ['ONLINE_PAYMENT_FEE','4.90','Comisión fija por operación pagada online'],
+    ['PAYMENT_MODE','ONLINE_ONLY','Pago público mediante Mercado Pago; coordinación manual solo por WhatsApp'],
+    ['CONTACT_PHONE','992211457','Número de informes y coordinación de pagos manuales'],
+    ['WEB_APP_URL','https://script.google.com/macros/s/AKfycbwrZSScOlLVBkYBKZats35ZX_oGY--1Yt7HNoed34OsS4psmZfV5OeO5Jm3sTNuo33hTA/exec','URL pública /exec del Apps Script'],
+    ['ONLINE_PAYMENT_URL_TEMPLATE','https://pachacamacdeportes.com/campeonato-clausura-2026/pago-online.html?codigo={registrationId}','Página pública de pago online'],
+    ['LOGO_URL','https://pachacamacdeportes.com/assets/img/logo-pacha-deportes.png','Logo para correos']
+  ];
+  updates.forEach(row => upsertConfig_(row[0], row[1], row[2]));
+
+  // Agrega las columnas nuevas sin borrar información existente.
+  createSheetIfNeeded_(CL26.SHEETS.ORDERS, CL26.HEADERS.Ordenes_Pago, []);
+  createSheetIfNeeded_(CL26.SHEETS.PAYMENTS, CL26.HEADERS.Pagos, []);
+
+  const fee = onlinePaymentFee_();
+  readTable_(CL26.SHEETS.ORDERS).forEach(function(order) {
+    const base = roundMoney_(Number(order.amount || 0));
+    if (!base) return;
+    const paid = upper_(order.status)==='PAGADO';
+    const mercadoPago = upper_(order.paymentMethod)==='MERCADO_PAGO';
+    const appliedFee = paid && !mercadoPago ? 0 : fee;
+    updateByKey_(CL26.SHEETS.ORDERS, 'orderCode', order.orderCode, {
+      onlineFee: appliedFee,
+      onlineTotal: roundMoney_(base + appliedFee)
+    });
+  });
+
+  ensureMercadoPagoWebhookToken_();
+  recalculatePendingDeadlinesV4_();
+  setupDailyPaymentTrigger_();
+  SpreadsheetApp.getActive().toast('Mercado Pago v5 aplicado: pago online, comisión S/ 4.90 y mensajes actualizados.', 'Clausura 2026', 8);
+  return {ok:true,message:'Migración v5 completada.'};
+}
 
 function recalculatePendingDeadlinesV4_() {
   const days=Number(config_().PAYMENT_DAYS||3);
@@ -197,6 +237,16 @@ function config_() {
   readTable_(CL26.SHEETS.CONFIG).forEach(row => out[String(row.key)] = row.value);
   return out;
 }
+
+function roundMoney_(value) { return Math.round((Number(value || 0) + Number.EPSILON) * 100) / 100; }
+function onlinePaymentFee_() { return roundMoney_(Number(config_().ONLINE_PAYMENT_FEE || 4.90)); }
+function onlineTotalForOrder_(order) {
+  const base = roundMoney_(Number(order && order.amount || 0));
+  const fee = roundMoney_(Number(order && order.onlineFee !== '' && order.onlineFee != null ? order.onlineFee : onlinePaymentFee_()));
+  const total = roundMoney_(Number(order && order.onlineTotal || 0)) || roundMoney_(base + fee);
+  return {baseAmount:base, onlineFee:fee, onlineTotal:total};
+}
+function manualPaymentPhone_() { return digits_(config_().CONTACT_PHONE || '992211457'); }
 
 function clean_(value) { return String(value == null ? '' : value).trim(); }
 function digits_(value) { return clean_(value).replace(/\D/g,''); }
@@ -327,7 +377,6 @@ function route_(action, payload) {
     case 'delegateLogin': return delegateLogin_(payload);
     case 'getDelegateDashboard': return getDelegateDashboard_(payload);
     case 'savePlayer': return savePlayer_(payload);
-    case 'confirmOnlinePayment': return confirmOnlinePayment_(payload);
     case 'lookupOnlinePayment': return lookupOnlinePayment_(payload);
     case 'createMercadoPagoPreference': return createMercadoPagoPreference_(payload);
     case 'syncMercadoPagoPayment': return syncMercadoPagoPayment_(payload);
@@ -364,19 +413,21 @@ function registerTeam_(p) {
 
     const cfg=config_(), created=now_(), paymentDeadline=calculatePaymentDeadline_(created,Number(cfg.PAYMENT_DAYS||3)), graceDeadline=new Date(paymentDeadline);
     const registrationId=generateRegistrationCode_(), orderCode=registrationId, userId=uuidCode_('USR-'), teamId=uuidCode_('EQ-');
-    const fee=Number(cfg.REGISTRATION_FEE_PER_CATEGORY||50), total=fee*selected.length, salt=Utilities.getUuid(), hash=hexDigest_(salt+password);
+    const feePerCategory=roundMoney_(Number(cfg.REGISTRATION_FEE_PER_CATEGORY||50));
+    const total=roundMoney_(feePerCategory*selected.length), onlineFee=onlinePaymentFee_(), onlineTotal=roundMoney_(total+onlineFee);
+    const salt=Utilities.getUuid(), hash=hexDigest_(salt+password);
     const representativeName=(first+' '+last).trim(), categoryLabels=selected.map(id=>map[id].label||map[id].name||id);
     const onlineUrl=buildOnlinePaymentUrl_(cfg.ONLINE_PAYMENT_URL_TEMPLATE || (cfg.PUBLIC_BASE_URL + '/pago-online.html?codigo={registrationId}'),{orderCode,registrationId,amount:total});
 
     append_(CL26.SHEETS.REGISTRATIONS,{registrationId,orderCode,createdAt:created,paymentDeadline,graceDeadline,status:'PENDIENTE_PAGO',representativeRole:role,firstName:first,lastName:last,representativeName,documentType:docType,documentNumber:doc,whatsapp:phone,email,teamName,hasBusinessData:hasBusiness,legalName,ruc,categories:selected.join(','),categoryCount:selected.length,total,lastReminderDate:'',activatedAt:'',disabledAt:'',notes:'Cuenta creada; panel de jugadores bloqueado hasta confirmar pago'});
-    selected.forEach(id=>append_(CL26.SHEETS.REG_CATEGORIES,{registrationId,categoryId:id,categoryLabel:map[id].label||map[id].name,fee,status:'PENDIENTE_PAGO',createdAt:created}));
-    append_(CL26.SHEETS.ORDERS,{orderCode,registrationId,description:'Inscripción al Campeonato Clausura de Menores 2026',categories:categoryLabels.join(', '),amount:total,currency:'PEN',status:'PENDIENTE',paymentDeadline,graceDeadline,onlinePaymentUrl:onlineUrl,createdAt:created,paidAt:'',paymentMethod:'',receiptNumber:'',confirmedBy:'',gatewayReference:''});
+    selected.forEach(id=>append_(CL26.SHEETS.REG_CATEGORIES,{registrationId,categoryId:id,categoryLabel:map[id].label||map[id].name,fee:feePerCategory,status:'PENDIENTE_PAGO',createdAt:created}));
+    append_(CL26.SHEETS.ORDERS,{orderCode,registrationId,description:'Inscripción al Campeonato Clausura de Menores 2026',categories:categoryLabels.join(', '),amount:total,onlineFee,onlineTotal,currency:'PEN',status:'PENDIENTE',paymentDeadline,graceDeadline,onlinePaymentUrl:onlineUrl,preferenceId:'',preferenceCreatedAt:'',gatewayStatus:'',createdAt:created,paidAt:'',paymentMethod:'',receiptNumber:'',confirmedBy:'',gatewayReference:''});
     append_(CL26.SHEETS.USERS,{userId,registrationId,email,documentNumber:doc,passwordHash:hash,salt,role:'DELEGADO',status:'PENDIENTE_PAGO',createdAt:created,lastLoginAt:''});
     append_(CL26.SHEETS.TEAMS,{teamId,registrationId,teamName,legalName,ruc,representativeName,email,whatsapp:phone,categories:selected.join(','),status:'PENDIENTE_PAGO',createdAt:created,activatedAt:''});
-    audit_('INSCRIPCION',registrationId,'CREADA',{teamName,categories:selected,total},email);
+    audit_('INSCRIPCION',registrationId,'CREADA',{teamName,categories:selected,total,onlineFee,onlineTotal},email);
 
-    const order={registrationId,orderCode,teamName,categories:selected.map(id=>sanitizePublic_(map[id],[])),amount:total,total,status:'PENDIENTE',statusLabel:statusLabel_('PENDIENTE'),paymentDeadline:paymentDeadline.toISOString(),onlinePaymentUrl:onlineUrl};
-    let warning=''; try { sendRegistrationEmail_({registrationId,orderCode,teamName,representativeName,email,categoryLabels,total,paymentDeadline,onlineUrl}); } catch (mailError) { warning='La inscripción fue guardada; sin embargo, no se pudo enviar el correo: '+mailError.message; }
+    const order={registrationId,orderCode,teamName,categories:selected.map(id=>sanitizePublic_(map[id],[])),amount:total,total,onlineFee,onlineTotal,status:'PENDIENTE',statusLabel:statusLabel_('PENDIENTE'),paymentDeadline:paymentDeadline.toISOString(),onlinePaymentUrl:onlineUrl,contactPhone:manualPaymentPhone_()};
+    let warning=''; try { sendRegistrationEmail_({registrationId,orderCode,teamName,representativeName,email,categoryLabels,total,onlineFee,onlineTotal,paymentDeadline,onlineUrl}); } catch (mailError) { warning='La inscripción fue guardada; sin embargo, no se pudo enviar el correo: '+mailError.message; }
     return {ok:true,order,warning};
   } finally { lock.releaseLock(); }
 }
@@ -422,13 +473,14 @@ function verifyIdentity_(registration, identity) {
 function publicStatusResponse_(registration) {
   registration=syncTimeStatus_(registration);
   const order=readTable_(CL26.SHEETS.ORDERS).find(o=>String(o.orderCode)===String(registration.orderCode)) || {};
+  const amounts=onlineTotalForOrder_(order);
   const map=categoriesMap_(), categories=categoryIds_(registration.categories).map(id=>sanitizePublic_(map[id]||{categoryId:id},[]));
   const status=upper_(registration.status);
-  let message='La inscripción está pendiente de pago.';
+  let message='La inscripción está pendiente de pago online.';
   if(status==='PERIODO_GRACIA') message='La inscripción continúa pendiente de pago hasta la fecha límite indicada.';
   if(status==='ACTIVA') message='El pago fue confirmado. El panel del delegado está habilitado para registrar jugadores.';
   if(status==='INHABILITADA') message='La inscripción quedó inhabilitada por falta de pago y deberá registrarse nuevamente.';
-  return {ok:true,statusLabel:statusLabel_(status),message,registration:{registrationId:registration.registrationId,teamName:registration.teamName,representativeName:registration.representativeName,email:registration.email,status:registration.status},categories,order:{orderCode:order.orderCode,amount:Number(order.amount||0),status:order.status,paymentDeadline:new Date(order.paymentDeadline).toISOString(),onlinePaymentUrl:order.onlinePaymentUrl||'',paymentMethod:order.paymentMethod||'',paymentMethodLabel:order.paymentMethod?String(order.paymentMethod).replace(/_/g,' '):'Pendiente',receiptNumber:order.receiptNumber||'',paidAt:order.paidAt?new Date(order.paidAt).toISOString():''}};
+  return {ok:true,statusLabel:statusLabel_(status),message,registration:{registrationId:registration.registrationId,teamName:registration.teamName,representativeName:registration.representativeName,email:registration.email,status:registration.status},categories,order:{orderCode:order.orderCode,amount:amounts.baseAmount,baseAmount:amounts.baseAmount,onlineFee:amounts.onlineFee,onlineTotal:amounts.onlineTotal,currency:order.currency||'PEN',status:order.status,paymentDeadline:new Date(order.paymentDeadline).toISOString(),onlinePaymentUrl:order.onlinePaymentUrl||'',paymentMethod:order.paymentMethod||'',paymentMethodLabel:order.paymentMethod?String(order.paymentMethod).replace(/_/g,' '):'Pendiente',receiptNumber:order.receiptNumber||'',paidAt:order.paidAt?new Date(order.paidAt).toISOString():'',contactPhone:manualPaymentPhone_()}};
 }
 
 function getRegistrationStatus_(p) {
@@ -465,8 +517,9 @@ function getDelegateDashboard_(p) {
   const categories=categoryIds_(registration.categories).map(id=>sanitizePublic_(map[id]||{categoryId:id},[]));
   const players=readTable_(CL26.SHEETS.PLAYERS).filter(pl=>String(pl.registrationId)===String(registration.registrationId)).map(pl=>sanitizePublic_(pl,['photoFileId','documentFileId','authorizationFileId','documentUrl','authorizationUrl']));
   const order=readTable_(CL26.SHEETS.ORDERS).find(o=>String(o.orderCode)===String(registration.orderCode)) || {};
+  const amounts=onlineTotalForOrder_(order);
   const status=upper_(registration.status), statusMessage=status==='ACTIVA'?'Pago confirmado. Puedes registrar la nómina de jugadores.':'La carga de jugadores está bloqueada hasta confirmar el pago.';
-  return {ok:true,statusLabel:statusLabel_(status),statusMessage,registration:{registrationId:registration.registrationId,teamName:registration.teamName,representativeName:registration.representativeName,status:registration.status},categories,players,order:{orderCode:order.orderCode,amount:Number(order.amount||0),status:order.status,paymentDeadline:new Date(order.paymentDeadline).toISOString(),onlinePaymentUrl:order.onlinePaymentUrl||''}};
+  return {ok:true,statusLabel:statusLabel_(status),statusMessage,registration:{registrationId:registration.registrationId,teamName:registration.teamName,representativeName:registration.representativeName,status:registration.status},categories,players,order:{orderCode:order.orderCode,amount:amounts.baseAmount,baseAmount:amounts.baseAmount,onlineFee:amounts.onlineFee,onlineTotal:amounts.onlineTotal,status:order.status,paymentDeadline:new Date(order.paymentDeadline).toISOString(),onlinePaymentUrl:order.onlinePaymentUrl||'',contactPhone:manualPaymentPhone_()}};
 }
 
 function savePlayer_(p) {
@@ -511,13 +564,14 @@ function saveUpload_(folder, upload, name, publicPhoto) {
 function publicOnlinePaymentResponse_(registration) {
   registration=syncTimeStatus_(registration);
   const order=readTable_(CL26.SHEETS.ORDERS).find(function(item){return String(item.orderCode)===String(registration.orderCode);}) || {};
+  const amounts=onlineTotalForOrder_(order);
   const map=categoriesMap_();
   const categories=categoryIds_(registration.categories).map(function(id){
     const category=map[id] || {categoryId:id};
     return {categoryId:category.categoryId||id,name:category.name||'',label:category.label||category.name||id};
   });
   const status=upper_(registration.status);
-  let message='La inscripción está pendiente de pago.';
+  let message='La inscripción está pendiente de pago online.';
   if (status==='ACTIVA') message='El pago fue confirmado. El panel del delegado está habilitado.';
   if (status==='INHABILITADA') message='La inscripción quedó inhabilitada porque venció la fecha límite de pago.';
   return {
@@ -528,12 +582,17 @@ function publicOnlinePaymentResponse_(registration) {
     categories:categories,
     order:{
       orderCode:registration.registrationId,
-      amount:Number(order.amount||0),
+      amount:amounts.baseAmount,
+      baseAmount:amounts.baseAmount,
+      onlineFee:amounts.onlineFee,
+      onlineTotal:amounts.onlineTotal,
+      currency:order.currency||'PEN',
       status:order.status,
       paymentDeadline:new Date(order.paymentDeadline).toISOString(),
       onlinePaymentUrl:order.onlinePaymentUrl||'',
       paymentMethodLabel:order.paymentMethod?String(order.paymentMethod).replace(/_/g,' '):'Pendiente',
-      paidAt:order.paidAt?new Date(order.paidAt).toISOString():''
+      paidAt:order.paidAt?new Date(order.paidAt).toISOString():'',
+      contactPhone:manualPaymentPhone_()
     }
   };
 }
@@ -550,10 +609,21 @@ function mercadoPagoAccessToken_() {
   return token;
 }
 
-function mercadoPagoRequest_(path, method, payload) {
+function ensureMercadoPagoWebhookToken_() {
+  const props=PropertiesService.getScriptProperties();
+  let token=clean_(props.getProperty('MERCADO_PAGO_WEBHOOK_TOKEN'));
+  if (!token) {
+    token=(Utilities.getUuid()+Utilities.getUuid()).replace(/-/g,'');
+    props.setProperty('MERCADO_PAGO_WEBHOOK_TOKEN',token);
+  }
+  return token;
+}
+
+function mercadoPagoRequest_(path, method, payload, extraHeaders) {
+  const headers=Object.assign({Authorization:'Bearer '+mercadoPagoAccessToken_()},extraHeaders||{});
   const options={
     method:method || 'get',
-    headers:{Authorization:'Bearer '+mercadoPagoAccessToken_()},
+    headers:headers,
     muteHttpExceptions:true,
     followRedirects:true
   };
@@ -567,7 +637,8 @@ function mercadoPagoRequest_(path, method, payload) {
   let data={};
   try { data=text?JSON.parse(text):{}; } catch (_) { data={message:text}; }
   if (status<200 || status>=300) {
-    const details=data.message || data.error || ('HTTP '+status);
+    const cause=(data.cause&&data.cause.length&&data.cause[0].description) || '';
+    const details=data.message || data.error || cause || ('HTTP '+status);
     throw new Error('Mercado Pago rechazó la operación: '+details);
   }
   return data;
@@ -584,47 +655,78 @@ function createMercadoPagoPreference_(p) {
   if (now_()>new Date(order.paymentDeadline)) return {ok:false,message:'La fecha límite de pago venció.'};
 
   const cfg=config_();
+  const amounts=onlineTotalForOrder_(order);
+  const existingPreferenceId=clean_(order.preferenceId);
+  const existingInitPoint=clean_(order.onlinePaymentUrl);
+  if (existingPreferenceId && /mercadopago\./i.test(existingInitPoint)) {
+    return {ok:true,preferenceId:existingPreferenceId,initPoint:existingInitPoint,amounts:amounts,reused:true};
+  }
   const base=String(cfg.PUBLIC_BASE_URL || 'https://pachacamacdeportes.com/campeonato-clausura-2026').replace(/\/$/,'');
   const code=registration.registrationId;
   const query='codigo='+encodeURIComponent(code);
   const serviceUrl=clean_(cfg.WEB_APP_URL)||ScriptApp.getService().getUrl();
   if (!serviceUrl) throw new Error('Actualiza la implementación web del Apps Script antes de habilitar Mercado Pago.');
 
-  const preference={
-    items:[{
-      id:code,
-      title:'Inscripción '+registration.teamName+' - Clausura 2026',
-      description:'Categorías: '+String(order.categories || registration.categories || ''),
+  const items=[{
+    id:code+'-INSCRIPCION',
+    title:'Inscripción '+registration.teamName+' - Clausura 2026',
+    description:'Categorías: '+String(order.categories || registration.categories || ''),
+    quantity:1,
+    currency_id:'PEN',
+    unit_price:amounts.baseAmount
+  }];
+  if (amounts.onlineFee>0) {
+    items.push({
+      id:code+'-COMISION',
+      title:'Comisión por pago online',
+      description:'Comisión fija por procesamiento de la operación',
       quantity:1,
       currency_id:'PEN',
-      unit_price:Number(order.amount)
-    }],
+      unit_price:amounts.onlineFee
+    });
+  }
+
+  const preference={
+    items:items,
     payer:{
       email:registration.email,
       name:registration.firstName,
       surname:registration.lastName
     },
     external_reference:code,
-    metadata:{registration_id:code,team_name:registration.teamName},
+    metadata:{
+      registration_id:code,
+      team_name:registration.teamName,
+      registration_amount:amounts.baseAmount,
+      online_fee:amounts.onlineFee,
+      online_total:amounts.onlineTotal
+    },
     back_urls:{
       success:base+'/pago-online.html?resultado=success&'+query,
       pending:base+'/pago-online.html?resultado=pending&'+query,
       failure:base+'/pago-online.html?resultado=failure&'+query
     },
     auto_return:'approved',
-    notification_url:serviceUrl+'?mp_webhook=1',
+    binary_mode:false,
+    notification_url:serviceUrl+'?mp_webhook=1&mp_token='+encodeURIComponent(ensureMercadoPagoWebhookToken_()),
     expires:true,
     expiration_date_from:now_().toISOString(),
     expiration_date_to:new Date(order.paymentDeadline).toISOString()
   };
 
   const result=mercadoPagoRequest_('/checkout/preferences','post',preference);
+  const initPoint=result.init_point || result.sandbox_init_point || '';
   updateByKey_(CL26.SHEETS.ORDERS,'orderCode',order.orderCode,{
-    onlinePaymentUrl:result.init_point || result.sandbox_init_point || '',
+    onlineFee:amounts.onlineFee,
+    onlineTotal:amounts.onlineTotal,
+    onlinePaymentUrl:initPoint,
+    preferenceId:result.id || '',
+    preferenceCreatedAt:now_(),
+    gatewayStatus:'PREFERENCE_CREATED',
     gatewayReference:result.id || ''
   });
-  audit_('PAGO_ONLINE',code,'PREFERENCIA_CREADA',{preferenceId:result.id,amount:Number(order.amount)},registration.email);
-  return {ok:true,preferenceId:result.id,initPoint:result.init_point || result.sandbox_init_point || ''};
+  audit_('PAGO_ONLINE',code,'PREFERENCIA_CREADA',{preferenceId:result.id,baseAmount:amounts.baseAmount,onlineFee:amounts.onlineFee,onlineTotal:amounts.onlineTotal},registration.email);
+  return {ok:true,preferenceId:result.id,initPoint:initPoint,amounts:amounts};
 }
 
 function mercadoPagoStatusLabel_(status) {
@@ -644,16 +746,41 @@ function verifyMercadoPagoPayment_(paymentId, expectedCode) {
   const code=upper_(payment.external_reference || (payment.metadata && payment.metadata.registration_id) || expectedCode);
   if (!code) throw new Error('El pago no contiene el código de inscripción.');
   if (expectedCode && upper_(expectedCode)!==code) throw new Error('El pago no corresponde al código de inscripción consultado.');
+
   const registration=findRegistrationByCode_(code);
   if (!registration) throw new Error('No se encontró la inscripción asociada al pago.');
   const order=readTable_(CL26.SHEETS.ORDERS).find(o=>String(o.orderCode)===String(registration.orderCode));
   if (!order) throw new Error('No se encontró la orden asociada al pago.');
-  const paidAmount=Number(payment.transaction_amount || 0);
-  if (Math.abs(paidAmount-Number(order.amount))>0.001) throw new Error('El monto confirmado por Mercado Pago no coincide con la orden.');
+  const amounts=onlineTotalForOrder_(order);
+
+  if (upper_(payment.currency_id||'')!=='PEN') throw new Error('La moneda confirmada por Mercado Pago no corresponde a la orden.');
+  const paidAmount=roundMoney_(Number(payment.transaction_amount || 0));
+  if (Math.abs(paidAmount-amounts.onlineTotal)>0.009) throw new Error('El monto confirmado por Mercado Pago no coincide con el total online de la orden.');
+
+  const expectedCollector=clean_(PropertiesService.getScriptProperties().getProperty('MERCADO_PAGO_COLLECTOR_ID'));
+  if (expectedCollector && clean_(payment.collector_id)!==expectedCollector) throw new Error('El pago fue procesado para una cuenta de cobro distinta.');
+
+  const duplicate=readTable_(CL26.SHEETS.PAYMENTS).find(function(row){
+    return clean_(row.gatewayReference)===id && upper_(row.status)==='CONFIRMADO' && upper_(row.orderCode)!==upper_(order.orderCode);
+  });
+  if (duplicate) throw new Error('Este identificador de pago ya fue asociado a otra orden.');
 
   const status=lower_(payment.status);
+  updateByKey_(CL26.SHEETS.ORDERS,'orderCode',order.orderCode,{gatewayStatus:upper_(status),gatewayReference:id});
   if (status==='approved') {
-    const activated=activatePayment_(order,'MERCADO_PAGO',id,'MERCADO_PAGO',id);
+    const createdAt=payment.date_created?new Date(payment.date_created):now_();
+    const approvedAt=payment.date_approved?new Date(payment.date_approved):now_();
+    if (createdAt>new Date(order.paymentDeadline)) throw new Error('El pago fue iniciado después de la fecha límite de la orden.');
+    const activated=activatePayment_(order,'MERCADO_PAGO',id,'MERCADO_PAGO',id,{
+      verifiedGateway:true,
+      paymentCreatedAt:createdAt,
+      paidAt:approvedAt,
+      baseAmount:amounts.baseAmount,
+      onlineFee:amounts.onlineFee,
+      grossAmount:paidAmount,
+      currency:'PEN',
+      gatewayStatus:status
+    });
     return {ok:true,activated:true,status:'approved',statusLabel:'aprobado',message:activated.message,paymentId:id,registrationId:registration.registrationId};
   }
   return {ok:true,activated:false,status:status,statusLabel:mercadoPagoStatusLabel_(status),paymentId:id,registrationId:registration.registrationId};
@@ -665,6 +792,11 @@ function syncMercadoPagoPayment_(p) {
 
 function handleMercadoPagoWebhook_(e, body) {
   const params=e && e.parameter ? e.parameter : {};
+  const expectedToken=ensureMercadoPagoWebhookToken_();
+  if (!clean_(params.mp_token) || clean_(params.mp_token)!==expectedToken) {
+    audit_('MERCADO_PAGO','WEBHOOK','WEBHOOK_RECHAZADO',{reason:'Token de notificación no válido'},'WEBHOOK');
+    return {ok:false,message:'Notificación no autorizada.'};
+  }
   const paymentId=clean_((body.data && body.data.id) || params['data.id'] || params.id || body.id || '');
   if (!paymentId) return {ok:true,message:'Notificación recibida sin identificador de pago.'};
   try {
@@ -684,39 +816,83 @@ function testMercadoPagoConfiguration() {
   if (response.getResponseCode()<200 || response.getResponseCode()>=300) {
     throw new Error('La credencial de Mercado Pago no es válida: '+response.getContentText());
   }
-  return JSON.parse(response.getContentText());
+  const user=JSON.parse(response.getContentText());
+  ensureMercadoPagoWebhookToken_();
+  if (user && user.id) PropertiesService.getScriptProperties().setProperty('MERCADO_PAGO_COLLECTOR_ID',String(user.id));
+  console.log('Mercado Pago conectado. Collector ID: '+String(user.id||''));
+  return {ok:true,id:user.id,nickname:user.nickname||'',siteId:user.site_id||'',email:user.email||''};
+}
+
+function getMercadoPagoWebhookUrl() {
+  const cfg=config_();
+  const serviceUrl=clean_(cfg.WEB_APP_URL)||ScriptApp.getService().getUrl();
+  if (!serviceUrl) throw new Error('No se pudo obtener la URL de la aplicación web.');
+  const url=serviceUrl+'?mp_webhook=1&mp_token='+encodeURIComponent(ensureMercadoPagoWebhookToken_());
+  console.log('WEBHOOK_MERCADO_PAGO='+url);
+  return url;
+}
+
+/**
+ * Uso administrativo: limpia una preferencia no pagada para volver a crearla.
+ * Útil al cambiar de credenciales de prueba a producción.
+ */
+function resetMercadoPagoPreference(code) {
+  const registration=findRegistrationByCode_(code);
+  if (!registration) throw new Error('No se encontró la inscripción.');
+  const order=readTable_(CL26.SHEETS.ORDERS).find(function(item){return String(item.orderCode)===String(registration.orderCode);});
+  if (!order) throw new Error('No se encontró la orden.');
+  if (upper_(order.status)==='PAGADO') throw new Error('No se puede reiniciar una orden que ya fue pagada.');
+  const paymentUrl=paymentPageLink_(registration.registrationId);
+  updateByKey_(CL26.SHEETS.ORDERS,'orderCode',order.orderCode,{
+    onlinePaymentUrl:paymentUrl,
+    preferenceId:'',
+    preferenceCreatedAt:'',
+    gatewayStatus:'',
+    gatewayReference:''
+  });
+  audit_('PAGO_ONLINE',registration.registrationId,'PREFERENCIA_REINICIADA',{},Session.getActiveUser().getEmail()||'ADMIN');
+  return {ok:true,message:'Preferencia reiniciada. El siguiente intento creará un nuevo enlace de Mercado Pago.'};
 }
 
 function confirmOnlinePayment_(p) {
-  const cfg=config_();
-  if (!clean_(cfg.ONLINE_PAYMENT_WEBHOOK_TOKEN) || String(p.token)!==String(cfg.ONLINE_PAYMENT_WEBHOOK_TOKEN)) return {ok:false,message:'Token de pago online no válido.'};
-  const order=readTable_(CL26.SHEETS.ORDERS).find(o=>upper_(o.orderCode)===upper_(p.orderCode));
-  if (!order) return {ok:false,message:'Orden no encontrada.'};
-  if (Number(p.amount)!==Number(order.amount)) return {ok:false,message:'El monto recibido no coincide con la orden.'};
-  return activatePayment_(order,'PAGO_ONLINE',clean_(p.gatewayReference)||clean_(p.receiptNumber),'WEBHOOK',clean_(p.gatewayReference));
+  return {ok:false,message:'Esta ruta quedó deshabilitada. Los pagos online se confirman únicamente consultando la API oficial de Mercado Pago.'};
 }
 
-function activatePayment_(order, method, receipt, confirmedBy, gatewayReference) {
+function activatePayment_(order, method, receipt, confirmedBy, gatewayReference, options) {
   const lock=LockService.getScriptLock(); lock.waitLock(30000);
   try {
+    options=options||{};
     const current=readTable_(CL26.SHEETS.ORDERS).find(o=>String(o.orderCode)===String(order.orderCode));
     if (!current) throw new Error('Orden no encontrada.');
     if (upper_(current.status)==='PAGADO') return {ok:true,message:'El pago ya estaba registrado.'};
     const registration=readTable_(CL26.SHEETS.REGISTRATIONS).find(r=>String(r.registrationId)===String(current.registrationId));
     if (!registration) throw new Error('No existe la inscripción asociada.');
-    if (now_()>new Date(current.paymentDeadline)) throw new Error('La fecha límite de pago venció y la inscripción fue inhabilitada.');
-    const paid=now_(), paymentId=uuidCode_('PAG-');
-    append_(CL26.SHEETS.PAYMENTS,{paymentId,orderCode:current.orderCode,registrationId:current.registrationId,amount:Number(current.amount),method,receiptNumber:receipt,status:'CONFIRMADO',paidAt:paid,confirmedBy,gatewayReference:gatewayReference||'',notes:'Pago de inscripción por categoría'});
-    updateByKey_(CL26.SHEETS.ORDERS,'orderCode',current.orderCode,{status:'PAGADO',paidAt:paid,paymentMethod:method,receiptNumber:receipt,confirmedBy,gatewayReference:gatewayReference||''});
+
+    const deadline=new Date(current.paymentDeadline);
+    const paymentCreatedAt=options.paymentCreatedAt?new Date(options.paymentCreatedAt):now_();
+    if (now_()>deadline && !(options.verifiedGateway && paymentCreatedAt<=deadline)) {
+      throw new Error('La fecha límite de pago venció y la inscripción fue inhabilitada.');
+    }
+
+    const amounts=onlineTotalForOrder_(current);
+    const baseAmount=roundMoney_(options.baseAmount!=null?options.baseAmount:amounts.baseAmount);
+    const fee=roundMoney_(options.onlineFee!=null?options.onlineFee:(upper_(method)==='MERCADO_PAGO'?amounts.onlineFee:0));
+    const grossAmount=roundMoney_(options.grossAmount!=null?options.grossAmount:(baseAmount+fee));
+    const paid=options.paidAt?new Date(options.paidAt):now_(), paymentId=uuidCode_('PAG-');
+
+    append_(CL26.SHEETS.PAYMENTS,{paymentId,orderCode:current.orderCode,registrationId:current.registrationId,amount:grossAmount,baseAmount:baseAmount,onlineFee:fee,grossAmount:grossAmount,currency:options.currency||current.currency||'PEN',method,receiptNumber:receipt,status:'CONFIRMADO',gatewayStatus:options.gatewayStatus||'approved',paidAt:paid,confirmedBy,gatewayReference:gatewayReference||'',notes:upper_(method)==='MERCADO_PAGO'?'Inscripción y comisión de pago online':'Pago de inscripción coordinado manualmente'});
+    updateByKey_(CL26.SHEETS.ORDERS,'orderCode',current.orderCode,{status:'PAGADO',onlineFee:fee,onlineTotal:grossAmount,gatewayStatus:options.gatewayStatus||'approved',paidAt:paid,paymentMethod:method,receiptNumber:receipt,confirmedBy,gatewayReference:gatewayReference||''});
     updateByKey_(CL26.SHEETS.REGISTRATIONS,'registrationId',current.registrationId,{status:'ACTIVA',activatedAt:paid,disabledAt:''});
     updateByKey_(CL26.SHEETS.USERS,'registrationId',current.registrationId,{status:'ACTIVO'});
     updateByKey_(CL26.SHEETS.TEAMS,'registrationId',current.registrationId,{status:'ACTIVO',activatedAt:paid});
     readTable_(CL26.SHEETS.REG_CATEGORIES).filter(row=>String(row.registrationId)===String(current.registrationId)).forEach(row=>updateRegistrationCategory_(row,'ACTIVA'));
-    audit_('PAGO',paymentId,'CONFIRMADO',{orderCode:current.orderCode,method,amount:Number(current.amount)},confirmedBy);
-    try { sendPaymentConfirmedEmail_(registration,current,method,receipt); } catch (_) {}
+    audit_('PAGO',paymentId,'CONFIRMADO',{orderCode:current.orderCode,method,baseAmount,onlineFee:fee,grossAmount},confirmedBy);
+    const mailOrder=Object.assign({},current,{amount:baseAmount,onlineFee:fee,onlineTotal:grossAmount});
+    try { sendPaymentConfirmedEmail_(registration,mailOrder,method,receipt); } catch (_) {}
     return {ok:true,message:'Pago registrado. La cuenta del delegado quedó habilitada.',registrationId:current.registrationId,paymentId};
   } finally { lock.releaseLock(); }
 }
+
 function updateRegistrationCategory_(row,status) {
   const sh=sheet_(CL26.SHEETS.REG_CATEGORIES), values=sh.getDataRange().getValues(), headers=values[0].map(String), rid=headers.indexOf('registrationId'), cid=headers.indexOf('categoryId'), st=headers.indexOf('status');
   for(let i=1;i<values.length;i++) if(String(values[i][rid])===String(row.registrationId)&&String(values[i][cid])===String(row.categoryId)){sh.getRange(i+1,st+1).setValue(status);return;}
@@ -759,7 +935,7 @@ function cashierBridgeConfirmPayment_(payload) {
   if (!orderCode) throw new Error('Falta el código de inscripción.');
   const order = readTable_(CL26.SHEETS.ORDERS).find(o => upper_(o.orderCode) === orderCode);
   if (!order) throw new Error('No se encontró la orden de pago.');
-  return activatePayment_(order, 'CAJA_MUNICIPAL', receiptNumber, cashier, '');
+  return activatePayment_(order, 'PAGO_MANUAL', receiptNumber, cashier, '', {baseAmount:Number(order.amount||0),onlineFee:0,grossAmount:Number(order.amount||0),gatewayStatus:'MANUAL'});
 }
 
 function cashierGetContext() {
@@ -779,7 +955,7 @@ function cashierLookup(code) {
 function cashierConfirmPayment(orderCode, receiptNumber) {
   const cashier=requireCashier_(), order=readTable_(CL26.SHEETS.ORDERS).find(o=>upper_(o.orderCode)===upper_(orderCode));
   if (!order) throw new Error('Orden no encontrada.');
-  return activatePayment_(order,'CAJA_MUNICIPAL',clean_(receiptNumber),cashier,'');
+  return activatePayment_(order,'PAGO_MANUAL',clean_(receiptNumber),cashier,'',{baseAmount:Number(order.amount||0),onlineFee:0,grossAmount:Number(order.amount||0),gatewayStatus:'MANUAL'});
 }
 function cashierPendingOrders() {
   requireCashier_();
@@ -862,37 +1038,40 @@ function emailQrUrl_(code) {
 }
 function emailPaymentInstructions_(code) {
   const online=paymentPageLink_(code);
+  const phone=manualPaymentPhone_();
+  const wa='https://wa.me/51'+phone+'?text='+encodeURIComponent('Hola, necesito ayuda con el pago de la inscripción '+code+' al Campeonato Clausura 2026.');
   return '<div style="display:grid;gap:14px;margin:20px 0">'+
-    '<div style="border:1px solid #dce4ee;border-radius:16px;padding:16px;background:#f8fafc">'+
-      '<h3 style="margin:0 0 10px;color:#741b14">Pago en caja municipal</h3>'+
-      '<ol style="margin:0;padding-left:20px;color:#40516a;line-height:1.6">'+
-        '<li>Presenta el código de inscripción <strong>'+mailEscape_(code)+'</strong>.</li>'+
-        '<li>El cajero buscará la inscripción y registrará el pago.</li>'+
-        '<li>Recibirás un correo cuando se habilite el registro de jugadores.</li>'+
-      '</ol>'+
-      '<p style="margin:12px 0 0;color:#687990;font-size:12px"><strong>Horario:</strong> lunes a viernes de 8:00 a. m. a 5:00 p. m.; sábados de 8:00 a. m. a 12:00 p. m. Domingos y feriados no hay atención.</p>'+
-    '</div>'+
-    '<div style="border:1px solid #efc5b8;border-radius:16px;padding:16px;background:#fff7f3">'+
-      '<h3 style="margin:0 0 10px;color:#741b14">Pago online</h3>'+
-      '<ol style="margin:0;padding-left:20px;color:#40516a;line-height:1.6">'+
+    '<div style="border:1px solid #efc5b8;border-radius:16px;padding:18px;background:#fff7f3">'+
+      '<h3 style="margin:0 0 10px;color:#741b14">Pago online con Mercado Pago</h3>'+
+      '<ol style="margin:0;padding-left:20px;color:#40516a;line-height:1.65">'+
         '<li>Copia tu código de inscripción: <strong>'+mailEscape_(code)+'</strong>.</li>'+
         '<li>Haz clic en el botón <strong>Pagar online</strong>.</li>'+
-        '<li>Coloca el código y selecciona <strong>Buscar recibos</strong>.</li>'+
-        '<li>Revisa el monto, continúa y elige Yape, tarjeta de débito o tarjeta de crédito en Mercado Pago.</li>'+
-        '<li>Confirma el pago y espera el correo de habilitación.</li>'+
+        '<li>Busca la orden y revisa la inscripción, la comisión online y el total.</li>'+
+        '<li>Continúa a Mercado Pago y elige uno de los medios habilitados, como Yape, tarjeta de débito o tarjeta de crédito.</li>'+
+        '<li>Al finalizar, espera el correo de confirmación y habilitación del registro de jugadores.</li>'+
       '</ol>'+
       '<p style="margin:15px 0 0"><a href="'+mailEscape_(online)+'" style="display:inline-block;background:#741b14;color:#fff;padding:13px 18px;border-radius:12px;text-decoration:none;font-weight:bold">Pagar online</a></p>'+
     '</div>'+
+    '<div style="border:1px solid #cbd5e1;border-radius:16px;padding:16px;background:#f8fafc;color:#40516a">'+
+      '<strong style="color:#142238">¿Tienes problemas con el pago o prefieres coordinarlo manualmente?</strong>'+
+      '<p style="margin:8px 0 12px;line-height:1.55">Comunícate con el encargado de deportes al <strong>992 211 457</strong>.</p>'+
+      '<a href="'+mailEscape_(wa)+'" style="display:inline-block;background:#168a46;color:#fff;padding:11px 16px;border-radius:11px;text-decoration:none;font-weight:bold">Coordinar por WhatsApp</a>'+
+    '</div>'+
   '</div>';
 }
+
 function sendRegistrationEmail_(data) {
   const code=data.registrationId;
+  const fee=roundMoney_(data.onlineFee!=null?data.onlineFee:onlinePaymentFee_());
+  const onlineTotal=roundMoney_(data.onlineTotal!=null?data.onlineTotal:Number(data.total||0)+fee);
   const body='<p>Hola, <strong>'+mailEscape_(data.representativeName)+'</strong>,</p>'+
     '<p>Registramos la inscripción del equipo <strong>'+mailEscape_(data.teamName)+'</strong>. La cuenta ya fue creada; sin embargo, el registro de jugadores se habilitará al confirmar el pago.</p>'+
     orderRowsHtml_([
       ['Código de inscripción',code],
       ['Categorías',data.categoryLabels.join(', ')],
-      ['Total','S/ '+Number(data.total).toFixed(2)],
+      ['Inscripción','S/ '+Number(data.total).toFixed(2)],
+      ['Comisión por pago online','S/ '+fee.toFixed(2)],
+      ['Total online','S/ '+onlineTotal.toFixed(2)],
       ['Fecha límite de pago',fmtDateTime_(data.paymentDeadline)]
     ])+
     '<div style="text-align:center;margin:20px 0"><img src="'+emailQrUrl_(code)+'" width="180" height="180" alt="QR de la inscripción '+mailEscape_(code)+'" style="display:inline-block;border:1px solid #e1e7ef;border-radius:14px;padding:8px"></div>'+
@@ -900,16 +1079,20 @@ function sendRegistrationEmail_(data) {
     '<p style="text-align:center"><a href="'+mailEscape_(statusPageLink_(code))+'" style="display:inline-block;background:#b7db2a;color:#071225;padding:13px 18px;border-radius:12px;text-decoration:none;font-weight:bold">Consultar inscripción</a></p>'+
     '<p style="color:#687990;font-size:13px">Recibirás recordatorios al mediodía mientras el pago permanezca pendiente.</p>';
   const subject='Inscripción de '+data.teamName+' al Campeonato Clausura 2026 de Menores';
-  sendMail_(data.email,subject,mailShell_('Registro de equipo','La inscripción del equipo fue registrada.',body),subject+' · Código '+code+' · S/ '+Number(data.total).toFixed(2));
+  sendMail_(data.email,subject,mailShell_('Registro de equipo','La inscripción del equipo fue registrada.',body),subject+' · Código '+code+' · Total online S/ '+onlineTotal.toFixed(2));
 }
+
 function sendReminderEmail_(reg,order,days,status) {
   const code=reg.registrationId||order.orderCode;
-  const remaining=days===0?'La fecha límite vence hoy.':('Quedan '+days+' día(s) hábil(es) de atención.');
+  const amounts=onlineTotalForOrder_(order);
+  const remaining=days===0?'La fecha límite vence hoy.':('Quedan '+days+' día(s) hábil(es).');
   const body='<p>Hola, <strong>'+mailEscape_(reg.firstName)+'</strong>,</p>'+
     '<p>La inscripción del equipo <strong>'+mailEscape_(reg.teamName)+'</strong> continúa pendiente de pago.</p>'+
     orderRowsHtml_([
       ['Código de inscripción',code],
-      ['Monto','S/ '+Number(order.amount).toFixed(2)],
+      ['Inscripción','S/ '+amounts.baseAmount.toFixed(2)],
+      ['Comisión por pago online','S/ '+amounts.onlineFee.toFixed(2)],
+      ['Total online','S/ '+amounts.onlineTotal.toFixed(2)],
       ['Fecha límite de pago',fmtDateTime_(order.paymentDeadline)],
       ['Tiempo restante',remaining]
     ])+
@@ -917,21 +1100,26 @@ function sendReminderEmail_(reg,order,days,status) {
     '<p><a href="'+mailEscape_(statusPageLink_(code))+'">Consultar el estado de la inscripción</a></p>';
   sendMail_(reg.email,'Recordatorio de pago - '+code,mailShell_('Pago pendiente','La inscripción aún no ha sido activada.',body),'Pago pendiente '+code+' · '+remaining);
 }
+
 function sendPaymentConfirmedEmail_(reg,order,method,receipt) {
   const panel=String(config_().PUBLIC_BASE_URL||'').replace(/\/$/,'')+'/panel.html';
   const code=reg.registrationId||order.orderCode;
+  const amounts=onlineTotalForOrder_(order);
   const body='<p>Hola, <strong>'+mailEscape_(reg.firstName)+'</strong>,</p>'+
     '<p>El pago de la inscripción del equipo <strong>'+mailEscape_(reg.teamName)+'</strong> fue confirmado. El panel del delegado ya está habilitado para registrar jugadores.</p>'+
     orderRowsHtml_([
       ['Código de inscripción',code],
-      ['Monto','S/ '+Number(order.amount).toFixed(2)],
+      ['Inscripción','S/ '+amounts.baseAmount.toFixed(2)],
+      ['Comisión online','S/ '+amounts.onlineFee.toFixed(2)],
+      ['Total pagado','S/ '+amounts.onlineTotal.toFixed(2)],
       ['Medio de pago',String(method||'').replace(/_/g,' ')],
-      ['Comprobante',receipt||'Registrado']
+      ['ID de operación',receipt||'Registrado']
     ])+
     '<p><a href="'+mailEscape_(panel)+'" style="display:inline-block;background:#b7db2a;color:#071225;padding:13px 18px;border-radius:12px;text-decoration:none;font-weight:bold">Ingresar al panel</a></p>'+
     '<p>Recuerda adjuntar la foto actualizada, la copia del documento y la autorización del padre o apoderado de cada menor.</p>';
   sendMail_(reg.email,'Pago confirmado - '+reg.teamName,mailShell_('Inscripción activada','Ya puedes registrar la nómina.',body),'Pago confirmado · '+code);
 }
+
 function sendExpiredEmail_(reg,order) {
   const code=reg.registrationId||order.orderCode;
   const body='<p>Hola, <strong>'+mailEscape_(reg.firstName)+'</strong>,</p>'+
