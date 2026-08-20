@@ -166,13 +166,15 @@
     parts.push('<div class="agenda-cell agenda-header agenda-corner" style="grid-column:1;grid-row:1"></div>');
     days.forEach((day, dayIndex) => {
       const key = dateKey(day);
-      const unavailable = state.unavailableDates.get(key);
+      const hasAvailabilityHold = state.bookings.some(block =>
+        (String(block.status || '').toUpperCase() === 'NO_DISPONIBLE' || truthy(block.availabilityHold)) &&
+        dateKey(new Date(block.startDateTime)) === key
+      );
       parts.push(`
-        <div class="agenda-cell agenda-header ${key === dateKey(state.serverNow) ? 'today' : ''} ${unavailable ? 'unavailable-day' : ''}"
+        <div class="agenda-cell agenda-header ${key === dateKey(state.serverNow) ? 'today' : ''} ${hasAvailabilityHold ? 'unavailable-day' : ''}"
              style="grid-column:${dayIndex + 2};grid-row:1">
           <strong>${day.toLocaleDateString('es-PE',{weekday:'short'}).replace('.','')}</strong>
           <span>${day.toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit'})}</span>
-          ${unavailable ? `<em>Fecha no disponible</em><button class="day-waitlist-button" type="button" data-waitlist-date="${key}">Avisarme</button>` : ''}
         </div>`);
     });
 
@@ -189,16 +191,24 @@
         const view = bookingPresentation(block);
         const span = Math.max(1, block.endHour - block.startHour);
         const availabilityDate = String(block.availabilityDate || dateKey(day));
+        const compactAvailability = !!view.waitlist && span <= 2;
+        const mediumAvailability = !!view.waitlist && span === 3;
+        const blockClass = [
+          view.cls,
+          compactAvailability ? 'availability-compact' : '',
+          mediumAvailability ? 'availability-medium' : ''
+        ].filter(Boolean).join(' ');
+
         parts.push(`
-          <button class="calendar-booking-block ${view.cls}" type="button"
+          <button class="calendar-booking-block ${blockClass}" type="button"
                   ${view.waitlist ? `data-waitlist-date="${escapeHtml(availabilityDate)}"` : 'disabled'}
                   style="grid-column:${dayIndex + 2};grid-row:${block.startHour - 6} / span ${span}"
                   aria-label="${escapeHtml(view.aria)}">
-            <span class="booking-status">${escapeHtml(view.title)}</span>
-            ${view.name ? `<strong>${escapeHtml(view.name)}</strong>` : ''}
-            ${view.reason ? `<strong>${escapeHtml(view.reason)}</strong>` : ''}
-            <small>${hourLabel(block.startHour)} a ${hourLabel(block.endHour)}</small>
-            ${view.waitlist ? '<span class="booking-waitlist-cta">Avisarme cuando esté disponible</span>' : ''}
+            <span class="booking-status">${escapeHtml(compactAvailability ? 'No disponible' : view.title)}</span>
+            ${!compactAvailability && view.name ? `<strong>${escapeHtml(view.name)}</strong>` : ''}
+            ${!compactAvailability && view.reason ? `<strong>${escapeHtml(view.reason)}</strong>` : ''}
+            ${!compactAvailability ? `<small>${hourLabel(block.startHour)} a ${hourLabel(block.endHour)}</small>` : ''}
+            ${view.waitlist ? `<span class="booking-waitlist-cta">${compactAvailability ? 'Avisarme' : 'Avisarme cuando esté disponible'}</span>` : ''}
           </button>`);
       });
 

@@ -359,3 +359,90 @@
   .availability-alert-modal{padding:9px}
   .availability-alert-card{padding:21px 17px;border-radius:18px}
 }
+
+
+/* ==========================================================
+   Ajuste visual v2 — bloques no disponibles más limpios
+   ========================================================== */
+
+/* El encabezado solo recibe un matiz si realmente existe al menos
+   un tramo "no disponible" ese día. Ya no muestra texto ni botón,
+   evitando duplicidad con el bloque inferior. */
+.agenda-header.unavailable-day{
+  background:#223047;
+  color:#edf3fb;
+  box-shadow:inset 0 -3px 0 rgba(148,163,184,.78);
+}
+
+/* Las reglas antiguas quedan anuladas por si el navegador conserva
+   alguna estructura previa durante una recarga. */
+.agenda-header.unavailable-day em,
+.day-waitlist-button{
+  display:none!important;
+}
+
+/* Tramos cortos (1–2 horas): solo estado + CTA. */
+.calendar-booking-block.availability-hold.availability-compact{
+  padding:6px 7px;
+  gap:5px;
+  justify-content:center;
+  min-height:0;
+}
+.calendar-booking-block.availability-hold.availability-compact .booking-status{
+  margin:0;
+  padding:4px 8px;
+  font-size:.68rem;
+  line-height:1;
+  white-space:nowrap;
+}
+.calendar-booking-block.availability-hold.availability-compact .booking-waitlist-cta{
+  margin:0;
+  padding:5px 10px;
+  font-size:.68rem;
+  line-height:1;
+  white-space:nowrap;
+}
+
+/* Tres horas: conserva el detalle, pero con tipografía más compacta. */
+.calendar-booking-block.availability-hold.availability-medium{
+  padding:8px 9px;
+  gap:4px;
+}
+.calendar-booking-block.availability-hold.availability-medium .booking-status{
+  font-size:.67rem;
+  padding:4px 8px;
+}
+.calendar-booking-block.availability-hold.availability-medium strong{
+  font-size:.72rem;
+  line-height:1.15;
+}
+.calendar-booking-block.availability-hold.availability-medium small{
+  font-size:.59rem;
+}
+.calendar-booking-block.availability-hold.availability-medium .booking-waitlist-cta{
+  margin-top:1px;
+  padding:4px 7px;
+  font-size:.59rem;
+  line-height:1.05;
+}
+
+/* Bloques largos: un poco más de aire para lectura. */
+.calendar-booking-block.availability-hold:not(.availability-compact):not(.availability-medium){
+  gap:6px;
+  padding:10px 10px;
+}
+.calendar-booking-block.availability-hold:not(.availability-compact):not(.availability-medium) .booking-waitlist-cta{
+  margin-top:4px;
+}
+
+@media(max-width:680px){
+  .calendar-booking-block.availability-hold.availability-compact{
+    padding:5px 4px;
+    gap:4px;
+  }
+  .calendar-booking-block.availability-hold.availability-compact .booking-status,
+  .calendar-booking-block.availability-hold.availability-compact .booking-waitlist-cta{
+    font-size:.58rem;
+    padding:4px 6px;
+  }
+}
