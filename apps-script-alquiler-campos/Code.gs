@@ -17,6 +17,8 @@ const RENTAL_CFG = {
   WORKSHOP_ADMIN_EMAILS: ['pachacamacdeportes@gmail.com'],
   TIMEZONE: 'America/Lima',
   LOGO_URL: 'https://pachacamacdeportes.com/assets/img/logo-pacha-deportes.png',
+  PUBLIC_RENTAL_URL: 'https://pachacamacdeportes.com/campos-deportivos.html',
+  SPORTS_CONTACT_PHONE: '992 211 457',
   NIGHT_START_HOUR: 18, // El TUSNE distingue día/noche, pero no fija la hora. Se usa 6:00 p. m. como regla operativa.
   OPEN_HOUR: 8,
   CLOSE_HOUR: 23,
@@ -38,9 +40,101 @@ const RENTAL_CFG = {
     WORKSHOP_ENROLLMENTS: 'Talleres_Matriculas',
     WORKSHOP_INVOICES: 'Talleres_Cuotas',
     WORKSHOP_ORDERS: 'Talleres_Ordenes',
-    NEWSLETTER_SUBSCRIBERS: 'Suscriptores_Novedades'
+    NEWSLETTER_SUBSCRIBERS: 'Suscriptores_Novedades',
+    UNAVAILABLE_DATES: 'Fechas_No_Disponibles_Campos',
+    AVAILABILITY_ALERTS: 'Avisos_Disponibilidad_Campos'
   }
 };
+
+
+/**
+ * Horarios recurrentes del Polideportivo / espacios municipales.
+ * Vigencia inicial tomada del periodo actual de talleres: 07-Ago-2026 al 30-Nov-2026.
+ * Si luego deseas ampliar el periodo, cambia solo START_DATE / END_DATE y vuelve a ejecutar
+ * instalarBloqueosRecurrentes2026(). La función evita duplicados.
+ */
+const RECURRING_BLOCKS_2026 = {
+  START_DATE: '2026-08-07',
+  END_DATE: '2026-12-11',
+  SERIES_PREFIX: 'REC-DEP-2026',
+  RULES: [
+    {
+      key: 'INSTITUCIONES',
+      venueId: 'COLISEO_PACHACAMAC',
+      weekdays: [1,2,3,4,5],
+      start: '09:00',
+      end: '13:00',
+      reason: 'Instituciones educativas'
+    },
+    {
+      key: 'VOLEY',
+      venueId: 'COLISEO_PACHACAMAC',
+      weekdays: [1,2,5],
+      start: '15:00',
+      end: '18:00',
+      reason: 'taller de Vóley'
+    },
+    {
+      key: 'FUTBOL',
+      venueId: 'ESTADIO_MUNICIPAL_PACHACAMAC',
+      weekdays: [1,3,5],
+      start: '16:00',
+      end: '18:00',
+      reason: 'taller de Fútbol'
+    },
+    {
+      key: 'BASQUET_MIERCOLES',
+      venueId: 'COLISEO_PACHACAMAC',
+      weekdays: [3],
+      start: '16:00',
+      end: '18:00',
+      reason: 'taller de Básquet'
+    },
+    {
+      key: 'BASQUET_SABADO',
+      venueId: 'COLISEO_PACHACAMAC',
+      weekdays: [6],
+      start: '10:00',
+      end: '12:00',
+      reason: 'taller de Básquet'
+    }
+  ]
+};
+
+
+/**
+ * Feriados nacionales del Perú dentro de la vigencia de estos bloqueos.
+ * Fuente de referencia: Plataforma del Estado Peruano (gob.pe/feriados).
+ * Los bloqueos recurrentes de talleres e instituciones educativas NO se crean en estas fechas.
+ */
+const RECURRING_NATIONAL_HOLIDAYS_2026 = {
+  '2026-08-30': 'Santa Rosa de Lima',
+  '2026-10-08': 'Combate de Angamos',
+  '2026-11-01': 'Día de Todos los Santos',
+  '2026-12-08': 'Inmaculada Concepción',
+  '2026-12-09': 'Batalla de Ayacucho'
+};
+
+
+/**
+ * Fechas temporalmente no disponibles para alquiler público.
+ *
+ * - Septiembre 2026: sábados y domingos.
+ * - Del 05-Oct-2026 al 31-Dic-2026: todos los días.
+ *
+ * Se aplica a todos los espacios deportivos activos del catálogo.
+ * Las reservas de usuarios que ya existan SIEMPRE prevalecen.
+ * Los bloqueos administrativos/talleres ya existentes también se respetan.
+ */
+const UNAVAILABLE_DATES_2026 = {
+  SERIES_PREFIX: 'NO-DISP-2026',
+  SEPTEMBER_START: '2026-09-01',
+  SEPTEMBER_END: '2026-09-30',
+  FULL_BLOCK_START: '2026-10-05',
+  FULL_BLOCK_END: '2026-12-31',
+  REASON: 'Posibles usos de la Municipalidad'
+};
+
 
 function doGet(e) {
   const params = (e && e.parameter) || {};
@@ -84,6 +178,7 @@ function routePublicAction_(action, payload) {
     case 'lookupWorkshopAccount': return lookupWorkshopAccount_(payload);
     case 'createWorkshopPaymentOrder': return createWorkshopPaymentOrder_(payload);
     case 'subscribeNewsletter': return createNewsletterSubscription_(payload);
+    case 'createAvailabilityAlert': return createAvailabilityAlert_(payload);
     default: throw new Error('Acción pública no válida.');
   }
 }
@@ -92,6 +187,7 @@ function setupRentalSystem() {
   ensureRentalSheets_();
   ensureWorkshopSheets_();
   ensureNewsletterSheet_();
+  ensureAvailabilityAlertSheets_();
   installRentalTriggers_();
   bumpAvailabilityRevision_();
   return {ok:true,message:'Sistema v19 configurado. Conserva documentos y códigos como texto, recupera ceros iniciales y mantiene la consulta tolerante de matrículas.'};
@@ -105,6 +201,12 @@ function onOpen() {
       .addItem('Liberar reservas vencidas', 'expireReservationsManual')
       .addItem('Actualizar matrículas de talleres', 'expireWorkshopDataManual')
       .addItem('Reparar códigos de documentos', 'repairWorkshopDocumentCodesV19')
+      .addSeparator()
+      .addItem('Instalar horarios recurrentes 2026', 'instalarBloqueosRecurrentes2026')
+      .addItem('Retirar horarios recurrentes 2026', 'retirarBloqueosRecurrentes2026')
+      .addSeparator()
+      .addItem('Aplicar fechas no disponibles Sep-Dic 2026', 'instalarFechasNoDisponibles2026')
+      .addItem('Reconciliar fechas no disponibles', 'reconciliarFechasNoDisponibles2026')
       .addToUi();
   } catch (_) {}
 }
@@ -293,20 +395,28 @@ function getAvailability_(p) {
   rowsObjects_(RENTAL_CFG.SHEETS.BLOCKS).forEach(block => {
     if (String(block.venueId) !== venueId || !bool_(block.active)) return;
     const s = new Date(block.startDateTime), e = new Date(block.endDateTime);
-    if (s <= end && e >= start) bookings.push({
-      blockId:block.blockId,
-      startDateTime:s.toISOString(),
-      endDateTime:e.toISOString(),
-      status:'EVENTO',
-      reason:block.reason || 'Reserva administrativa',
-      isMunicipalEvent:bool_(block.isMunicipalEvent)
-    });
+    if (s <= end && e >= start) {
+      const availabilityHold = bool_(block.availabilityHold);
+      bookings.push({
+        blockId:block.blockId,
+        startDateTime:s.toISOString(),
+        endDateTime:e.toISOString(),
+        status:availabilityHold ? 'NO_DISPONIBLE' : 'EVENTO',
+        reason:availabilityHold ? UNAVAILABLE_DATES_2026.REASON : (block.reason || 'Reserva administrativa'),
+        isMunicipalEvent:availabilityHold ? false : bool_(block.isMunicipalEvent),
+        availabilityHold:availabilityHold,
+        availabilityGroupId:block.availabilityGroupId || '',
+        availabilityDate:block.availabilityDate || (availabilityHold ? localDateKey_(s) : ''),
+        waitlistEnabled:availabilityHold
+      });
+    }
   });
 
   return {
     ok:true,
     serverNow:now.toISOString(),
     bookings:bookings,
+    unavailableDates:getUnavailableDatesForRange_(venueId,start,end),
     holidayDates:getHolidayDates_(start,end)
   };
 }
@@ -418,6 +528,800 @@ function cashierConfirmPayment(code,receiptNumber) {
   } finally {lock.releaseLock();}
 }
 
+
+/**
+ * Instala todos los bloqueos recurrentes definidos en RECURRING_BLOCKS_2026.
+ * No duplica horarios que ya fueron creados por esta misma serie.
+ * Si existe una reserva/bloqueo incompatible, esa fecha se omite y se reporta.
+ */
+
+function isRecurringNationalHoliday2026_(date) {
+  return !!RECURRING_NATIONAL_HOLIDAYS_2026[localDateKey_(date)];
+}
+
+function recurringHolidayName2026_(date) {
+  return RECURRING_NATIONAL_HOLIDAYS_2026[localDateKey_(date)] || '';
+}
+
+/**
+ * Desactiva automáticamente bloqueos recurrentes que pudieran haberse creado
+ * anteriormente sobre un feriado nacional. No toca reservas de clientes
+ * ni bloqueos manuales.
+ */
+function cleanupRecurringHolidayBlocks2026_() {
+  const prefix = RECURRING_BLOCKS_2026.SERIES_PREFIX + '-';
+  let removed = 0;
+  rowsObjects_(RENTAL_CFG.SHEETS.BLOCKS).forEach(block => {
+    if (!bool_(block.active)) return;
+    if (String(block.seriesId || '').indexOf(prefix) !== 0) return;
+    const start = new Date(block.startDateTime);
+    if (!isRecurringNationalHoliday2026_(start)) return;
+    updateFields_(RENTAL_CFG.SHEETS.BLOCKS, block._row, {active:false});
+    removed++;
+  });
+  if (removed) bumpAvailabilityRevision_();
+  return removed;
+}
+
+function instalarBloqueosRecurrentes2026() {
+  ensureRentalSheets_();
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    return installRecurringBlocks2026_('SISTEMA_RECURRENTES');
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function retirarBloqueosRecurrentes2026() {
+  ensureRentalSheets_();
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    return removeRecurringBlocks2026_('SISTEMA_RECURRENTES');
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function cashierInstallRecurringMunicipalBlocks2026() {
+  const admin = requireEventAdmin_();
+  ensureRentalSheets_();
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    return installRecurringBlocks2026_(admin);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function cashierRemoveRecurringMunicipalBlocks2026() {
+  const admin = requireEventAdmin_();
+  ensureRentalSheets_();
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    return removeRecurringBlocks2026_(admin);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function cashierRecurringMunicipalBlocksStatus() {
+  requireEventAdmin_();
+  ensureRentalSheets_();
+  const prefix = RECURRING_BLOCKS_2026.SERIES_PREFIX + '-';
+  const active = rowsObjects_(RENTAL_CFG.SHEETS.BLOCKS)
+    .filter(row => bool_(row.active) && String(row.seriesId || '').indexOf(prefix) === 0);
+
+  return {
+    ok:true,
+    activeCount:active.length,
+    startDate:RECURRING_BLOCKS_2026.START_DATE,
+    endDate:RECURRING_BLOCKS_2026.END_DATE,
+    rules:recurringRulesPublic_(),
+    holidays:Object.keys(RECURRING_NATIONAL_HOLIDAYS_2026).map(date => ({
+      date:date,
+      name:RECURRING_NATIONAL_HOLIDAYS_2026[date]
+    }))
+  };
+}
+
+function recurringRulesPublic_() {
+  const venueMap = {};
+  rowsObjects_(RENTAL_CFG.SHEETS.VENUES).forEach(v => { venueMap[String(v.venueId)] = v.name; });
+  const dayNames = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+
+  return RECURRING_BLOCKS_2026.RULES.map(rule => ({
+    key:rule.key,
+    venueId:rule.venueId,
+    venueName:venueMap[rule.venueId] || rule.venueId,
+    weekdays:(rule.weekdays || []).map(d => dayNames[d]),
+    start:rule.start,
+    end:rule.end,
+    reason:rule.reason
+  }));
+}
+
+function installRecurringBlocks2026_(createdBy) {
+  const holidayBlocksRemoved = cleanupRecurringHolidayBlocks2026_();
+  const startDate = parseLocal_(RECURRING_BLOCKS_2026.START_DATE + 'T00:00:00');
+  const endDate = parseLocal_(RECURRING_BLOCKS_2026.END_DATE + 'T23:59:59');
+  if (isNaN(startDate) || isNaN(endDate) || endDate < startDate) {
+    throw new Error('La vigencia de los bloqueos recurrentes no es válida.');
+  }
+
+  const venues = {};
+  rowsObjects_(RENTAL_CFG.SHEETS.VENUES).forEach(v => { venues[String(v.venueId)] = v; });
+
+  const existingBlocks = rowsObjects_(RENTAL_CFG.SHEETS.BLOCKS);
+  const parentMap = reservationMap_();
+  const activeReservationItems = rowsObjects_(RENTAL_CFG.SHEETS.ITEMS).filter(item => {
+    const parent = parentMap[String(item.reservationCode)];
+    return parent && ['PENDIENTE','GRACIA','PAGADO'].indexOf(String(parent.status).toUpperCase()) !== -1;
+  });
+
+  let created = 0;
+  let duplicates = 0;
+  const conflicts = [];
+
+  RECURRING_BLOCKS_2026.RULES.forEach(rule => {
+    const venue = venues[String(rule.venueId)];
+    if (!venue || !bool_(venue.active)) {
+      conflicts.push({rule:rule.key,date:'',reason:'El espacio no está habilitado: ' + rule.venueId});
+      return;
+    }
+
+    const seriesId = RECURRING_BLOCKS_2026.SERIES_PREFIX + '-' + rule.key;
+    const cursor = startDay_(startDate);
+
+    while (cursor <= endDate) {
+      if ((rule.weekdays || []).indexOf(cursor.getDay()) !== -1) {
+        const dateKey = localDateKey_(cursor);
+
+        // No se bloquean talleres ni instituciones educativas en feriados nacionales.
+        if (isRecurringNationalHoliday2026_(cursor)) {
+          cursor.setDate(cursor.getDate() + 1);
+          continue;
+        }
+
+        const start = parseLocal_(dateKey + 'T' + rule.start + ':00');
+        const end = parseLocal_(dateKey + 'T' + rule.end + ':00');
+
+        const duplicate = existingBlocks.some(block =>
+          bool_(block.active) &&
+          String(block.seriesId || '') === seriesId &&
+          String(block.venueId) === String(rule.venueId) &&
+          new Date(block.startDateTime).getTime() === start.getTime() &&
+          new Date(block.endDateTime).getTime() === end.getTime()
+        );
+
+        if (duplicate) {
+          duplicates++;
+        } else {
+          const reservationConflict = activeReservationItems.some(item =>
+            String(item.venueId) === String(rule.venueId) &&
+            new Date(item.startDateTime) < end &&
+            new Date(item.endDateTime) > start
+          );
+
+          const blockConflict = existingBlocks.some(block =>
+            bool_(block.active) &&
+            String(block.venueId) === String(rule.venueId) &&
+            new Date(block.startDateTime) < end &&
+            new Date(block.endDateTime) > start
+          );
+
+          if (reservationConflict || blockConflict) {
+            conflicts.push({
+              rule:rule.key,
+              date:dateKey,
+              venueName:venue.name,
+              start:rule.start,
+              end:rule.end,
+              reason:reservationConflict ? 'Ya existe una reserva activa.' : 'Ya existe otro bloqueo/evento.'
+            });
+          } else {
+            const blockId = recurringBlockId_(seriesId, dateKey, rule.start, rule.end);
+            const row = {
+              blockId:blockId,
+              venueId:venue.venueId,
+              venueName:venue.name,
+              startDateTime:start,
+              endDateTime:end,
+              reason:rule.reason,
+              isMunicipalEvent:false,
+              seriesId:seriesId,
+              isRecurring:true,
+              createdAt:new Date(),
+              createdBy:createdBy || 'SISTEMA_RECURRENTES',
+              active:true
+            };
+            appendObject_(RENTAL_CFG.SHEETS.BLOCKS, row);
+            existingBlocks.push(row);
+            created++;
+          }
+        }
+      }
+      cursor.setDate(cursor.getDate() + 1);
+    }
+  });
+
+  if (created) bumpAvailabilityRevision_();
+
+  return {
+    ok:true,
+    created:created,
+    duplicates:duplicates,
+    conflicts:conflicts,
+    activeCount:rowsObjects_(RENTAL_CFG.SHEETS.BLOCKS)
+      .filter(row => bool_(row.active) && String(row.seriesId || '').indexOf(RECURRING_BLOCKS_2026.SERIES_PREFIX + '-') === 0).length,
+    startDate:RECURRING_BLOCKS_2026.START_DATE,
+    endDate:RECURRING_BLOCKS_2026.END_DATE,
+    holidayBlocksRemoved:holidayBlocksRemoved,
+    holidays:Object.keys(RECURRING_NATIONAL_HOLIDAYS_2026).map(date => ({
+      date:date,
+      name:RECURRING_NATIONAL_HOLIDAYS_2026[date]
+    })),
+    message:'Se crearon ' + created + ' bloqueo(s) recurrente(s). ' +
+      duplicates + ' ya existían, ' + conflicts.length + ' fecha(s) presentaron conflicto y ' +
+      holidayBlocksRemoved + ' bloqueo(s) anterior(es) en feriado fueron retirados.'
+  };
+}
+
+function removeRecurringBlocks2026_(cancelledBy) {
+  const prefix = RECURRING_BLOCKS_2026.SERIES_PREFIX + '-';
+  const blocks = rowsObjects_(RENTAL_CFG.SHEETS.BLOCKS)
+    .filter(row => bool_(row.active) && String(row.seriesId || '').indexOf(prefix) === 0);
+
+  blocks.forEach(block => {
+    updateFields_(RENTAL_CFG.SHEETS.BLOCKS, block._row, {
+      active:false,
+      createdBy:String(block.createdBy || '') + ' | RETIRADO:' + (cancelledBy || 'SISTEMA')
+    });
+  });
+
+  if (blocks.length) {
+    bumpAvailabilityRevision_();
+    if (ss_().getSheetByName(RENTAL_CFG.SHEETS.UNAVAILABLE_DATES)) reconcileUnavailableDates2026_();
+  }
+
+  return {
+    ok:true,
+    removed:blocks.length,
+    message:'Se retiraron ' + blocks.length + ' bloqueo(s) recurrente(s).'
+  };
+}
+
+function recurringBlockId_(seriesId, dateKey, startTime, endTime) {
+  return String(seriesId + '-' + dateKey.replace(/-/g,'') + '-' + startTime.replace(':','') + '-' + endTime.replace(':',''))
+    .replace(/[^A-Z0-9-]/gi,'')
+    .toUpperCase();
+}
+
+
+/* =====================================================================
+ * FECHAS TEMPORALMENTE NO DISPONIBLES + AVISOS DE DISPONIBILIDAD
+ * ===================================================================== */
+
+function ensureAvailabilityAlertSheets_() {
+  const ss = ss_();
+  ensureSheet_(ss, RENTAL_CFG.SHEETS.UNAVAILABLE_DATES, [
+    'groupId','venueId','venueName','date','reason','status',
+    'createdAt','updatedAt','releasedAt','releasedBy','reblockedAt','reblockedBy'
+  ]);
+  ensureSheet_(ss, RENTAL_CFG.SHEETS.AVAILABILITY_ALERTS, [
+    'alertId','groupId','venueId','venueName','date','name','email','phone',
+    'status','source','createdAt','updatedAt','notifiedAt','notificationError'
+  ]);
+}
+
+function appendObjects_(sheetName, objects) {
+  if (!objects || !objects.length) return;
+  const sh = sheet_(sheetName);
+  const headers = sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0];
+  const values = objects.map(obj => headers.map(h =>
+    Object.prototype.hasOwnProperty.call(obj,h) ? obj[h] : ''
+  ));
+  sh.getRange(sh.getLastRow()+1,1,values.length,headers.length).setValues(values);
+}
+
+function unavailableTargetDates2026_() {
+  const dates = {};
+  let d = parseLocal_(UNAVAILABLE_DATES_2026.SEPTEMBER_START + 'T00:00:00');
+  const sepEnd = parseLocal_(UNAVAILABLE_DATES_2026.SEPTEMBER_END + 'T00:00:00');
+  while (d <= sepEnd) {
+    if (d.getDay() === 0 || d.getDay() === 6) dates[localDateKey_(d)] = true;
+    d.setDate(d.getDate()+1);
+  }
+
+  d = parseLocal_(UNAVAILABLE_DATES_2026.FULL_BLOCK_START + 'T00:00:00');
+  const end = parseLocal_(UNAVAILABLE_DATES_2026.FULL_BLOCK_END + 'T00:00:00');
+  while (d <= end) {
+    dates[localDateKey_(d)] = true;
+    d.setDate(d.getDate()+1);
+  }
+  return Object.keys(dates).sort();
+}
+
+function unavailableGroupId_(venueId,dateKey) {
+  return (UNAVAILABLE_DATES_2026.SERIES_PREFIX + '-' + venueId + '-' + String(dateKey).replace(/-/g,''))
+    .replace(/[^A-Z0-9-]/gi,'')
+    .toUpperCase();
+}
+
+function unavailableDateKeyFromValue_(value) {
+  if (value instanceof Date && !isNaN(value)) return localDateKey_(value);
+  const text = clean_(value);
+  const m = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? m[1]+'-'+m[2]+'-'+m[3] : '';
+}
+
+function findUnavailableDateRow_(venueId,dateKey) {
+  if (!ss_().getSheetByName(RENTAL_CFG.SHEETS.UNAVAILABLE_DATES)) return null;
+  return rowsObjects_(RENTAL_CFG.SHEETS.UNAVAILABLE_DATES).find(row =>
+    String(row.venueId) === String(venueId) &&
+    unavailableDateKeyFromValue_(row.date) === String(dateKey)
+  ) || null;
+}
+
+function getUnavailableDatesForRange_(venueId,start,end) {
+  if (!ss_().getSheetByName(RENTAL_CFG.SHEETS.UNAVAILABLE_DATES)) return [];
+  return rowsObjects_(RENTAL_CFG.SHEETS.UNAVAILABLE_DATES)
+    .filter(row => {
+      if (String(row.venueId) !== String(venueId)) return false;
+      if (String(row.status).toUpperCase() !== 'BLOQUEADA') return false;
+      const key = unavailableDateKeyFromValue_(row.date);
+      if (!key) return false;
+      const d = parseLocal_(key+'T12:00:00');
+      return d >= startDay_(start) && d <= end;
+    })
+    .map(row => ({
+      groupId:row.groupId,
+      venueId:row.venueId,
+      venueName:row.venueName,
+      date:unavailableDateKeyFromValue_(row.date),
+      reason:row.reason || UNAVAILABLE_DATES_2026.REASON,
+      waitlistEnabled:true
+    }));
+}
+
+function instalarFechasNoDisponibles2026() {
+  ensureRentalSheets_();
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const venues = rowsObjects_(RENTAL_CFG.SHEETS.VENUES).filter(v => bool_(v.active));
+    const targetDates = unavailableTargetDates2026_();
+    const existing = rowsObjects_(RENTAL_CFG.SHEETS.UNAVAILABLE_DATES);
+    const existingMap = {};
+    existing.forEach(row => {
+      existingMap[String(row.venueId)+'|'+unavailableDateKeyFromValue_(row.date)] = row;
+    });
+
+    const now = new Date();
+    const newRows = [];
+    venues.forEach(venue => {
+      targetDates.forEach(dateKey => {
+        const mapKey = String(venue.venueId)+'|'+dateKey;
+        if (existingMap[mapKey]) return; // Respeta LIBERADA si el administrador ya la liberó.
+        newRows.push({
+          groupId:unavailableGroupId_(venue.venueId,dateKey),
+          venueId:venue.venueId,
+          venueName:venue.name,
+          date:dateKey,
+          reason:UNAVAILABLE_DATES_2026.REASON,
+          status:'BLOQUEADA',
+          createdAt:now,
+          updatedAt:now,
+          releasedAt:'',releasedBy:'',reblockedAt:'',reblockedBy:''
+        });
+      });
+    });
+    appendObjects_(RENTAL_CFG.SHEETS.UNAVAILABLE_DATES,newRows);
+
+    const reconciliation = reconcileUnavailableDates2026_();
+    return {
+      ok:true,
+      scheduleRowsCreated:newRows.length,
+      targetDatesPerVenue:targetDates.length,
+      venues:venues.length,
+      blocksCreated:reconciliation.created,
+      blocksDeactivated:reconciliation.deactivated,
+      message:'Calendario aplicado. Se registraron ' + newRows.length +
+        ' fecha(s)/espacio nuevas y se crearon ' + reconciliation.created +
+        ' bloqueos de horario respetando todas las reservas existentes.'
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function reconciliarFechasNoDisponibles2026() {
+  ensureRentalSheets_();
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const result = reconcileUnavailableDates2026_();
+    return {
+      ok:true,
+      created:result.created,
+      deactivated:result.deactivated,
+      message:'Reconciliación terminada. Se crearon ' + result.created +
+        ' bloqueos y se retiraron ' + result.deactivated + ' bloques que ya no correspondían.'
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function reconcileUnavailableDates2026_() {
+  const schedule = rowsObjects_(RENTAL_CFG.SHEETS.UNAVAILABLE_DATES)
+    .filter(row => String(row.status).toUpperCase() === 'BLOQUEADA');
+  if (!schedule.length) return {created:0,deactivated:0};
+
+  const now = new Date();
+  const reservations = reservationMap_();
+  const activeItems = rowsObjects_(RENTAL_CFG.SHEETS.ITEMS).filter(item => {
+    const parent = reservations[String(item.reservationCode)];
+    if (!parent) return false;
+    const status = String(parent.status).toUpperCase();
+    if (status === 'PAGADO') return true;
+    if (['PENDIENTE','GRACIA'].indexOf(status) === -1) return false;
+    return !parent.graceDeadline || new Date(parent.graceDeadline) >= now;
+  });
+
+  const allBlocks = rowsObjects_(RENTAL_CFG.SHEETS.BLOCKS);
+  const nonAvailabilityBlocks = allBlocks.filter(block => bool_(block.active) && !bool_(block.availabilityHold));
+  const existingHolds = allBlocks.filter(block => bool_(block.active) && bool_(block.availabilityHold));
+  const holdsByGroup = {};
+  existingHolds.forEach(block => {
+    const key=String(block.availabilityGroupId || '');
+    if(!holdsByGroup[key])holdsByGroup[key]=[];
+    holdsByGroup[key].push(block);
+  });
+
+  const toCreate = [];
+  let deactivated = 0;
+
+  schedule.forEach(row => {
+    const dateKey = unavailableDateKeyFromValue_(row.date);
+    if (!dateKey) return;
+    const desired = desiredUnavailableIntervals_(row.venueId,dateKey,activeItems,nonAvailabilityBlocks);
+    const current = holdsByGroup[String(row.groupId)] || [];
+    const desiredKeys = {};
+    desired.forEach(interval => { desiredKeys[interval.start+'-'+interval.end] = interval; });
+
+    const currentKeys = {};
+    current.forEach(block => {
+      const s = new Date(block.startDateTime), e = new Date(block.endDateTime);
+      const key = timeKey_(s)+'-'+timeKey_(e);
+      currentKeys[key] = block;
+      if (!desiredKeys[key]) {
+        updateFields_(RENTAL_CFG.SHEETS.BLOCKS,block._row,{active:false});
+        deactivated++;
+      }
+    });
+
+    desired.forEach(interval => {
+      const key = interval.start+'-'+interval.end;
+      if (currentKeys[key]) return;
+      toCreate.push(makeUnavailableBlockRow_(row,dateKey,interval.start,interval.end,'SISTEMA_FECHAS_NO_DISPONIBLES'));
+    });
+  });
+
+  appendObjects_(RENTAL_CFG.SHEETS.BLOCKS,toCreate);
+  if (toCreate.length || deactivated) bumpAvailabilityRevision_();
+  return {created:toCreate.length,deactivated:deactivated};
+}
+
+function desiredUnavailableIntervals_(venueId,dateKey,activeReservationItems,nonAvailabilityBlocks) {
+  const dayStart = parseLocal_(dateKey+'T'+String(RENTAL_CFG.OPEN_HOUR).padStart(2,'0')+':00:00');
+  const dayEnd = parseLocal_(dateKey+'T'+String(RENTAL_CFG.CLOSE_HOUR).padStart(2,'0')+':00:00');
+  const busy = [];
+
+  activeReservationItems.forEach(item => {
+    if (String(item.venueId) !== String(venueId)) return;
+    const s=new Date(item.startDateTime),e=new Date(item.endDateTime);
+    if(s<dayEnd && e>dayStart)busy.push({start:new Date(Math.max(s.getTime(),dayStart.getTime())),end:new Date(Math.min(e.getTime(),dayEnd.getTime()))});
+  });
+  nonAvailabilityBlocks.forEach(block => {
+    if (String(block.venueId) !== String(venueId)) return;
+    const s=new Date(block.startDateTime),e=new Date(block.endDateTime);
+    if(s<dayEnd && e>dayStart)busy.push({start:new Date(Math.max(s.getTime(),dayStart.getTime())),end:new Date(Math.min(e.getTime(),dayEnd.getTime()))});
+  });
+
+  busy.sort((a,b)=>a.start-b.start);
+  const merged=[];
+  busy.forEach(interval=>{
+    const last=merged[merged.length-1];
+    if(last && interval.start<=last.end){
+      if(interval.end>last.end)last.end=interval.end;
+    }else merged.push({start:new Date(interval.start),end:new Date(interval.end)});
+  });
+
+  const free=[];
+  let cursor=new Date(dayStart);
+  merged.forEach(interval=>{
+    if(interval.start>cursor)free.push({start:timeKey_(cursor),end:timeKey_(interval.start)});
+    if(interval.end>cursor)cursor=new Date(interval.end);
+  });
+  if(cursor<dayEnd)free.push({start:timeKey_(cursor),end:timeKey_(dayEnd)});
+  return free.filter(x=>x.start!==x.end);
+}
+
+function timeKey_(date) {
+  return Utilities.formatDate(new Date(date),RENTAL_CFG.TIMEZONE,'HH:mm');
+}
+
+function makeUnavailableBlockRow_(scheduleRow,dateKey,startTime,endTime,createdBy) {
+  return {
+    blockId:'AVH-' + Utilities.getUuid().replace(/-/g,'').slice(0,18).toUpperCase(),
+    venueId:scheduleRow.venueId,
+    venueName:scheduleRow.venueName,
+    startDateTime:parseLocal_(dateKey+'T'+startTime+':00'),
+    endDateTime:parseLocal_(dateKey+'T'+endTime+':00'),
+    reason:UNAVAILABLE_DATES_2026.REASON,
+    isMunicipalEvent:false,
+    seriesId:'',
+    isRecurring:false,
+    availabilityHold:true,
+    availabilityGroupId:scheduleRow.groupId,
+    availabilityDate:dateKey,
+    createdAt:new Date(),
+    createdBy:createdBy || 'SISTEMA_FECHAS_NO_DISPONIBLES',
+    active:true
+  };
+}
+
+function syncUnavailableDateIfConfigured_(venueId,dateKey) {
+  if (!ss_().getSheetByName(RENTAL_CFG.SHEETS.UNAVAILABLE_DATES)) return {created:0,deactivated:0};
+  const row = findUnavailableDateRow_(venueId,dateKey);
+  if (!row || String(row.status).toUpperCase() !== 'BLOQUEADA') return {created:0,deactivated:0};
+
+  const now = new Date();
+  const reservations = reservationMap_();
+  const activeItems = rowsObjects_(RENTAL_CFG.SHEETS.ITEMS).filter(item => {
+    if (String(item.venueId) !== String(venueId)) return false;
+    const parent=reservations[String(item.reservationCode)];
+    if(!parent)return false;
+    const status=String(parent.status).toUpperCase();
+    if(status==='PAGADO')return true;
+    if(['PENDIENTE','GRACIA'].indexOf(status)===-1)return false;
+    return !parent.graceDeadline || new Date(parent.graceDeadline)>=now;
+  });
+  const blocks=rowsObjects_(RENTAL_CFG.SHEETS.BLOCKS);
+  const nonAvailability=blocks.filter(b=>bool_(b.active)&&!bool_(b.availabilityHold));
+  const current=blocks.filter(b=>bool_(b.active)&&bool_(b.availabilityHold)&&String(b.availabilityGroupId)===String(row.groupId));
+
+  const desired=desiredUnavailableIntervals_(venueId,dateKey,activeItems,nonAvailability);
+  const desiredKeys={};desired.forEach(x=>desiredKeys[x.start+'-'+x.end]=x);
+  const currentKeys={};
+  let deactivated=0;
+  current.forEach(block=>{
+    const key=timeKey_(new Date(block.startDateTime))+'-'+timeKey_(new Date(block.endDateTime));
+    currentKeys[key]=block;
+    if(!desiredKeys[key]){
+      updateFields_(RENTAL_CFG.SHEETS.BLOCKS,block._row,{active:false});
+      deactivated++;
+    }
+  });
+
+  const toCreate=[];
+  desired.forEach(interval=>{
+    const key=interval.start+'-'+interval.end;
+    if(!currentKeys[key])toCreate.push(makeUnavailableBlockRow_(row,dateKey,interval.start,interval.end,'SISTEMA_RECONCILIACION'));
+  });
+  appendObjects_(RENTAL_CFG.SHEETS.BLOCKS,toCreate);
+  if(toCreate.length||deactivated)bumpAvailabilityRevision_();
+  return {created:toCreate.length,deactivated:deactivated};
+}
+
+function createAvailabilityAlert_(p) {
+  ensureAvailabilityAlertSheets_();
+
+  if (clean_(p.website)) return {ok:true,message:'Registro completado.'};
+
+  const venueId=clean_(p.venueId);
+  const dateKey=unavailableDateKeyFromValue_(p.date);
+  const name=clean_(p.name).replace(/\s+/g,' ');
+  const email=clean_(p.email).toLowerCase();
+  const phone=digits_(p.phone);
+  const source=clean_(p.source)||'campos-deportivos.html';
+
+  if(!venueId||!dateKey)throw new Error('No se pudo identificar la fecha seleccionada.');
+  if(name.length<2||name.length>100)throw new Error('Ingresa tu nombre.');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new Error('Correo electrónico inválido.');
+  if(phone && (phone.length<9||phone.length>12))throw new Error('El número de WhatsApp no es válido.');
+
+  const unavailable=findUnavailableDateRow_(venueId,dateKey);
+  if(!unavailable||String(unavailable.status).toUpperCase()!=='BLOQUEADA'){
+    return {ok:false,message:'Esta fecha ya no figura como no disponible. Actualiza la agenda para revisar los horarios.'};
+  }
+
+  const lock=LockService.getScriptLock();
+  lock.waitLock(15000);
+  try{
+    const alerts=rowsObjects_(RENTAL_CFG.SHEETS.AVAILABILITY_ALERTS);
+    const existing=alerts.find(row=>
+      String(row.venueId)===String(venueId) &&
+      unavailableDateKeyFromValue_(row.date)===dateKey &&
+      String(row.email||'').toLowerCase()===email
+    );
+    const now=new Date();
+
+    if(existing){
+      updateFields_(RENTAL_CFG.SHEETS.AVAILABILITY_ALERTS,existing._row,{
+        groupId:unavailable.groupId,venueName:unavailable.venueName,name:name,
+        phone:phone,status:'ACTIVO',source:source,updatedAt:now,
+        notifiedAt:'',notificationError:''
+      });
+      return {ok:true,message:'Ya estabas registrado para esta fecha. Actualizamos tus datos y te avisaremos si se libera.'};
+    }
+
+    appendObject_(RENTAL_CFG.SHEETS.AVAILABILITY_ALERTS,{
+      alertId:'AVI-'+Utilities.getUuid().replace(/-/g,'').slice(0,14).toUpperCase(),
+      groupId:unavailable.groupId,
+      venueId:venueId,
+      venueName:unavailable.venueName,
+      date:dateKey,
+      name:name,email:email,phone:phone,
+      status:'ACTIVO',source:source,createdAt:now,updatedAt:now,
+      notifiedAt:'',notificationError:''
+    });
+    return {ok:true,message:'Registro completado. Si la fecha se libera, te avisaremos por correo.'};
+  }finally{lock.releaseLock();}
+}
+
+function cashierGetAvailabilityDateStatus(venueId,dateKey) {
+  requireEventAdmin_();
+  ensureRentalSheets_();
+  const row=findUnavailableDateRow_(venueId,unavailableDateKeyFromValue_(dateKey));
+  if(!row)return {ok:false,message:'Esta fecha no pertenece al calendario temporalmente no disponible.'};
+  const alerts=rowsObjects_(RENTAL_CFG.SHEETS.AVAILABILITY_ALERTS).filter(a=>
+    String(a.venueId)===String(venueId) &&
+    unavailableDateKeyFromValue_(a.date)===unavailableDateKeyFromValue_(dateKey) &&
+    String(a.status).toUpperCase()==='ACTIVO'
+  );
+  return {
+    ok:true,
+    date:unavailableDateKeyFromValue_(row.date),
+    venueId:row.venueId,
+    venueName:row.venueName,
+    status:row.status,
+    reason:row.reason,
+    waitingCount:alerts.length
+  };
+}
+
+function cashierReleaseAvailabilityDate(venueId,dateKey) {
+  const admin=requireEventAdmin_();
+  ensureRentalSheets_();
+  return releaseAvailabilityDateAndNotify_(venueId,unavailableDateKeyFromValue_(dateKey),admin);
+}
+
+function releaseAvailabilityDateAndNotify_(venueId,dateKey,admin) {
+  const lock=LockService.getScriptLock();
+  lock.waitLock(30000);
+  let row=null;
+  try{
+    row=findUnavailableDateRow_(venueId,dateKey);
+    if(!row)throw new Error('La fecha no pertenece al calendario temporalmente no disponible.');
+
+    if(String(row.status).toUpperCase()!=='LIBERADA'){
+      updateFields_(RENTAL_CFG.SHEETS.UNAVAILABLE_DATES,row._row,{
+        status:'LIBERADA',updatedAt:new Date(),releasedAt:new Date(),releasedBy:admin||'ADMIN'
+      });
+    }
+
+    rowsObjects_(RENTAL_CFG.SHEETS.BLOCKS).forEach(block=>{
+      if(bool_(block.active)&&bool_(block.availabilityHold)&&String(block.availabilityGroupId)===String(row.groupId)){
+        updateFields_(RENTAL_CFG.SHEETS.BLOCKS,block._row,{active:false});
+      }
+    });
+    bumpAvailabilityRevision_();
+  }finally{lock.releaseLock();}
+
+  const notification=notifyAvailabilityAlerts_(row);
+  return {
+    ok:true,
+    message:'La fecha fue liberada. Se enviaron '+notification.sent+' aviso(s) por correo.',
+    notified:notification.sent,
+    failed:notification.failed,
+    status:'LIBERADA'
+  };
+}
+
+function cashierReblockAvailabilityDate(venueId,dateKey) {
+  const admin=requireEventAdmin_();
+  ensureRentalSheets_();
+  const key=unavailableDateKeyFromValue_(dateKey);
+  const row=findUnavailableDateRow_(venueId,key);
+  if(!row)throw new Error('La fecha no pertenece al calendario temporalmente no disponible.');
+  updateFields_(RENTAL_CFG.SHEETS.UNAVAILABLE_DATES,row._row,{
+    status:'BLOQUEADA',updatedAt:new Date(),reblockedAt:new Date(),reblockedBy:admin,
+    releasedAt:'',releasedBy:''
+  });
+  const sync=syncUnavailableDateIfConfigured_(venueId,key);
+  return {
+    ok:true,
+    message:'La fecha volvió a quedar temporalmente no disponible. Las reservas existentes se mantuvieron.',
+    created:sync.created
+  };
+}
+
+function notifyAvailabilityAlerts_(unavailableRow) {
+  if(!unavailableRow)return {sent:0,failed:0};
+  const dateKey=unavailableDateKeyFromValue_(unavailableRow.date);
+  const alerts=rowsObjects_(RENTAL_CFG.SHEETS.AVAILABILITY_ALERTS).filter(row=>
+    String(row.venueId)===String(unavailableRow.venueId) &&
+    unavailableDateKeyFromValue_(row.date)===dateKey &&
+    String(row.status).toUpperCase()==='ACTIVO'
+  );
+  let sent=0,failed=0;
+
+  alerts.forEach(alert=>{
+    try{
+      sendAvailabilityReleasedEmail_(alert,unavailableRow);
+      updateFields_(RENTAL_CFG.SHEETS.AVAILABILITY_ALERTS,alert._row,{
+        status:'NOTIFICADO',updatedAt:new Date(),notifiedAt:new Date(),notificationError:''
+      });
+      sent++;
+    }catch(err){
+      updateFields_(RENTAL_CFG.SHEETS.AVAILABILITY_ALERTS,alert._row,{
+        updatedAt:new Date(),notificationError:String(err&&err.message?err.message:err)
+      });
+      failed++;
+    }
+  });
+  return {sent:sent,failed:failed};
+}
+
+function sendAvailabilityReleasedEmail_(alert,unavailableRow) {
+  const dateKey=unavailableDateKeyFromValue_(unavailableRow.date);
+  const date=parseLocal_(dateKey+'T12:00:00');
+  const dateText=fmtDateOnly_(date);
+  const url=RENTAL_CFG.PUBLIC_RENTAL_URL+
+    '?venue='+encodeURIComponent(unavailableRow.venueId)+
+    '&date='+encodeURIComponent(dateKey);
+
+  const actionHtml=
+    '<div style="margin:20px 0;text-align:center">'+
+      '<a href="'+url+'" style="display:inline-block;padding:13px 22px;border-radius:10px;background:#b6df2a;color:#071225;text-decoration:none;font-size:14px;font-weight:900">Revisar horarios y reservar</a>'+
+    '</div>';
+
+  const html=emailShell_({
+    title:'La fecha que te interesaba ya tiene disponibilidad',
+    preheader:'Se habilitó disponibilidad en un espacio deportivo de Pacha Deportes.',
+    status:'DISPONIBILIDAD ABIERTA',
+    statusBg:'#16a34a',
+    greeting:'Hola '+html_(alert.name)+',',
+    message:'Se ha liberado disponibilidad para la fecha que registraste. Ya puedes ingresar a la agenda y revisar los horarios que se encuentran disponibles.',
+    code:dateText,
+    codeLabel:'FECHA LIBERADA',
+    qrUrl:'',
+    schedulesHtml:'',
+    rows:[
+      ['Espacio deportivo',unavailableRow.venueName],
+      ['Fecha',dateText]
+    ],
+    afterRowsHtml:actionHtml,
+    note:'La disponibilidad es compartida y otros usuarios también pueden reservarla. Si todavía te interesa esta fecha, te recomendamos revisar los horarios y completar tu reserva en línea lo antes posible.'
+  });
+
+  MailApp.sendEmail({
+    to:alert.email,
+    subject:'La fecha que esperabas ya tiene disponibilidad - Pacha Deportes',
+    body:'Hola '+alert.name+'. Se liberó disponibilidad para '+dateText+' en '+unavailableRow.venueName+
+      '. Revisa los horarios y reserva en '+url+
+      '. La disponibilidad puede ser tomada por otros usuarios.',
+    htmlBody:html,
+    name:'Pacha Deportes'
+  });
+}
+
 function cashierCreateBlock(data) {
   const cashier=requireEventAdmin_();
   ensureRentalSheets_(); expireReservations_();
@@ -431,7 +1335,7 @@ function cashierCreateBlock(data) {
     if(localDateKey_(start)!==localDateKey_(end))throw new Error('El bloqueo debe comenzar y terminar el mismo día.');
     ensureNoConflicts_(venue.venueId,[{start:start,end:end}]);
     const blockId='EVT'+makeCode_();
-    appendObject_(RENTAL_CFG.SHEETS.BLOCKS,{blockId:blockId,venueId:venue.venueId,venueName:venue.name,startDateTime:start,endDateTime:end,reason:clean_(data.reason)||'Reserva administrativa',isMunicipalEvent:bool_(data.isMunicipalEvent),createdAt:new Date(),createdBy:cashier,active:true});
+    appendObject_(RENTAL_CFG.SHEETS.BLOCKS,{blockId:blockId,venueId:venue.venueId,venueName:venue.name,startDateTime:start,endDateTime:end,reason:clean_(data.reason)||'Reserva administrativa',isMunicipalEvent:bool_(data.isMunicipalEvent),seriesId:'',isRecurring:false,availabilityHold:false,availabilityGroupId:'',availabilityDate:'',createdAt:new Date(),createdBy:cashier,active:true});
     bumpAvailabilityRevision_();
     return {ok:true,message:(bool_(data.isMunicipalEvent)?'Evento municipal registrado. ':'Reserva administrativa registrada. ')+'El horario ya figura como ocupado.',blockId:blockId};
   } finally {lock.releaseLock();}
@@ -440,15 +1344,38 @@ function cashierCreateBlock(data) {
 function cashierListBlocks() {
   requireEventAdmin_();
   ensureRentalSheets_();
-  return {ok:true,blocks:rowsObjects_(RENTAL_CFG.SHEETS.BLOCKS).filter(b=>bool_(b.active)).map(b=>({blockId:b.blockId,venueName:b.venueName,startDateTime:new Date(b.startDateTime).toISOString(),endDateTime:new Date(b.endDateTime).toISOString(),reason:b.reason}))};
+  const today = startDay_(new Date());
+  const blocks = rowsObjects_(RENTAL_CFG.SHEETS.BLOCKS)
+    .filter(b => bool_(b.active) && new Date(b.endDateTime) >= today)
+    .sort((a,b) => new Date(a.startDateTime) - new Date(b.startDateTime))
+    .map(b => ({
+      blockId:b.blockId,
+      venueName:b.venueName,
+      startDateTime:new Date(b.startDateTime).toISOString(),
+      endDateTime:new Date(b.endDateTime).toISOString(),
+      reason:b.reason,
+      seriesId:b.seriesId || '',
+      isRecurring:bool_(b.isRecurring),
+      availabilityHold:bool_(b.availabilityHold),
+      availabilityGroupId:b.availabilityGroupId || '',
+      availabilityDate:b.availabilityDate || ''
+    }));
+  return {ok:true,blocks:blocks};
 }
 
 function cashierCancelBlock(blockId) {
-  requireEventAdmin_();
+  const admin=requireEventAdmin_();
   const block=rowsObjects_(RENTAL_CFG.SHEETS.BLOCKS).find(b=>String(b.blockId)===String(blockId));
   if(!block)throw new Error('Evento no encontrado.');
+
+  if (bool_(block.availabilityHold)) {
+    const dateKey = clean_(block.availabilityDate) || localDateKey_(new Date(block.startDateTime));
+    return releaseAvailabilityDateAndNotify_(block.venueId,dateKey,admin);
+  }
+
   updateFields_(RENTAL_CFG.SHEETS.BLOCKS,block._row,{active:false});
   bumpAvailabilityRevision_();
+  syncUnavailableDateIfConfigured_(block.venueId,localDateKey_(new Date(block.startDateTime)));
   return {ok:true,message:'Evento retirado y horario liberado.'};
 }
 
@@ -481,6 +1408,7 @@ function cashierCancelPaidReservation(code, reason, refundReference) {
       cancellationEmailSent:false
     });
     bumpAvailabilityRevision_();
+    reservationItems_(code).forEach(item => syncUnavailableDateIfConfigured_(item.venueId,localDateKey_(new Date(item.startDateTime))));
     const updated=findReservation_(code);
     sendReservationCancellation_(updated);
     return {ok:true,message:'La reserva fue anulada y sus horarios quedaron disponibles.',reservation:publicReservation_(updated)};
@@ -490,9 +1418,31 @@ function cashierCancelPaidReservation(code, reason, refundReference) {
 function expireReservationsManual(){requireCashier_();const count=expireReservations_();return {ok:true,count:count,message:count+' reserva(s) vencida(s) liberada(s).'};}
 function expireWorkshopDataManual(){requireWorkshopAdmin_();expireWorkshopData_();return {ok:true,message:'Órdenes y matrículas de talleres actualizadas.'};}
 function expireReservations_(){
-  ensureRentalSheets_();const rows=rowsObjects_(RENTAL_CFG.SHEETS.RESERVATIONS),now=new Date();let count=0,changed=false;
-  rows.forEach(r=>{const status=String(r.status).toUpperCase(),deadline=new Date(r.paymentDeadline),grace=new Date(r.graceDeadline);if(status==='PENDIENTE'&&now>deadline&&now<=grace){updateReservationFields_(r._row,{status:'GRACIA'});changed=true;}else if(['PENDIENTE','GRACIA'].includes(status)&&now>grace){updateReservationFields_(r._row,{status:'VENCIDO',expiredAt:now});count++;changed=true;}});
+  ensureRentalSheets_();
+  const rows=rowsObjects_(RENTAL_CFG.SHEETS.RESERVATIONS),now=new Date();
+  let count=0,changed=false;
+  const expiredCodes=[];
+  rows.forEach(r=>{
+    const status=String(r.status).toUpperCase(),deadline=new Date(r.paymentDeadline),grace=new Date(r.graceDeadline);
+    if(status==='PENDIENTE'&&now>deadline&&now<=grace){
+      updateReservationFields_(r._row,{status:'GRACIA'});changed=true;
+    }else if(['PENDIENTE','GRACIA'].includes(status)&&now>grace){
+      updateReservationFields_(r._row,{status:'VENCIDO',expiredAt:now});
+      expiredCodes.push(String(r.reservationCode));count++;changed=true;
+    }
+  });
   if(changed)bumpAvailabilityRevision_();
+
+  if(expiredCodes.length && ss_().getSheetByName(RENTAL_CFG.SHEETS.UNAVAILABLE_DATES)){
+    const expiredMap={};expiredCodes.forEach(code=>expiredMap[code]=true);
+    const affected={};
+    rowsObjects_(RENTAL_CFG.SHEETS.ITEMS).forEach(item=>{
+      if(!expiredMap[String(item.reservationCode)])return;
+      const key=String(item.venueId)+'|'+localDateKey_(new Date(item.startDateTime));
+      affected[key]={venueId:item.venueId,date:localDateKey_(new Date(item.startDateTime))};
+    });
+    Object.keys(affected).forEach(key=>syncUnavailableDateIfConfigured_(affected[key].venueId,affected[key].date));
+  }
   return count;
 }
 
@@ -520,8 +1470,9 @@ function ensureRentalSheets_(){
   syncVenueCatalog_();
   ensureSheet_(ss,RENTAL_CFG.SHEETS.RESERVATIONS,['reservationCode','venueId','venueName','itemsJson','hours','total','firstName','lastName','dni','email','phone','status','createdAt','paymentDeadline','graceDeadline','paymentMode','paymentNotice','receiptNumber','confirmPayment','paidAt','confirmedBy','confirmationEmailSent','expiredAt','cancellationReason','refundReference','cancelledAt','cancelledBy','cancellationEmailSent']);
   ensureSheet_(ss,RENTAL_CFG.SHEETS.ITEMS,['itemId','reservationCode','venueId','venueName','startDateTime','endDateTime','hours','subtotal']);
-  ensureSheet_(ss,RENTAL_CFG.SHEETS.BLOCKS,['blockId','venueId','venueName','startDateTime','endDateTime','reason','isMunicipalEvent','createdAt','createdBy','active']);
+  ensureSheet_(ss,RENTAL_CFG.SHEETS.BLOCKS,['blockId','venueId','venueName','startDateTime','endDateTime','reason','isMunicipalEvent','seriesId','isRecurring','availabilityHold','availabilityGroupId','availabilityDate','createdAt','createdBy','active']);
   ensureSheet_(ss,RENTAL_CFG.SHEETS.HOLIDAYS,['date','description','active']);
+  ensureAvailabilityAlertSheets_();
   // La confirmación se realiza únicamente desde el panel privado de caja.
 }
 

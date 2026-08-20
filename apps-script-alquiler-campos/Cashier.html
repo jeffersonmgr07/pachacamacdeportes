@@ -4,7 +4,7 @@
   <base target="_top">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
-    :root{font-family:Arial,sans-serif;color:#172033;background:#eef2f6}*{box-sizing:border-box}body{margin:0;padding:16px}.shell{max-width:1100px;margin:auto}.top{background:#071225;color:#fff;padding:18px;border-radius:16px;margin-bottom:14px}.top h1{font-size:21px;margin:0 0 5px}.top p{margin:0;color:#c9d3df;font-size:13px}.tabs{display:flex;gap:8px;margin-bottom:12px;overflow:auto;padding-bottom:3px}.tab{flex:1 0 auto;border:0;border-radius:10px;padding:11px 14px;font-weight:800;cursor:pointer;background:#dce4ed;color:#18304f;white-space:nowrap}.tab.active{background:#17365d;color:#fff}.panel{display:none;background:#fff;border-radius:16px;padding:16px;box-shadow:0 8px 25px rgba(15,23,42,.08)}.panel.active{display:block}h2{margin-top:0}label{display:block;font-weight:700;margin:12px 0 5px;font-size:13px}input,select,textarea{width:100%;padding:11px;border:1px solid #ccd5e0;border-radius:9px;font:inherit}textarea{min-height:78px;resize:vertical}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.btn{width:100%;padding:12px;margin-top:12px;border:0;border-radius:9px;background:#17365d;color:#fff;font-weight:800;cursor:pointer;transition:opacity .2s,transform .2s}.btn:disabled{opacity:.58;cursor:wait}.btn.busy{position:relative;color:transparent}.btn.busy:after{content:'';position:absolute;inset:0;margin:auto;width:19px;height:19px;border:3px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:spin .75s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.btn.pay{background:#287a35}.btn.danger{background:#a9222f}.btn.warning{background:#b45309}.btn.secondary{background:#64748b}.check-row{display:flex;align-items:flex-start;gap:9px;margin-top:12px;font-weight:700;font-size:13px}.check-row input{width:auto;margin:1px 0 0}.admin-note{margin:10px 0;padding:11px 12px;border-radius:10px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:12px;line-height:1.45}.status-pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#e2e8f0;font-size:11px;font-weight:800}.status-pill.paid,.status-pill.active{background:#dcfce7;color:#166534}.status-pill.pending{background:#fef3c7;color:#92400e}.status-pill.cancelled{background:#fee2e2;color:#991b1b}.card{margin-top:14px;padding:14px;border-radius:12px;background:#eef3f8}.error{color:#a51d2d;font-weight:700}.ok{color:#236b31;font-weight:700}.warning-text{padding:9px 10px;border-radius:8px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-weight:700;font-size:12px;line-height:1.4}.items{display:grid;gap:8px;margin:10px 0}.item{background:#fff;border:1px solid #d9e1ea;padding:10px;border-radius:9px;font-size:13px}.invoice-item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}.invoice-item input{width:18px;height:18px}.invoice-item small{display:block;color:#667085;margin-top:3px}.block-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border-bottom:1px solid #e4e9ef;padding:10px 0}.block-row:last-child{border-bottom:0}.mini{width:auto;margin:0;padding:8px 10px;font-size:12px}.muted{color:#667085;font-size:12px}.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}.summary-card{padding:14px;border-radius:12px;background:#f5f7fa;border:1px solid #e1e7ef}.summary-card strong{display:block;font-size:24px;color:#17365d}.summary-card span{font-size:12px;color:#667085;font-weight:700}.table-wrap{overflow:auto;border:1px solid #dbe2ea;border-radius:12px;margin-top:12px}table{width:100%;border-collapse:collapse;min-width:980px}th{background:#17365d;color:#fff;text-align:left;padding:10px;font-size:12px}td{padding:10px;border-top:1px solid #e5eaf0;font-size:12px;vertical-align:top}.row-actions{display:flex;gap:5px}.row-actions .btn{width:auto;margin:0;padding:7px 8px;font-size:11px}.modal-backdrop[hidden]{display:none}.modal-backdrop{position:fixed;inset:0;background:rgba(7,18,37,.62);display:grid;place-items:center;padding:18px;z-index:100}.modal-box{width:min(420px,100%);background:#fff;border-radius:18px;padding:24px;text-align:center;box-shadow:0 24px 70px rgba(15,23,42,.28)}.modal-icon{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;margin:0 auto 13px;background:#dcfce7;color:#15803d;font-size:30px;font-weight:900}.modal-box h3{margin:0 0 8px;font-size:22px}.modal-box p{margin:0;color:#667085;line-height:1.45}.modal-box .btn{margin-top:18px}.screen-busy{pointer-events:none;user-select:none}.processing[hidden]{display:none}.processing{position:fixed;inset:0;background:rgba(7,18,37,.72);display:grid;place-items:center;padding:20px;z-index:150}.processing-box{width:min(360px,100%);background:#fff;border-radius:18px;padding:24px;text-align:center;box-shadow:0 24px 70px rgba(15,23,42,.32)}.processing-spinner{width:46px;height:46px;margin:0 auto 14px;border:5px solid #dce5ef;border-top-color:#17365d;border-radius:50%;animation:spin .8s linear infinite}.processing-box h3{margin:0 0 7px;font-size:20px}.processing-box p{margin:0;color:#667085;line-height:1.45}@media(max-width:760px){body{padding:10px}.grid,.grid-3,.summary-grid{grid-template-columns:1fr}.tabs{position:sticky;top:0;z-index:3;background:#eef2f6;padding:6px 0}.top{padding:15px}.invoice-item{grid-template-columns:auto 1fr}.invoice-item>strong{grid-column:2}.row-actions{display:grid}}
+    :root{font-family:Arial,sans-serif;color:#172033;background:#eef2f6}*{box-sizing:border-box}body{margin:0;padding:16px}.shell{max-width:1100px;margin:auto}.top{background:#071225;color:#fff;padding:18px;border-radius:16px;margin-bottom:14px}.top h1{font-size:21px;margin:0 0 5px}.top p{margin:0;color:#c9d3df;font-size:13px}.tabs{display:flex;gap:8px;margin-bottom:12px;overflow:auto;padding-bottom:3px}.tab{flex:1 0 auto;border:0;border-radius:10px;padding:11px 14px;font-weight:800;cursor:pointer;background:#dce4ed;color:#18304f;white-space:nowrap}.tab.active{background:#17365d;color:#fff}.panel{display:none;background:#fff;border-radius:16px;padding:16px;box-shadow:0 8px 25px rgba(15,23,42,.08)}.panel.active{display:block}h2{margin-top:0}label{display:block;font-weight:700;margin:12px 0 5px;font-size:13px}input,select,textarea{width:100%;padding:11px;border:1px solid #ccd5e0;border-radius:9px;font:inherit}textarea{min-height:78px;resize:vertical}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.btn{width:100%;padding:12px;margin-top:12px;border:0;border-radius:9px;background:#17365d;color:#fff;font-weight:800;cursor:pointer;transition:opacity .2s,transform .2s}.btn:disabled{opacity:.58;cursor:wait}.btn.busy{position:relative;color:transparent}.btn.busy:after{content:'';position:absolute;inset:0;margin:auto;width:19px;height:19px;border:3px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:spin .75s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.btn.pay{background:#287a35}.btn.danger{background:#a9222f}.btn.warning{background:#b45309}.btn.secondary{background:#64748b}.check-row{display:flex;align-items:flex-start;gap:9px;margin-top:12px;font-weight:700;font-size:13px}.check-row input{width:auto;margin:1px 0 0}.admin-note{margin:10px 0;padding:11px 12px;border-radius:10px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:12px;line-height:1.45}.status-pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#e2e8f0;font-size:11px;font-weight:800}.status-pill.paid,.status-pill.active{background:#dcfce7;color:#166534}.status-pill.pending{background:#fef3c7;color:#92400e}.status-pill.cancelled{background:#fee2e2;color:#991b1b}.card{margin-top:14px;padding:14px;border-radius:12px;background:#eef3f8}.error{color:#a51d2d;font-weight:700}.ok{color:#236b31;font-weight:700}.warning-text{padding:9px 10px;border-radius:8px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-weight:700;font-size:12px;line-height:1.4}.items{display:grid;gap:8px;margin:10px 0}.item{background:#fff;border:1px solid #d9e1ea;padding:10px;border-radius:9px;font-size:13px}.invoice-item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}.invoice-item input{width:18px;height:18px}.invoice-item small{display:block;color:#667085;margin-top:3px}.block-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border-bottom:1px solid #e4e9ef;padding:10px 0}.block-row:last-child{border-bottom:0}.recurring-box{margin:12px 0 18px;padding:14px;border:1px solid #c7d7e8;border-radius:12px;background:#f6f9fc}.recurring-box h3{margin:0 0 8px;font-size:16px}.recurring-list{display:grid;gap:7px;margin:10px 0}.recurring-rule{padding:9px 10px;border-radius:9px;background:#fff;border:1px solid #e0e7ef;font-size:12px;line-height:1.4}.recurring-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.recurring-actions .btn{margin-top:4px}.recurring-count{display:inline-block;padding:4px 8px;border-radius:999px;background:#e0f2fe;color:#075985;font-size:11px;font-weight:800}.availability-admin-box{margin:18px 0;padding:14px;border:1px solid #d5dde7;border-radius:12px;background:#f8fafc}.availability-admin-box h3{margin:0 0 7px;font-size:16px}.availability-admin-result{margin-top:10px}.availability-admin-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.availability-admin-actions .btn{margin-top:4px}@media(max-width:760px){.availability-admin-actions{grid-template-columns:1fr}}.block-row.recurring{background:#f8fafc;padding-left:8px;padding-right:8px;border-radius:8px}.mini{width:auto;margin:0;padding:8px 10px;font-size:12px}.muted{color:#667085;font-size:12px}.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}.summary-card{padding:14px;border-radius:12px;background:#f5f7fa;border:1px solid #e1e7ef}.summary-card strong{display:block;font-size:24px;color:#17365d}.summary-card span{font-size:12px;color:#667085;font-weight:700}.table-wrap{overflow:auto;border:1px solid #dbe2ea;border-radius:12px;margin-top:12px}table{width:100%;border-collapse:collapse;min-width:980px}th{background:#17365d;color:#fff;text-align:left;padding:10px;font-size:12px}td{padding:10px;border-top:1px solid #e5eaf0;font-size:12px;vertical-align:top}.row-actions{display:flex;gap:5px}.row-actions .btn{width:auto;margin:0;padding:7px 8px;font-size:11px}.modal-backdrop[hidden]{display:none}.modal-backdrop{position:fixed;inset:0;background:rgba(7,18,37,.62);display:grid;place-items:center;padding:18px;z-index:100}.modal-box{width:min(420px,100%);background:#fff;border-radius:18px;padding:24px;text-align:center;box-shadow:0 24px 70px rgba(15,23,42,.28)}.modal-icon{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;margin:0 auto 13px;background:#dcfce7;color:#15803d;font-size:30px;font-weight:900}.modal-box h3{margin:0 0 8px;font-size:22px}.modal-box p{margin:0;color:#667085;line-height:1.45}.modal-box .btn{margin-top:18px}.screen-busy{pointer-events:none;user-select:none}.processing[hidden]{display:none}.processing{position:fixed;inset:0;background:rgba(7,18,37,.72);display:grid;place-items:center;padding:20px;z-index:150}.processing-box{width:min(360px,100%);background:#fff;border-radius:18px;padding:24px;text-align:center;box-shadow:0 24px 70px rgba(15,23,42,.32)}.processing-spinner{width:46px;height:46px;margin:0 auto 14px;border:5px solid #dce5ef;border-top-color:#17365d;border-radius:50%;animation:spin .8s linear infinite}.processing-box h3{margin:0 0 7px;font-size:20px}.processing-box p{margin:0;color:#667085;line-height:1.45}@media(max-width:760px){body{padding:10px}.grid,.grid-3,.summary-grid{grid-template-columns:1fr}.tabs{position:sticky;top:0;z-index:3;background:#eef2f6;padding:6px 0}.top{padding:15px}.invoice-item{grid-template-columns:auto 1fr}.invoice-item>strong{grid-column:2}.row-actions{display:grid}}
   </style>
 </head>
 <body>
@@ -40,12 +40,46 @@
   </section>
 
   <section id="block" class="panel">
-    <h2>Registrar evento</h2><p class="muted">Solo la cuenta administradora puede ocupar horarios por actividades institucionales.</p>
+    <h2>Bloqueos y eventos</h2>
+    <p class="muted">Administra horarios institucionales, talleres municipales y bloqueos individuales.</p>
+
+    <div class="recurring-box">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <h3>Horarios recurrentes 2026</h3>
+        <span id="recurringCount" class="recurring-count">Consultando…</span>
+      </div>
+      <p class="muted" style="margin:0">Vigencia configurada: <b>07 Ago 2026 al 11 Dic 2026</b>. Los feriados nacionales no se bloquean. Se evitan duplicados y las fechas que ya tengan una reserva se reportan como conflicto.</p>
+      <div id="recurringRules" class="recurring-list"></div>
+      <div class="recurring-actions">
+        <button id="installRecurringButton" class="btn pay" type="button" onclick="installRecurringBlocks()">Aplicar horarios recurrentes</button>
+        <button id="removeRecurringButton" class="btn warning" type="button" onclick="removeRecurringBlocks()">Retirar horarios recurrentes</button>
+      </div>
+      <div id="recurringMessage"></div>
+    </div>
+
+    <div class="availability-admin-box">
+      <h3>Fechas temporalmente no disponibles</h3>
+      <p class="muted">Septiembre: sábados y domingos. Del 5 de octubre al 31 de diciembre: todos los días. Las reservas de usuarios existentes tienen prioridad.</p>
+      <button id="installUnavailableDatesButton" class="btn secondary" type="button" onclick="installUnavailableDates()">Aplicar calendario Sep–Dic 2026</button>
+
+      <div class="grid">
+        <div><label>Espacio deportivo</label><select id="availabilityVenue"></select></div>
+        <div><label>Fecha</label><input id="availabilityDate" type="date" min="2026-09-01" max="2026-12-31"></div>
+      </div>
+      <div class="availability-admin-actions">
+        <button class="btn secondary" type="button" onclick="lookupAvailabilityDate()">Consultar</button>
+        <button class="btn pay" type="button" onclick="releaseAvailabilityDate()">Liberar fecha y avisar</button>
+        <button class="btn warning" type="button" onclick="reblockAvailabilityDate()">Volver a bloquear</button>
+      </div>
+      <div id="availabilityAdminResult" class="availability-admin-result"></div>
+    </div>
+
+    <h3>Bloqueo individual</h3>
     <label>Espacio deportivo</label><select id="blockVenue"><option value="COLISEO_PACHACAMAC">Coliseo Deportivo Pachacámac</option></select>
     <label>Fecha</label><input id="blockDate" type="date">
     <div class="grid"><div><label>Hora de inicio</label><input id="blockStart" type="time" min="08:00" max="22:00" step="3600"></div><div><label>Hora de fin</label><input id="blockEnd" type="time" min="09:00" max="23:00" step="3600"></div></div>
     <label>Motivo o nombre de la reserva</label><textarea id="blockReason" placeholder="Ej.: Día del Niño, mantenimiento, actividad deportiva"></textarea><label class="check-row"><input id="blockMunicipal" type="checkbox"> Es un evento municipal</label>
-    <button class="btn danger" onclick="createBlock()">Registrar evento</button><div id="blockMessage"></div><h3>Eventos activos</h3><div id="blockList" class="card">Cargando…</div>
+    <button class="btn danger" onclick="createBlock()">Registrar evento</button><div id="blockMessage"></div><h3>Próximos bloqueos y eventos</h3><div id="blockList" class="card">Cargando…</div>
   </section>
 
   <section id="cancel" class="panel">
@@ -75,8 +109,8 @@
   function formatDate(v){return new Date(v).toLocaleDateString('es-PE',{day:'numeric',month:'short',year:'numeric'});}
   function formatDateTime(v){return new Date(v).toLocaleString('es-PE',{weekday:'long',day:'numeric',month:'long',year:'numeric',hour:'numeric',minute:'2-digit'});}
   function statusClass(v){const s=norm(v);if(s==='ACTIVO'||s==='PAGADO')return'active';if(s.includes('PENDIENTE'))return'pending';return'cancelled';}
-  function initCashier(){google.script.run.withSuccessHandler(ctx=>{canManageEvents=!!ctx.canManageEvents;canCancelReservations=!!ctx.canCancelReservations;canManageWorkshops=!!ctx.canManageWorkshops;document.getElementById('eventTab').hidden=!canManageEvents;document.getElementById('cancelTab').hidden=!canCancelReservations;document.getElementById('workshopAdminTab').hidden=!canManageWorkshops;const select=document.getElementById('blockVenue');select.innerHTML=(ctx.venues||[]).map(v=>'<option value="'+esc(v.venueId)+'">'+esc(v.name)+'</option>').join('');}).withFailureHandler(err=>{document.body.innerHTML='<div class="shell"><div class="panel active"><p class="error">'+esc(err.message||err)+'</p></div></div>';}).cashierGetContext();}
-  document.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab,.panel').forEach(x=>x.classList.remove('active'));btn.classList.add('active');document.getElementById(btn.dataset.tab).classList.add('active');if(btn.dataset.tab==='block'&&canManageEvents)loadBlocks();if(btn.dataset.tab==='cancel'&&canCancelReservations)setTimeout(()=>document.getElementById('cancelCode').focus(),50);if(btn.dataset.tab==='workshopPayment')setTimeout(()=>document.getElementById('workshopCode').focus(),50);if(btn.dataset.tab==='clausuraPayment')setTimeout(()=>document.getElementById('clausuraCode').focus(),50);if(btn.dataset.tab==='workshopAdmin'&&canManageWorkshops)loadWorkshopDashboard();}));
+  function initCashier(){google.script.run.withSuccessHandler(ctx=>{canManageEvents=!!ctx.canManageEvents;canCancelReservations=!!ctx.canCancelReservations;canManageWorkshops=!!ctx.canManageWorkshops;document.getElementById('eventTab').hidden=!canManageEvents;document.getElementById('cancelTab').hidden=!canCancelReservations;document.getElementById('workshopAdminTab').hidden=!canManageWorkshops;const options=(ctx.venues||[]).map(v=>'<option value="'+esc(v.venueId)+'">'+esc(v.name)+'</option>').join('');const select=document.getElementById('blockVenue');select.innerHTML=options;const availabilitySelect=document.getElementById('availabilityVenue');if(availabilitySelect)availabilitySelect.innerHTML=options;}).withFailureHandler(err=>{document.body.innerHTML='<div class="shell"><div class="panel active"><p class="error">'+esc(err.message||err)+'</p></div></div>';}).cashierGetContext();}
+  document.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab,.panel').forEach(x=>x.classList.remove('active'));btn.classList.add('active');document.getElementById(btn.dataset.tab).classList.add('active');if(btn.dataset.tab==='block'&&canManageEvents){loadRecurringStatus();loadBlocks();}if(btn.dataset.tab==='cancel'&&canCancelReservations)setTimeout(()=>document.getElementById('cancelCode').focus(),50);if(btn.dataset.tab==='workshopPayment')setTimeout(()=>document.getElementById('workshopCode').focus(),50);if(btn.dataset.tab==='clausuraPayment')setTimeout(()=>document.getElementById('clausuraCode').focus(),50);if(btn.dataset.tab==='workshopAdmin'&&canManageWorkshops)loadWorkshopDashboard();}));
   function setProcessing(active,title,text){const overlay=document.getElementById('processingOverlay');document.getElementById('processingTitle').textContent=title||'Guardando información';document.getElementById('processingText').textContent=text||'Espera un momento.';overlay.hidden=!active;document.body.classList.toggle('screen-busy',active);}
   function showSuccess(title,text){document.getElementById('successTitle').textContent=title;document.getElementById('successText').textContent=text;document.getElementById('successModal').hidden=false;}
   function closeSuccessModal(){document.getElementById('successModal').hidden=true;if(document.getElementById('payment').classList.contains('active')){currentCode='';document.getElementById('code').value='';document.getElementById('paymentResult').innerHTML='';document.getElementById('code').focus();}else if(document.getElementById('workshopPayment').classList.contains('active')){currentWorkshopEnrollment='';currentWorkshopOrder='';document.getElementById('workshopCode').value='';document.getElementById('workshopPaymentResult').innerHTML='';document.getElementById('workshopCode').focus();}else if(document.getElementById('clausuraPayment').classList.contains('active')){currentClausuraOrder='';document.getElementById('clausuraCode').value='';document.getElementById('clausuraPaymentResult').innerHTML='';document.getElementById('clausuraCode').focus();}else if(document.getElementById('block').classList.contains('active'))document.getElementById('blockDate').focus();else if(document.getElementById('cancel').classList.contains('active')){currentCancelCode='';document.getElementById('cancelCode').value='';document.getElementById('cancelResult').innerHTML='';document.getElementById('cancelCode').focus();}else if(document.getElementById('workshopAdmin').classList.contains('active'))loadWorkshopDashboard();}
@@ -95,8 +129,129 @@
   function selectAllWorkshopPending(){document.querySelectorAll('.workshopInvoiceCheck:not(:disabled)').forEach(x=>x.checked=true);}
   function confirmWorkshopPayment(){const ids=[...document.querySelectorAll('.workshopInvoiceCheck:checked')].map(x=>x.value);const receipt=document.getElementById('workshopReceipt').value.trim();if(!ids.length){document.getElementById('workshopPaymentResult').insertAdjacentHTML('beforeend','<p class="error">Selecciona al menos una cuota.</p>');return;}if(!receipt&&!confirm('¿Confirmar sin número de comprobante?'))return;const button=document.getElementById('confirmWorkshopPayButton');button.disabled=true;button.classList.add('busy');setProcessing(true,'Registrando pago de taller','Se actualizarán las cuotas, la matrícula y el correo del apoderado.');google.script.run.withSuccessHandler(x=>{setProcessing(false);showSuccess('Pago de taller registrado',x.message||'El pago fue confirmado.');}).withFailureHandler(err=>{setProcessing(false);button.disabled=false;button.classList.remove('busy');document.getElementById('workshopPaymentResult').insertAdjacentHTML('beforeend','<p class="error">'+esc(err.message||err)+'</p>');}).cashierConfirmWorkshopPayment(currentWorkshopEnrollment,ids,receipt,currentWorkshopOrder);}
 
+
+  function recurringTimeLabel(value){
+    const parts=String(value||'').split(':');
+    let h=Number(parts[0]||0),m=Number(parts[1]||0),suffix=h>=12?'p. m.':'a. m.';
+    h=h%12||12;
+    return h+':'+String(m).padStart(2,'0')+' '+suffix;
+  }
+  function loadRecurringStatus(){
+    if(!canManageEvents)return;
+    document.getElementById('recurringCount').textContent='Consultando…';
+    google.script.run.withSuccessHandler(x=>{
+      document.getElementById('recurringCount').textContent=Number(x.activeCount||0)+' bloqueos activos';
+      const target=document.getElementById('recurringRules');
+      const rulesHtml=(x.rules||[]).map(r=>'<div class="recurring-rule"><b>'+esc(r.venueName)+'</b><br>'+esc((r.weekdays||[]).join(', '))+' · '+esc(recurringTimeLabel(r.start))+' a '+esc(recurringTimeLabel(r.end))+'<br><span class="muted">Se mostrará como: <b>Reservado para '+esc(r.reason)+'</b></span></div>').join('');
+      const holidaysHtml=(x.holidays||[]).map(h=>'<div class="recurring-rule" style="background:#fff7ed;border-color:#fed7aa"><b>'+esc(h.date)+'</b> · '+esc(h.name)+'<br><span class="muted">No se crearán bloqueos recurrentes este día.</span></div>').join('');
+      target.innerHTML=rulesHtml+(holidaysHtml?'<div style="margin-top:10px;font-weight:800;font-size:12px;color:#9a3412">FERIADOS NACIONALES OMITIDOS</div>'+holidaysHtml:'');
+    }).withFailureHandler(err=>{
+      document.getElementById('recurringCount').textContent='No disponible';
+      document.getElementById('recurringMessage').innerHTML='<p class="error">'+esc(err.message||err)+'</p>';
+    }).cashierRecurringMunicipalBlocksStatus();
+  }
+  function installRecurringBlocks(){
+    if(!canManageEvents)return;
+    if(!confirm('¿Aplicar los horarios recurrentes configurados hasta el 11 de diciembre de 2026? Los feriados nacionales serán omitidos.'))return;
+    const button=document.getElementById('installRecurringButton');
+    button.disabled=true;button.classList.add('busy');
+    setProcessing(true,'Aplicando horarios recurrentes','Se crearán los bloqueos de talleres e instituciones educativas.');
+    google.script.run.withSuccessHandler(x=>{
+      setProcessing(false);button.disabled=false;button.classList.remove('busy');
+      const conflicts=(x.conflicts||[]);
+      document.getElementById('recurringMessage').innerHTML=
+        '<p class="ok">'+esc(x.message||'Horarios aplicados.')+'</p>'+
+        (conflicts.length?'<p class="warning-text">Hubo '+conflicts.length+' fecha(s) que no se bloquearon porque ya tenían una reserva o bloqueo.</p>':'');
+      loadRecurringStatus();loadBlocks();
+      showSuccess('Horarios recurrentes aplicados','Se crearon '+Number(x.created||0)+' bloqueos. '+Number(x.duplicates||0)+' ya existían, '+conflicts.length+' tuvieron conflicto y '+Number(x.holidayBlocksRemoved||0)+' bloqueos anteriores en feriado fueron retirados.');
+    }).withFailureHandler(err=>{
+      setProcessing(false);button.disabled=false;button.classList.remove('busy');
+      document.getElementById('recurringMessage').innerHTML='<p class="error">'+esc(err.message||err)+'</p>';
+    }).cashierInstallRecurringMunicipalBlocks2026();
+  }
+  function removeRecurringBlocks(){
+    if(!canManageEvents)return;
+    if(!confirm('¿Retirar todos los horarios recurrentes 2026 creados por este módulo? Las reservas normales no se modificarán.'))return;
+    const button=document.getElementById('removeRecurringButton');
+    button.disabled=true;button.classList.add('busy');
+    setProcessing(true,'Retirando horarios recurrentes','Se liberarán únicamente los bloqueos creados por la serie recurrente.');
+    google.script.run.withSuccessHandler(x=>{
+      setProcessing(false);button.disabled=false;button.classList.remove('busy');
+      document.getElementById('recurringMessage').innerHTML='<p class="ok">'+esc(x.message||'Horarios retirados.')+'</p>';
+      loadRecurringStatus();loadBlocks();
+      showSuccess('Horarios recurrentes retirados',x.message||'Los bloqueos recurrentes fueron retirados.');
+    }).withFailureHandler(err=>{
+      setProcessing(false);button.disabled=false;button.classList.remove('busy');
+      document.getElementById('recurringMessage').innerHTML='<p class="error">'+esc(err.message||err)+'</p>';
+    }).cashierRemoveRecurringMunicipalBlocks2026();
+  }
+
+
+  function installUnavailableDates(){
+    if(!canManageEvents)return;
+    if(!confirm('¿Aplicar las fechas temporalmente no disponibles de septiembre a diciembre de 2026? Las reservas existentes se respetarán.'))return;
+    const button=document.getElementById('installUnavailableDatesButton');
+    button.disabled=true;button.classList.add('busy');
+    setProcessing(true,'Aplicando fechas no disponibles','Se respetarán las reservas existentes y se bloquearán únicamente los horarios libres.');
+    google.script.run.withSuccessHandler(x=>{
+      setProcessing(false);button.disabled=false;button.classList.remove('busy');
+      document.getElementById('availabilityAdminResult').innerHTML='<p class="ok">'+esc(x.message||'Calendario aplicado.')+'</p>';
+      loadBlocks();
+      showSuccess('Calendario aplicado',x.message||'Las fechas fueron configuradas.');
+    }).withFailureHandler(err=>{
+      setProcessing(false);button.disabled=false;button.classList.remove('busy');
+      document.getElementById('availabilityAdminResult').innerHTML='<p class="error">'+esc(err.message||err)+'</p>';
+    }).instalarFechasNoDisponibles2026();
+  }
+
+  function availabilityAdminData(){
+    return {
+      venueId:document.getElementById('availabilityVenue').value,
+      date:document.getElementById('availabilityDate').value
+    };
+  }
+
+  function lookupAvailabilityDate(){
+    if(!canManageEvents)return;
+    const data=availabilityAdminData(),target=document.getElementById('availabilityAdminResult');
+    if(!data.venueId||!data.date){target.innerHTML='<p class="error">Selecciona espacio y fecha.</p>';return;}
+    target.innerHTML='Consultando…';
+    google.script.run.withSuccessHandler(x=>{
+      if(!x.ok){target.innerHTML='<p class="error">'+esc(x.message||'Fecha no encontrada.')+'</p>';return;}
+      target.innerHTML='<div class="card"><b>'+esc(x.venueName)+'</b><br><span class="muted">'+esc(formatDate(x.date+'T12:00:00'))+'</span><p>Estado: <span class="status-pill '+(norm(x.status)==='LIBERADA'?'active':'pending')+'">'+esc(x.status)+'</span><br>Personas esperando aviso: <b>'+Number(x.waitingCount||0)+'</b></p></div>';
+    }).withFailureHandler(err=>{target.innerHTML='<p class="error">'+esc(err.message||err)+'</p>';}).cashierGetAvailabilityDateStatus(data.venueId,data.date);
+  }
+
+  function releaseAvailabilityDate(){
+    if(!canManageEvents)return;
+    const data=availabilityAdminData(),target=document.getElementById('availabilityAdminResult');
+    if(!data.venueId||!data.date){target.innerHTML='<p class="error">Selecciona espacio y fecha.</p>';return;}
+    if(!confirm('¿Liberar esta fecha y avisar por correo a las personas registradas?'))return;
+    setProcessing(true,'Liberando fecha','Se retirarán los bloqueos temporales y se enviarán los avisos de disponibilidad.');
+    google.script.run.withSuccessHandler(x=>{
+      setProcessing(false);
+      target.innerHTML='<p class="ok">'+esc(x.message||'Fecha liberada.')+'</p>';
+      loadBlocks();lookupAvailabilityDate();
+      showSuccess('Fecha liberada',x.message||'La fecha ya se encuentra habilitada.');
+    }).withFailureHandler(err=>{setProcessing(false);target.innerHTML='<p class="error">'+esc(err.message||err)+'</p>';}).cashierReleaseAvailabilityDate(data.venueId,data.date);
+  }
+
+  function reblockAvailabilityDate(){
+    if(!canManageEvents)return;
+    const data=availabilityAdminData(),target=document.getElementById('availabilityAdminResult');
+    if(!data.venueId||!data.date){target.innerHTML='<p class="error">Selecciona espacio y fecha.</p>';return;}
+    if(!confirm('¿Volver a marcar esta fecha como temporalmente no disponible? Las reservas existentes no se modificarán.'))return;
+    setProcessing(true,'Bloqueando fecha','Se bloquearán únicamente los horarios que estén libres.');
+    google.script.run.withSuccessHandler(x=>{
+      setProcessing(false);
+      target.innerHTML='<p class="ok">'+esc(x.message||'Fecha bloqueada.')+'</p>';
+      loadBlocks();lookupAvailabilityDate();
+      showSuccess('Fecha bloqueada',x.message||'La fecha volvió a quedar no disponible.');
+    }).withFailureHandler(err=>{setProcessing(false);target.innerHTML='<p class="error">'+esc(err.message||err)+'</p>';}).cashierReblockAvailabilityDate(data.venueId,data.date);
+  }
+
   function createBlock(){if(!canManageEvents)return;const d=document.getElementById('blockDate').value,s=document.getElementById('blockStart').value,e=document.getElementById('blockEnd').value,reason=document.getElementById('blockReason').value.trim();if(!d||!s||!e){document.getElementById('blockMessage').innerHTML='<p class="error">Completa fecha y horas.</p>';return;}const button=document.querySelector('#block .btn.danger');button.disabled=true;button.classList.add('busy');const data={venueId:document.getElementById('blockVenue').value,startDateTime:d+'T'+s+':00',endDateTime:d+'T'+e+':00',reason,isMunicipalEvent:document.getElementById('blockMunicipal').checked};setProcessing(true,'Guardando evento','Estamos bloqueando el horario seleccionado.');google.script.run.withSuccessHandler(x=>{setProcessing(false);button.disabled=false;button.classList.remove('busy');document.getElementById('blockDate').value='';document.getElementById('blockStart').value='';document.getElementById('blockEnd').value='';document.getElementById('blockReason').value='';document.getElementById('blockMunicipal').checked=false;loadBlocks();showSuccess('Horario reservado',x.message||'El horario quedó ocupado.');}).withFailureHandler(err=>{setProcessing(false);button.disabled=false;button.classList.remove('busy');document.getElementById('blockMessage').innerHTML='<p class="error">'+esc(err.message||err)+'</p>';}).cashierCreateBlock(data);}
-  function loadBlocks(){if(!canManageEvents)return;google.script.run.withSuccessHandler(x=>{const list=document.getElementById('blockList');if(!x.blocks.length){list.innerHTML='<span class="muted">No hay eventos activos.</span>';return;}list.innerHTML=x.blocks.map(b=>'<div class="block-row"><div><b>'+esc(b.venueName)+'</b><br><span class="muted">'+esc(formatDateTime(b.startDateTime))+' a '+esc(new Date(b.endDateTime).toLocaleTimeString('es-PE',{hour:'numeric',minute:'2-digit'}))+' · '+esc(b.reason)+'</span></div><button class="btn mini" onclick="releaseBlock(\''+esc(b.blockId)+'\')">Liberar</button></div>').join('');}).withFailureHandler(err=>{document.getElementById('blockList').innerHTML='<p class="error">'+esc(err.message||err)+'</p>';}).cashierListBlocks();}
+  function loadBlocks(){if(!canManageEvents)return;google.script.run.withSuccessHandler(x=>{const list=document.getElementById('blockList');if(!x.blocks.length){list.innerHTML='<span class="muted">No hay bloqueos o eventos próximos.</span>';return;}list.innerHTML=x.blocks.map(b=>'<div class="block-row '+(b.isRecurring?'recurring':'')+'"><div><b>'+esc(b.venueName)+'</b> '+(b.isRecurring?'<span class="status-pill active">RECURRENTE</span>':'')+(b.availabilityHold?'<span class="status-pill pending">NO DISPONIBLE</span>':'')+'<br><span class="muted">'+esc(formatDateTime(b.startDateTime))+' a '+esc(new Date(b.endDateTime).toLocaleTimeString('es-PE',{hour:'numeric',minute:'2-digit'}))+' · '+(b.availabilityHold?'Horario no disponible · ': 'Reservado para ')+esc(b.reason)+'</span></div><button class="btn mini" onclick="releaseBlock(\''+esc(b.blockId)+'\')">'+(b.availabilityHold?'Liberar fecha':'Liberar')+'</button></div>').join('');}).withFailureHandler(err=>{document.getElementById('blockList').innerHTML='<p class="error">'+esc(err.message||err)+'</p>';}).cashierListBlocks();}
   function releaseBlock(id){if(!canManageEvents||!confirm('¿Liberar este horario?'))return;setProcessing(true,'Liberando evento','Estamos retirando el evento.');google.script.run.withSuccessHandler(x=>{setProcessing(false);loadBlocks();showSuccess('Horario liberado',x.message||'El horario volvió a estar disponible.');}).withFailureHandler(err=>{setProcessing(false);alert(err.message||err);}).cashierCancelBlock(id);}
 
   function searchPaidReservation(){if(!canCancelReservations)return;const code=document.getElementById('cancelCode').value.trim(),target=document.getElementById('cancelResult');if(!code){target.innerHTML='<p class="error">Ingresa el código de reserva.</p>';return;}target.innerHTML='Buscando…';google.script.run.withSuccessHandler(showPaidReservation).withFailureHandler(err=>{target.innerHTML='<p class="error">'+esc(err.message||err)+'</p>';}).cashierLookupPaidReservation(code);}

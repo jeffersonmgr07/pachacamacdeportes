@@ -6,7 +6,7 @@
   <title>Alquiler de campos deportivos | Pacha Deportes</title>
   <meta name="description" content="Consulta la disponibilidad semanal y solicita la reserva de espacios deportivos municipales de Pachacámac.">
   <link rel="stylesheet" href="assets/css/styles.css?v=20260716-campos-v3">
-  <link rel="stylesheet" href="assets/css/campos-deportivos.css?v=20260717-campos-v7">
+  <link rel="stylesheet" href="assets/css/campos-deportivos.css?v=20260820-disponibilidad-v1">
 </head>
 <body>
   <div data-header data-active="campos"></div>
@@ -54,6 +54,7 @@
           <span><i class="legend-dot pending"></i>Pago pendiente</span>
           <span><i class="legend-dot occupied"></i>Alquiler confirmado</span>
           <span><i class="legend-dot event"></i>Reserva administrativa / evento</span>
+          <span><i class="legend-dot unavailable"></i>Fecha no disponible</span>
           <span><i class="legend-dot past"></i>Horario pasado</span>
         </div>
 
@@ -161,10 +162,49 @@
     </div>
   </div>
 
+  <div id="availabilityAlertModal" class="availability-alert-modal" aria-hidden="true">
+    <div class="availability-alert-card" role="dialog" aria-modal="true" aria-labelledby="availabilityAlertTitle">
+      <button class="modal-x" type="button" data-close-availability-alert aria-label="Cerrar">×</button>
+
+      <div id="availabilityAlertFormView">
+        <span class="availability-alert-icon" aria-hidden="true">🔔</span>
+        <span class="kicker">Aviso de disponibilidad</span>
+        <h2 id="availabilityAlertTitle">Avísame cuando esté disponible</h2>
+        <p id="availabilityAlertDateText" class="availability-alert-date"></p>
+        <p class="availability-alert-copy">Actualmente esta fecha se encuentra no disponible por posibles usos de la Municipalidad. Déjanos tus datos y, si se libera, te avisaremos por correo.</p>
+
+        <form id="availabilityAlertForm" class="availability-alert-form">
+          <label>Nombre
+            <input class="input" name="name" autocomplete="name" maxlength="100" required placeholder="Tu nombre">
+          </label>
+          <label>Correo electrónico
+            <input class="input" name="email" type="email" autocomplete="email" maxlength="120" required placeholder="correo@ejemplo.com">
+          </label>
+          <label>WhatsApp <small>(opcional)</small>
+            <input class="input" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="992 211 457">
+          </label>
+          <input class="availability-honeypot" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <button class="btn btn-primary" type="submit">Registrarme</button>
+        </form>
+
+        <p class="availability-alert-contact">Para mayor información, comunícate al <a href="tel:+51992211457">992 211 457</a>.</p>
+        <p class="availability-alert-note">El registro de aviso no constituye una reserva ni separa un horario.</p>
+      </div>
+
+      <div id="availabilityAlertSuccess" class="availability-alert-success" hidden>
+        <span class="availability-alert-icon success" aria-hidden="true">✓</span>
+        <h2>Registro completado</h2>
+        <p>Si la fecha se libera, te avisaremos por correo lo antes posible.</p>
+        <p class="availability-alert-note">Cuando recibas el aviso, la disponibilidad también podrá ser reservada por otros usuarios, por lo que te recomendamos revisar la agenda y reservar pronto.</p>
+        <button class="btn btn-primary" type="button" data-close-availability-alert>Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <div data-footer></div>
   <script src="assets/components/header.js?v=20260716-campos-v3"></script>
   <script src="assets/components/footer.js"></script>
   <script src="assets/js/config.js?v=20260716-campos-v2"></script>
-  <script src="assets/js/campos-deportivos.js?v=20260717-campos-v7"></script>
+  <script src="assets/js/campos-deportivos.js?v=20260820-disponibilidad-v1"></script>
 </body>
 </html>

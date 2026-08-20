@@ -16,6 +16,7 @@
     venue: null,
     weekStart: startOfWeek(new Date()),
     bookings: [],
+    unavailableDates: new Map(),
     holidays: new Set(),
     selected: new Set(),
     serverNow: new Date()
@@ -34,7 +35,10 @@
       modal: $('#reservationModal'), code: $('#reservationCode'), deadline: $('#reservationDeadline'), qr: $('#reservationQr'),
       message: $('#resultMessage'), print: $('#printReservation'), receiptVenue: $('#receiptVenue'), receiptAddress: $('#receiptAddress'),
       receiptItems: $('#receiptItems'), receiptDuration: $('#receiptDuration'), receiptTotal: $('#receiptTotal'),
-      receiptName: $('#receiptName'), receiptDni: $('#receiptDni'), receiptPhone: $('#receiptPhone'), receiptEmail: $('#receiptEmail')
+      receiptName: $('#receiptName'), receiptDni: $('#receiptDni'), receiptPhone: $('#receiptPhone'), receiptEmail: $('#receiptEmail'),
+      availabilityModal: $('#availabilityAlertModal'), availabilityForm: $('#availabilityAlertForm'),
+      availabilityFormView: $('#availabilityAlertFormView'), availabilitySuccess: $('#availabilityAlertSuccess'),
+      availabilityDateText: $('#availabilityAlertDateText')
     });
 
     els.prev.addEventListener('click', () => changeWeek(-7));
@@ -46,7 +50,16 @@
     const syncVenueChooser = () => { if (!els.chooser) return; window.matchMedia('(max-width: 680px)').matches ? els.chooser.removeAttribute('open') : els.chooser.setAttribute('open', ''); };
     syncVenueChooser();
     window.addEventListener('resize', syncVenueChooser);
-    document.addEventListener('keydown', event => { if (event.key === 'Escape' && els.modal.classList.contains('open')) closeModal(); });
+    if (els.availabilityForm) els.availabilityForm.addEventListener('submit', submitAvailabilityAlert);
+    document.querySelectorAll('[data-close-availability-alert]').forEach(button => button.addEventListener('click', closeAvailabilityAlert));
+    document.addEventListener('keydown', event => {
+      if (event.key !== 'Escape') return;
+      if (els.modal.classList.contains('open')) closeModal();
+      if (els.availabilityModal && els.availabilityModal.classList.contains('open')) closeAvailabilityAlert();
+    });
+    if (els.availabilityModal) els.availabilityModal.addEventListener('click', event => {
+      if (event.target === els.availabilityModal) closeAvailabilityAlert();
+    });
     loadVenues();
   }
 
@@ -57,7 +70,14 @@
       if (res.serverNow) state.serverNow = new Date(res.serverNow);
     } catch (_) {}
     renderVenues();
-    const first = state.venues.find(venue => truthy(venue.active));
+    const params = new URLSearchParams(location.search);
+    const requestedDate = params.get('date');
+    if (/^\d{4}-\d{2}-\d{2}$/.test(requestedDate || '')) {
+      state.weekStart = startOfWeek(new Date(requestedDate + 'T12:00:00'));
+    }
+    const requestedVenue = params.get('venue');
+    const first = state.venues.find(venue => truthy(venue.active) && venue.venueId === requestedVenue)
+      || state.venues.find(venue => truthy(venue.active));
     if (first) selectVenue(first);
   }
 
@@ -116,6 +136,7 @@
 
   function applyAvailability(res) {
     state.bookings = res.bookings || [];
+    state.unavailableDates = new Map((res.unavailableDates || []).map(item => [String(item.date), item]));
     state.holidays = new Set(res.holidayDates || []);
     if (res.serverNow) state.serverNow = new Date(res.serverNow);
     setCalendarLoading(false);
@@ -144,11 +165,14 @@
     const parts = [];
     parts.push('<div class="agenda-cell agenda-header agenda-corner" style="grid-column:1;grid-row:1"></div>');
     days.forEach((day, dayIndex) => {
+      const key = dateKey(day);
+      const unavailable = state.unavailableDates.get(key);
       parts.push(`
-        <div class="agenda-cell agenda-header ${dateKey(day) === dateKey(state.serverNow) ? 'today' : ''}"
+        <div class="agenda-cell agenda-header ${key === dateKey(state.serverNow) ? 'today' : ''} ${unavailable ? 'unavailable-day' : ''}"
              style="grid-column:${dayIndex + 2};grid-row:1">
           <strong>${day.toLocaleDateString('es-PE',{weekday:'short'}).replace('.','')}</strong>
           <span>${day.toLocaleDateString('es-PE',{day:'2-digit',month:'2-digit'})}</span>
+          ${unavailable ? `<em>Fecha no disponible</em><button class="day-waitlist-button" type="button" data-waitlist-date="${key}">Avisarme</button>` : ''}
         </div>`);
     });
 
@@ -164,14 +188,17 @@
         for (let hour=block.startHour; hour<block.endHour; hour++) covered.add(hour);
         const view = bookingPresentation(block);
         const span = Math.max(1, block.endHour - block.startHour);
+        const availabilityDate = String(block.availabilityDate || dateKey(day));
         parts.push(`
-          <button class="calendar-booking-block ${view.cls}" type="button" disabled
+          <button class="calendar-booking-block ${view.cls}" type="button"
+                  ${view.waitlist ? `data-waitlist-date="${escapeHtml(availabilityDate)}"` : 'disabled'}
                   style="grid-column:${dayIndex + 2};grid-row:${block.startHour - 6} / span ${span}"
                   aria-label="${escapeHtml(view.aria)}">
             <span class="booking-status">${escapeHtml(view.title)}</span>
             ${view.name ? `<strong>${escapeHtml(view.name)}</strong>` : ''}
             ${view.reason ? `<strong>${escapeHtml(view.reason)}</strong>` : ''}
             <small>${hourLabel(block.startHour)} a ${hourLabel(block.endHour)}</small>
+            ${view.waitlist ? '<span class="booking-waitlist-cta">Avisarme cuando esté disponible</span>' : ''}
           </button>`);
       });
 
@@ -191,6 +218,13 @@
     els.agenda.innerHTML = parts.join('');
     els.agenda.querySelectorAll('[data-slot]:not(:disabled)').forEach(button =>
       button.addEventListener('click', () => toggleSlot(button.dataset.slot))
+    );
+    els.agenda.querySelectorAll('[data-waitlist-date]').forEach(button =>
+      button.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        openAvailabilityAlert(button.dataset.waitlistDate);
+      })
     );
   }
 
@@ -231,6 +265,17 @@
   function bookingPresentation(block) {
     const status = String(block.status || '').toUpperCase();
     const time = `${hourLabel(block.startHour)} a ${hourLabel(block.endHour)}`;
+
+    if (status === 'NO_DISPONIBLE' || truthy(block.availabilityHold)) {
+      return {
+        cls:'availability-hold',
+        title:'Horario no disponible',
+        reason:'Posibles usos de la Municipalidad',
+        name:'',
+        waitlist:true,
+        aria:`Horario no disponible por posibles usos de la Municipalidad, de ${time}. Puedes registrarte para recibir un aviso si la fecha se libera.`
+      };
+    }
 
     if (status === 'EVENTO' || status === 'BLOQUEADO') {
       const reason = String(block.reason || 'Reserva administrativa').trim();
@@ -324,6 +369,58 @@
         <div class="selection-block-price"><strong>S/ ${g.subtotal.toFixed(2)}</strong><small>${g.hours} ${g.hours===1?'hora':'horas'}</small></div>
       </div>`).join('')}</div>`;
     els.total.textContent = `S/ ${total.toFixed(2)}`;
+  }
+
+
+  function openAvailabilityAlert(date) {
+    if (!els.availabilityModal || !state.venue) return;
+    state.availabilityAlertDate = String(date || '');
+    const dateText = formatFullDate(state.availabilityAlertDate);
+    els.availabilityDateText.textContent = `${state.venue.name} · ${dateText}`;
+    els.availabilityForm.reset();
+    els.availabilityForm.hidden = false;
+    els.availabilityFormView.hidden = false;
+    els.availabilitySuccess.hidden = true;
+    els.availabilityModal.classList.add('open');
+    els.availabilityModal.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+    setTimeout(() => els.availabilityForm.querySelector('input[name="name"]')?.focus(), 50);
+  }
+
+  function closeAvailabilityAlert() {
+    if (!els.availabilityModal) return;
+    els.availabilityModal.classList.remove('open');
+    els.availabilityModal.setAttribute('aria-hidden','true');
+    document.body.style.overflow='';
+  }
+
+  async function submitAvailabilityAlert(event) {
+    event.preventDefault();
+    if (!els.availabilityForm.reportValidity() || !state.venue || !state.availabilityAlertDate) return;
+    const button = els.availabilityForm.querySelector('button[type="submit"]');
+    const formData = new FormData(els.availabilityForm);
+    button.disabled = true;
+    button.textContent = 'Registrando…';
+    try {
+      const res = await api('createAvailabilityAlert', {
+        venueId:state.venue.venueId,
+        date:state.availabilityAlertDate,
+        name:String(formData.get('name') || '').trim(),
+        email:String(formData.get('email') || '').trim(),
+        phone:String(formData.get('phone') || '').trim(),
+        website:String(formData.get('website') || '').trim(),
+        source:location.pathname
+      });
+      if (!res.ok) throw new Error(res.message || 'No fue posible registrar el aviso.');
+      els.availabilityFormView.hidden = true;
+      els.availabilitySuccess.hidden = false;
+    } catch (error) {
+      alert(error.message || error);
+      if (String(error.message || '').includes('ya no figura')) await loadAvailability();
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Registrarme';
+    }
   }
 
   async function submitReservation(event) {
